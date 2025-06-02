@@ -1,0 +1,47 @@
+import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+
+export const menuHamburger = [
+  {
+    name: "Home",
+    href: "/",
+  },
+
+  {
+    name: "About",
+    href: "/about",
+  },
+
+  {
+    name: "Our Menu",
+    href: "/menu",
+  },
+
+  {
+    name: "Blog",
+    href: "/blog",
+  },
+
+  {
+    name: "Contact",
+    href: "/contact",
+  },
+];
+
+export const socialMedia = [
+  {
+    icon: Facebook,
+    href: "https://www.facebook.com/rizki.ramadhan.419859/",
+  },
+  {
+    icon: Instagram,
+    href: "https://www.instagram.com/rzkir.20",
+  },
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/in/rizki-ramadhan12",
+  },
+  {
+    icon: Youtube,
+    href: "https://www.youtube.com/@codingwithrizki",
+  },
+];
