@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Button } from "@/components/ui/button"
+
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -10,7 +11,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import { Plus, LayoutDashboard, FileText, Home } from "lucide-react"
+import { Plus, LayoutDashboard, FileText, Calendar } from "lucide-react"
 
 export default function HomeLayout() {
     return (
@@ -27,21 +28,35 @@ export default function HomeLayout() {
                             className="text-primary"
                         >
                             <path
-                                d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
+                                d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z"
                                 stroke="currentColor"
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             />
                             <path
-                                d="M9 22V12H15V22"
+                                d="M16 2V6"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                            <path
+                                d="M8 2V6"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                            <path
+                                d="M3 10H21"
                                 stroke="currentColor"
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <h1 className="text-3xl font-bold tracking-tight">Home</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">Daily</h1>
                     </div>
 
                     <Breadcrumb>
@@ -62,8 +77,8 @@ export default function HomeLayout() {
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
                                 <BreadcrumbPage className="flex items-center gap-1 capitalize">
-                                    <Home className="h-4 w-4" />
-                                    home
+                                    <Calendar className="h-4 w-4" />
+                                    daily
                                 </BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
