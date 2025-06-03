@@ -4,7 +4,7 @@ import { fetchHomeContents } from '@/components/content/home/utils/FetchHome';
 
 import HomeContent from '@/components/content/home/Home';
 
-import HomeSkeleton from '@/components/content/home/HomeSkelaton';
+import HomeSkeleton from '@/components/content/home/HomeSkeleton';
 
 export default async function Home() {
   try {

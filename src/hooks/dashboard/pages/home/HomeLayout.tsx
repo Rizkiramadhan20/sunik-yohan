@@ -14,6 +14,7 @@ import {
 import { LayoutDashboard, FileText, Home, ExternalLink, Trash2 } from "lucide-react"
 
 import { CreateModal } from './modal/CreateModal'
+
 import { EditModal } from './modal/EditModal'
 
 import { db } from '@/utils/firebase/Firebase'
@@ -78,13 +79,12 @@ export default function HomeLayout() {
 
     const handleImageUpload = async (file: File) => {
         try {
-            const compressedFile = await compressImage(file);
             const reader = new FileReader();
 
             const base64Promise = new Promise<string>((resolve, reject) => {
                 reader.onload = () => resolve(reader.result as string);
                 reader.onerror = reject;
-                reader.readAsDataURL(compressedFile);
+                reader.readAsDataURL(file);
             });
 
             const base64 = await base64Promise;
