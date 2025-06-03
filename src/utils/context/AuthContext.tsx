@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const getDashboardUrl = (userRole: string) => {
         switch (userRole) {
             case Role.ADMIN:
-                return `/dashboard/admins`;
+                return `/dashboard`;
             case Role.USER:
                 return `/profile`;
             default:
@@ -115,16 +115,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
+            // Sign out from Firebase
             await signOut(auth);
             setUser(null);
 
             // Clear the session cookie through an API call
             await fetch('/api/auth/logout', {
                 method: 'POST',
+                credentials: 'include', // Important: This ensures cookies are included
             });
 
+            // Clear any stored redirect URLs
+            localStorage.removeItem('redirectAfterLogin');
+
+            // Force reload the page to clear any remaining state
+            window.location.href = '/';
+
             toast.success('Anda berhasil logout');
-        } catch {
+        } catch (error) {
+            console.error('Logout error:', error);
             toast.error('Terjadi kesalahan saat logout');
         }
     };
