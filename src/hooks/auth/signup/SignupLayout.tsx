@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 
 import { Label } from "@/components/ui/label";
 
-import bg from "@/base/assets/bg.jpg"
+import bg from "@/base/assets/register.webp"
 
 import Image from 'next/image';
 

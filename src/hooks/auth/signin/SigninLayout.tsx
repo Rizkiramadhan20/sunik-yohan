@@ -1,19 +1,31 @@
 "use client"
 
 import React, { useState } from 'react'
+
 import { z } from "zod"
+
 import { useForm } from "react-hook-form"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
-import bg from "@/base/assets/bg.jpg"
+
+import bg from "@/base/assets/login.jpg"
+
 import Image from 'next/image';
+
 import Menu1 from "@/base/assets/Menu1.jpg"
+
 import Menu2 from "@/base/assets/Menu2.jpg"
+
 import Menu3 from "@/base/assets/Menu3.jpg"
+
 import Link from 'next/link';
+
 import { useAuth } from '@/utils/context/AuthContext';
 
 const signinSchema = z.object({
