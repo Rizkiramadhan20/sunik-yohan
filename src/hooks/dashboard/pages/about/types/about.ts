@@ -1,10 +1,11 @@
-export interface homePropes {
+export interface aboutProps {
   id: string;
   title: string;
   description: string;
+  imageUrl: string;
   button: {
     label: string;
     href: string;
   };
-  imageUrl: string;
+  createdAt: string;
 }
