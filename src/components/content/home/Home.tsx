@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { homeProps } from '@/components/content/home/types/home'
 
 export default function Home({ homeData }: { homeData: homeProps[] }) {
@@ -12,6 +13,7 @@ export default function Home({ homeData }: { homeData: homeProps[] }) {
                         return (
                             <div key={idx}>
                                 <h1>{Item.title}</h1>
+                                <p>{Item.description}</p>
                             </div>
                         )
                     })
