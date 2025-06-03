@@ -43,7 +43,7 @@ export default function Header() {
 
     return (
         <header className={`fixed ${scrolled ? 'top-0' : 'top-2'} left-0 right-0 z-50 flex justify-center items-start h-24 px-3 lg:px-12 transition-all duration-500`}>
-            <div className={`w-full max-w-7xl mx-auto rounded-[var(--radius)] ${scrolled ? 'bg-white/90 backdrop-blur-lg' : 'bg-white'} shadow-lg px-6 py-3 flex items-center justify-between h-16 transition-all duration-500`}>
+            <div className={`w-full container rounded-[var(--radius)] ${scrolled ? 'bg-white/90 backdrop-blur-lg' : 'bg-white'} px-6 py-3 flex items-center justify-between h-16 transition-all duration-500`}>
                 {/* Left Section - Logo */}
                 <div className="flex items-center">
                     <Link href="/" className="flex-shrink-0 hover:opacity-80 transition-all duration-300">
@@ -84,7 +84,7 @@ export default function Header() {
                 </NavigationMenu>
 
                 {/* Right Section - Cart, Login/Profile, and Hamburger */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-0 md:gap-4">
                     <Button
                         variant="ghost"
                         className={`hover:bg-gray-100/80 gap-2 relative group transition-all duration-300 ${pathname === '/cart' ? 'text-gray-900 bg-gray-100' : ''
