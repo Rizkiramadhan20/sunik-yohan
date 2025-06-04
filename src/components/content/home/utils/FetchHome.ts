@@ -2,10 +2,6 @@ import { homeProps } from "@/components/content/home/types/home";
 
 export const fetchHomeContents = async (): Promise<homeProps[]> => {
   try {
-    if (process.env.NEXT_PHASE === "phase-production-build") {
-      return [];
-    }
-
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/${process.env.NEXT_PUBLIC_COLLECTIONS_HOME}`,
       {
