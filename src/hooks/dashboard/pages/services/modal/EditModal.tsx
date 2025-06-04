@@ -205,37 +205,39 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
                                 Image
                             </FormLabel>
                             <div className="space-y-4">
-                                <div className="relative">
-                                    <Input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="hidden"
-                                        id="image"
-                                        disabled={isLoading}
-                                    />
-                                    <label
-                                        htmlFor="image"
-                                        onDragOver={handleDragOver}
-                                        onDragLeave={handleDragLeave}
-                                        onDrop={handleDrop}
-                                        className={`flex flex-col items-center justify-center w-full h-32 sm:h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
-                                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                            : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                            }`}
-                                    >
-                                        <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4">
-                                            <ImageIcon className={`w-8 h-8 sm:w-10 sm:h-10 mb-3 transition-colors duration-200 ${isDragging ? 'text-blue-500' : 'text-gray-400'
-                                                }`} />
-                                            <p className="mb-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
-                                            </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                                                PNG, JPG or GIF (MAX. 800x400px)
-                                            </p>
-                                        </div>
-                                    </label>
-                                </div>
+                                {!imagePreview && (
+                                    <div className="relative">
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className="hidden"
+                                            id="image"
+                                            disabled={isLoading}
+                                        />
+                                        <label
+                                            htmlFor="image"
+                                            onDragOver={handleDragOver}
+                                            onDragLeave={handleDragLeave}
+                                            onDrop={handleDrop}
+                                            className={`flex flex-col items-center justify-center w-full h-32 sm:h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${isDragging
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                                : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                }`}
+                                        >
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4">
+                                                <ImageIcon className={`w-8 h-8 sm:w-10 sm:h-10 mb-3 transition-colors duration-200 ${isDragging ? 'text-blue-500' : 'text-gray-400'
+                                                    }`} />
+                                                <p className="mb-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
+                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                </p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                                                    PNG, JPG or GIF (MAX. 800x400px)
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
                                 {imagePreview && (
                                     <div className="relative w-full h-[200px] sm:h-[400px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl group">
                                         <img
@@ -248,7 +250,7 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
                                             type="button"
                                             onClick={() => {
                                                 form.setValue("image", undefined);
-                                                setImagePreview(item.imageUrl);
+                                                setImagePreview("");
                                             }}
                                             className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-red-600"
                                         >

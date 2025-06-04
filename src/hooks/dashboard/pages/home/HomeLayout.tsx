@@ -23,8 +23,6 @@ import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc 
 
 import imagekit from '@/utils/imagekit/imagekit'
 
-import { compressImage } from '@/utils/imagekit/compressImage'
-
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 
 import { Button } from "@/components/ui/button"

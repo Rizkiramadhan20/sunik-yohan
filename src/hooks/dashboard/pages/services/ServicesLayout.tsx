@@ -11,24 +11,17 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import { LayoutDashboard, FileText, Home, Trash2, Pencil } from "lucide-react"
+import { LayoutDashboard, FileText, Home, Trash2 } from "lucide-react"
 
 import { CreateModal } from './modal/CreateModal'
+
 import { EditModal } from './modal/EditModal'
 
 import { db } from '@/utils/firebase/Firebase'
-import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore'
-import imagekit from '@/utils/imagekit/imagekit'
-import { compressImage } from '@/utils/imagekit/compressImage'
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
+import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore'
+
+import imagekit from '@/utils/imagekit/imagekit'
 
 import { Button } from "@/components/ui/button"
 
@@ -44,8 +37,18 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { toast } from "sonner"
-import HomeSkelaton from '@/hooks/dashboard/pages/services/ServicesSkelaton'
+
+import ServiceSkelaton from '@/hooks/dashboard/pages/services/ServicesSkelaton'
+
 import { servicesPropes } from "@/hooks/dashboard/pages/services/types/services"
+
+import {
+    Card,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from "@/components/ui/card"
 
 export default function HomeLayout() {
     const [items, setItems] = React.useState<servicesPropes[]>([]);
@@ -80,13 +83,12 @@ export default function HomeLayout() {
 
     const handleImageUpload = async (file: File) => {
         try {
-            const compressedFile = await compressImage(file);
             const reader = new FileReader();
 
             const base64Promise = new Promise<string>((resolve, reject) => {
                 reader.onload = () => resolve(reader.result as string);
                 reader.onerror = reject;
-                reader.readAsDataURL(compressedFile);
+                reader.readAsDataURL(file);
             });
 
             const base64 = await base64Promise;
@@ -177,8 +179,8 @@ export default function HomeLayout() {
 
     return (
         <section>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-100 p-4 rounded-2xl gap-4">
-                <div className="space-y-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-100 p-4 rounded-2xl gap-4 overflow-hidden">
+                <div className="space-y-1 w-full sm:w-auto">
                     <div className="flex items-center gap-2 pb-4">
                         <svg
                             width="32"
@@ -232,13 +234,13 @@ export default function HomeLayout() {
                     </Breadcrumb>
                 </div>
 
-                <div className="mt-4 sm:mt-0">
+                <div className="mt-4 sm:mt-0 w-full sm:w-auto">
                     <CreateModal onSubmit={handleCreate} />
                 </div>
             </div>
 
             {isLoading ? (
-                <HomeSkelaton />
+                <ServiceSkelaton />
             ) : items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-8 text-center">
                     <div className="rounded-full bg-muted p-3 mb-4">
@@ -250,51 +252,37 @@ export default function HomeLayout() {
                     </p>
                 </div>
             ) : (
-                <div className="mt-6">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px]">Image</TableHead>
-                                <TableHead className="min-w-[150px]">Title</TableHead>
-                                <TableHead className="min-w-[200px]">Description</TableHead>
-                                <TableHead className="w-[100px] text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {items.map((item) => (
-                                <TableRow key={item.id}>
-                                    <TableCell className="w-[100px]">
-                                        <img
-                                            src={item.imageUrl}
-                                            alt={item.title}
-                                            className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md"
-                                        />
-                                    </TableCell>
-                                    <TableCell className="min-w-[150px] font-medium">
-                                        <div className="truncate">{item.title}</div>
-                                    </TableCell>
-                                    <TableCell className="min-w-[200px]">
-                                        <div className="line-clamp-2">{item.description}</div>
-                                    </TableCell>
-                                    <TableCell className="w-[100px] text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <EditModal item={item} onSubmit={handleUpdate} />
-                                            <Button
-                                                variant="destructive"
-                                                size="icon"
-                                                onClick={() => {
-                                                    setItemToDelete(item.id);
-                                                    setDeleteDialogOpen(true);
-                                                }}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                <div className="mt-6 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {items.map((item) => (
+                        <Card key={item.id} className="overflow-hidden">
+                            <div className="aspect-square overflow-hidden">
+                                <img
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                    className="h-full w-full object-cover"
+                                />
+                            </div>
+                            <CardHeader className="p-4">
+                                <CardTitle className="line-clamp-1 text-base sm:text-lg">{item.title}</CardTitle>
+                                <CardDescription className="line-clamp-2 text-sm sm:text-base">
+                                    {item.description}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardFooter className="p-4 pt-0 flex justify-end gap-2">
+                                <EditModal item={item} onSubmit={handleUpdate} />
+                                <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => {
+                                        setItemToDelete(item.id);
+                                        setDeleteDialogOpen(true);
+                                    }}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    ))}
                 </div>
             )}
 

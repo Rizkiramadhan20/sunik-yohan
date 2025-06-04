@@ -1,7 +1,16 @@
 import React from 'react'
 
-export default function page() {
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+    title: 'Dashboard | Products Sizes',
+    description: 'Dashboard',
+}
+
+import ProductsSizesLayout from "@/hooks/dashboard/products/sizes/ProductsSizesLayout"
+
+export default function About() {
     return (
-        <div>page</div>
+        <ProductsSizesLayout />
     )
 }

@@ -14,6 +14,7 @@ import {
 import { LayoutDashboard, FileText, Info, ExternalLink, Trash2 } from "lucide-react"
 
 import { CreateModal } from './modal/CreateModal'
+
 import { EditModal } from './modal/EditModal'
 
 import { db } from '@/utils/firebase/Firebase'
@@ -21,8 +22,6 @@ import { db } from '@/utils/firebase/Firebase'
 import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 
 import imagekit from '@/utils/imagekit/imagekit'
-
-import { compressImage } from '@/utils/imagekit/compressImage'
 
 import { Card, CardDescription, CardTitle } from "@/components/ui/card"
 
@@ -78,13 +77,12 @@ export default function AboutLayout() {
 
     const handleImageUpload = async (file: File) => {
         try {
-            const compressedFile = await compressImage(file);
             const reader = new FileReader();
 
             const base64Promise = new Promise<string>((resolve, reject) => {
                 reader.onload = () => resolve(reader.result as string);
                 reader.onerror = reject;
-                reader.readAsDataURL(compressedFile);
+                reader.readAsDataURL(file);
             });
 
             const base64 = await base64Promise;
