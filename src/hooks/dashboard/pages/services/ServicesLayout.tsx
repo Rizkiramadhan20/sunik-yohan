@@ -11,21 +11,24 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import { LayoutDashboard, FileText, Home, Trash2 } from "lucide-react"
+import { LayoutDashboard, FileText, Home, Trash2, Pencil } from "lucide-react"
 
 import { CreateModal } from './modal/CreateModal'
-
 import { EditModal } from './modal/EditModal'
 
 import { db } from '@/utils/firebase/Firebase'
-
 import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore'
-
 import imagekit from '@/utils/imagekit/imagekit'
-
 import { compressImage } from '@/utils/imagekit/compressImage'
 
-import { Card, CardDescription, CardTitle } from "@/components/ui/card"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button"
 
@@ -41,9 +44,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { toast } from "sonner"
-
 import HomeSkelaton from '@/hooks/dashboard/pages/services/ServicesSkelaton'
-
 import { servicesPropes } from "@/hooks/dashboard/pages/services/types/services"
 
 export default function HomeLayout() {
@@ -202,36 +203,38 @@ export default function HomeLayout() {
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <h1 className="text-3xl font-bold tracking-tight">Home</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Services</h1>
                     </div>
 
                     <Breadcrumb>
-                        <BreadcrumbList>
+                        <BreadcrumbList className="flex flex-wrap">
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/dashboard" className="flex items-center gap-1 capitalize">
                                     <LayoutDashboard className="h-4 w-4" />
-                                    dashboard
+                                    <span className="hidden sm:inline">dashboard</span>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/dashboard/pages" className="flex items-center gap-1 capitalize">
                                     <FileText className="h-4 w-4" />
-                                    pages
+                                    <span className="hidden sm:inline">pages</span>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
                                 <BreadcrumbPage className="flex items-center gap-1 capitalize">
                                     <Home className="h-4 w-4" />
-                                    home
+                                    <span className="hidden sm:inline">services</span>
                                 </BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
                 </div>
 
-                <CreateModal onSubmit={handleCreate} />
+                <div className="mt-4 sm:mt-0">
+                    <CreateModal onSubmit={handleCreate} />
+                </div>
             </div>
 
             {isLoading ? (
@@ -241,50 +244,57 @@ export default function HomeLayout() {
                     <div className="rounded-full bg-muted p-3 mb-4">
                         <FileText className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-semibold">No items found</h3>
+                    <h3 className="text-lg font-semibold">No services found</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                        Get started by creating a new item using the button above.
+                        Get started by creating a new service using the button above.
                     </p>
                 </div>
             ) : (
-                <div className="mt-6 space-y-6">
-                    {items.map((item) => (
-                        <Card key={item.id} className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-all duration-300">
-                            <div className="grid grid-cols-1 lg:grid-cols-2">
-                                <div className="aspect-video relative group overflow-hidden">
-                                    <img
-                                        src={item.imageUrl}
-                                        alt={item.title}
-                                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2">
-                                        <EditModal item={item} onSubmit={handleUpdate} />
-                                        <Button
-                                            variant="destructive"
-                                            size="icon"
-                                            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm"
-                                            onClick={() => {
-                                                setItemToDelete(item.id);
-                                                setDeleteDialogOpen(true);
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col justify-between p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-white to-gray-50">
-                                    <div className="space-y-3 sm:space-y-4">
-                                        <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                                            {item.title}
-                                        </CardTitle>
-                                        <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                                            {item.description}
-                                        </CardDescription>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    ))}
+                <div className="mt-6">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[100px]">Image</TableHead>
+                                <TableHead className="min-w-[150px]">Title</TableHead>
+                                <TableHead className="min-w-[200px]">Description</TableHead>
+                                <TableHead className="w-[100px] text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {items.map((item) => (
+                                <TableRow key={item.id}>
+                                    <TableCell className="w-[100px]">
+                                        <img
+                                            src={item.imageUrl}
+                                            alt={item.title}
+                                            className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md"
+                                        />
+                                    </TableCell>
+                                    <TableCell className="min-w-[150px] font-medium">
+                                        <div className="truncate">{item.title}</div>
+                                    </TableCell>
+                                    <TableCell className="min-w-[200px]">
+                                        <div className="line-clamp-2">{item.description}</div>
+                                    </TableCell>
+                                    <TableCell className="w-[100px] text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <EditModal item={item} onSubmit={handleUpdate} />
+                                            <Button
+                                                variant="destructive"
+                                                size="icon"
+                                                onClick={() => {
+                                                    setItemToDelete(item.id);
+                                                    setDeleteDialogOpen(true);
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             )}
 
@@ -293,7 +303,7 @@ export default function HomeLayout() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the item.
+                            This action cannot be undone. This will permanently delete the service.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
