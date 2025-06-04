@@ -23,48 +23,70 @@ export async function GET(request: Request) {
     const sessionCookie = cookieStore.get("session")?.value;
 
     if (!sessionCookie) {
+      console.error("No session cookie found");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify the session cookie
-    const decodedToken = await auth.verifySessionCookie(sessionCookie);
+    try {
+      const decodedToken = await auth.verifySessionCookie(sessionCookie);
+      console.log("Session verified for user:", decodedToken.uid);
 
-    // Get user data from Firestore
-    const userDoc = await adminDb
-      .collection(process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string)
-      .doc(decodedToken.uid)
-      .get();
-    const userData = userDoc.data();
+      const userDoc = await adminDb
+        .collection(process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string)
+        .doc(decodedToken.uid)
+        .get();
+      const userData = userDoc.data();
+      console.log("User role:", userData?.role);
 
-    if (!userData || userData.role !== Role.ADMIN) {
-      return NextResponse.json(
-        { error: "Forbidden: Admin access required" },
-        { status: 403 }
+      if (!userData || userData.role !== Role.ADMIN) {
+        console.error("User is not admin:", userData?.role);
+        return NextResponse.json(
+          { error: "Forbidden: Admin access required" },
+          { status: 403 }
+        );
+      }
+
+      // Verify environment variables
+      if (!process.env.NEXT_PUBLIC_COLLECTIONS_HOME) {
+        console.error("NEXT_PUBLIC_COLLECTIONS_HOME is not defined");
+        throw new Error("Collection path is not configured");
+      }
+
+      const homeCollection = collection(
+        db,
+        process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string
       );
+      const querySnapshot = await getDocs(homeCollection);
+
+      const homeData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const response = NextResponse.json({ data: homeData }, { status: 200 });
+      response.headers.set("Cache-Control", "public, max-age=60, s-maxage=60");
+      response.headers.set("Content-Security-Policy", "default-src 'self'");
+
+      return response;
+    } catch (authError) {
+      console.error("Authentication error:", authError);
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
-
-    // If we get here, user is authenticated and is an admin
-    const homeCollection = collection(
-      db,
-      process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string
-    );
-    const querySnapshot = await getDocs(homeCollection);
-
-    const homeData = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    // Add cache control headers
-    const response = NextResponse.json({ data: homeData }, { status: 200 });
-    response.headers.set("Cache-Control", "public, max-age=60, s-maxage=60");
-    response.headers.set("Content-Security-Policy", "default-src 'self'");
-
-    return response;
   } catch (error) {
     console.error("Error in API route:", error);
 
-    // Sanitize error message for production
+    // Log more details in development
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Detailed error:", {
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        env: {
+          hasHomeCollection: !!process.env.NEXT_PUBLIC_COLLECTIONS_HOME,
+          hasAccountsCollection: !!process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS,
+        },
+      });
+    }
+
     const errorMessage =
       process.env.NODE_ENV === "production"
         ? "Internal server error"
