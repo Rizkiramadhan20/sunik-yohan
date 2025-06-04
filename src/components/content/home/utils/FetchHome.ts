@@ -1,6 +1,6 @@
 import { homeProps } from "@/components/content/home/types/home";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/${process.env.NEXT_PUBLIC_COLLECTIONS_HOME}`;
+const API_URL = `/api/${process.env.NEXT_PUBLIC_COLLECTIONS_HOME}`;
 
 export const fetchHomeContents = async (): Promise<homeProps[]> => {
   try {
