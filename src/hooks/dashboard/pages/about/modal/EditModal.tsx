@@ -278,10 +278,11 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
                                                         onChange={handleImageChange}
                                                         className="hidden"
                                                         disabled={isLoading}
+                                                        id="image-upload"
                                                         {...field}
                                                     />
                                                     <label
-                                                        htmlFor="image"
+                                                        htmlFor="image-upload"
                                                         onDragOver={handleDragOver}
                                                         onDragLeave={handleDragLeave}
                                                         onDrop={handleDrop}

@@ -1,14 +1,13 @@
-import { Building2 } from "lucide-react";
-
-import { LayoutDashboard } from "lucide-react";
-
-import { FileText } from "lucide-react";
-
-import { User } from "lucide-react";
-
-import { Users } from "lucide-react";
-
-import { Contact, MessageSquare } from "lucide-react";
+import {
+  Contact,
+  MessageSquare,
+  House,
+  Users,
+  User,
+  FileText,
+  LayoutDashboard,
+  Building2,
+} from "lucide-react";
 
 export const menuItems = [
   {
@@ -82,5 +81,10 @@ export const menuItems = [
     href: "/dashboard/messages",
     label: "Messages",
     icon: MessageSquare,
+  },
+  {
+    href: "/",
+    label: "Back Home",
+    icon: House,
   },
 ];
