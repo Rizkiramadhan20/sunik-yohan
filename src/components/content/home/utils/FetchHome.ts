@@ -8,7 +8,7 @@ export const fetchHomeData = async (): Promise<HomeData[]> => {
       `${process.env.NEXT_PUBLIC_API_URL}/home`,
       {
         headers: {
-          "Cache-Control": "public, max-age=10",
+          "Cache-Control": "no-cache",
         },
       }
     );
