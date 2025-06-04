@@ -8,7 +8,6 @@ export const fetchHomeContents = async (): Promise<homeProps[]> => {
       next: { revalidate: 10 }, // Revalidate every 10 seconds
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "",
       },
     });
 
