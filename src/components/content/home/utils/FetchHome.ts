@@ -1,4 +1,6 @@
 import { homeProps } from "@/components/content/home/types/home";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/utils/context/AuthContext";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/${process.env.NEXT_PUBLIC_COLLECTIONS_HOME}`;
 
