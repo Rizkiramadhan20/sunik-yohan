@@ -1,13 +1,24 @@
 import { NextResponse } from "next/server";
+
 import { collection, getDocs } from "firebase/firestore";
+
 import { db } from "@/utils/firebase/Firebase";
 
-export async function GET(request: Request) {
+import { cookies } from "next/headers";
+
+import { auth, db as adminDb } from "@/utils/firebase/admins";
+
+import { headers } from "next/headers";
+
+import { Role } from "@/types/Auth";
+
+export async function GET() {
   try {
-    if (
-      process.env.NODE_ENV === "development" ||
-      process.env.NEXT_PHASE === "phase-production-build"
-    ) {
+    const headersList = await headers();
+    const apiKey = headersList.get("x-api-key");
+
+    // Check for API key first
+    if (apiKey === process.env.API_KEY) {
       const homeCollection = collection(
         db,
         process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string
@@ -22,27 +33,51 @@ export async function GET(request: Request) {
       return NextResponse.json({ data: homeData }, { status: 200 });
     }
 
-    const apiKey = request.headers.get("x-api-key");
+    // If no API key, check for admin session
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session")?.value;
 
-    if (!apiKey || apiKey !== process.env.NEXT_PUBLIC_API_KEY) {
+    if (!sessionCookie) {
       return NextResponse.json(
-        { error: "Unauthorized - Invalid API key" },
+        { error: "Unauthorized - Please login" },
         { status: 401 }
       );
     }
 
-    const homeCollection = collection(
-      db,
-      process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string
-    );
-    const querySnapshot = await getDocs(homeCollection);
+    // Verify session cookie and check admin role
+    try {
+      const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+      const userDoc = await adminDb
+        .collection(process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string)
+        .doc(decodedClaims.uid)
+        .get();
+      const userData = userDoc.data();
 
-    const homeData = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      if (!userData || userData.role !== Role.ADMIN) {
+        return NextResponse.json(
+          { error: "Access denied - Admin only" },
+          { status: 403 }
+        );
+      }
 
-    return NextResponse.json({ data: homeData }, { status: 200 });
+      const homeCollection = collection(
+        db,
+        process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string
+      );
+      const querySnapshot = await getDocs(homeCollection);
+
+      const homeData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return NextResponse.json({ data: homeData }, { status: 200 });
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid session - Please login again" },
+        { status: 401 }
+      );
+    }
   } catch (error) {
     console.error("Error fetching home collection:", error);
     return NextResponse.json(
