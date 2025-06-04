@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { aboutProps } from '@/components/content/about/types/about'
+import { AboutData } from '@/components/content/about/types/about'
 
 import Image from 'next/image'
 
@@ -14,7 +14,7 @@ import varchar1 from "@/base/assets/coffee2.png"
 
 import { motion } from 'framer-motion'
 
-export default function About({ aboutContentData }: { aboutContentData: aboutProps[] }) {
+export default function About({ aboutContentData }: { aboutContentData: AboutData[] }) {
     return (
         <section className='relative py-8 md:py-16 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-slate-100 overflow-hidden'>
             <div className="absolute inset-0 overflow-hidden">

@@ -1,24 +1,21 @@
-import { aboutProps } from "@/components/content/about/types/about";
+import axios from "axios";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/about`;
+import { AboutData, ApiResponse } from "@/components/content/about/types/about";
 
-export const fetchAboutContents = async (): Promise<aboutProps[]> => {
+export const fetchAboutContents = async (): Promise<AboutData[]> => {
   try {
-    const response = await fetch(API_URL, {
-      next: { revalidate: 10 }, // Revalidate every 10 seconds
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get<ApiResponse>(
+      `${process.env.NEXT_PUBLIC_API_URL}/home/about`,
+      {
+        headers: {
+          "Cache-Control": "public, max-age=10",
+        },
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch home contents: ${response.statusText}`);
-    }
-
-    const { data } = await response.json();
-    return data;
+    return response.data.data;
   } catch (error) {
-    console.error("Error fetching home contents:", error);
+    console.error("Error fetching home data:", error);
     throw error;
   }
 };

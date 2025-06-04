@@ -1,10 +1,17 @@
-export interface aboutProps {
+export interface Button {
+  label: string;
+  href: string;
+}
+
+export interface AboutData {
   id: string;
+  button: Button;
+  createdAt: string;
   title: string;
-  description: string;
   imageUrl: string;
-  button: {
-    href: string;
-    label: string;
-  };
+  description: string;
+}
+
+export interface ApiResponse {
+  data: AboutData[];
 }
