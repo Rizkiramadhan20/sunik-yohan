@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { homeProps } from '@/components/content/home/types/home'
+import { HomeData } from '@/components/content/home/types/home'
 
 import Image from 'next/image'
 
@@ -14,7 +14,7 @@ import varchar1 from "@/base/assets/home.jpg"
 
 import { motion } from 'framer-motion'
 
-export default function Home({ homeData }: { homeData: homeProps[] }) {
+export default function Home({ homeData }: { homeData: HomeData[] }) {
 
     return (
         <section className='relative flex flex-col items-center justify-center min-h-screen py-16 md:py-20 bg-gradient-to-br from-white via-gray-50 to-gray-100 overflow-hidden'>

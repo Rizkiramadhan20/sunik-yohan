@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import { fetchHomeContents } from '@/components/content/home/utils/FetchHome';
+import { fetchHomeData } from '@/components/content/home/utils/FetchHome';
 
 import { fetchAboutContents } from "@/components/content/about/utils/FetchAbout"
 
@@ -16,7 +16,7 @@ import Services from '@/components/content/services/Services';
 
 export default async function Page() {
   try {
-    const homeData = await fetchHomeContents();
+    const homeData = await fetchHomeData();
     const aboutContentData = await fetchAboutContents();
     return <Fragment>
       <Home homeData={homeData} />

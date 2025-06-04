@@ -1,29 +1,21 @@
-import { homeProps } from "@/components/content/home/types/home";
+import axios from "axios";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/home`;
+import { HomeData, ApiResponse } from "@/components/content/home/types/home";
 
-export const fetchHomeContents = async (): Promise<homeProps[]> => {
+export const fetchHomeData = async (): Promise<HomeData[]> => {
   try {
-    const response = await fetch(API_URL, {
-      next: { revalidate: 10 }, // Revalidate every 10 seconds
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get<ApiResponse>(
+      `${process.env.NEXT_PUBLIC_API_URL}/home`,
+      {
+        headers: {
+          "Cache-Control": "public, max-age=10",
+        },
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch home contents: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-
-    if (!result.data) {
-      throw new Error("Invalid response format: missing data property");
-    }
-
-    return result.data;
+    return response.data.data;
   } catch (error) {
-    console.error("Error fetching home contents:", error);
-    return []; // Return empty array instead of throwing to prevent page crash
+    console.error("Error fetching home data:", error);
+    throw error;
   }
 };
