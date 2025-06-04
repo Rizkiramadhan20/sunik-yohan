@@ -42,7 +42,7 @@ export default function Header() {
     }, []);
 
     return (
-        <header className={`fixed ${scrolled ? 'top-0' : 'top-2'} left-0 right-0 z-50 flex justify-center items-start h-24 px-3 lg:px-12 transition-all duration-500`}>
+        <header className={`fixed ${scrolled ? 'top-2' : 'top-2'} left-0 right-0 z-200 flex justify-center items-start h-24 px-3 lg:px-12 transition-all duration-500`}>
             <div className={`w-full container rounded-[var(--radius)] ${scrolled ? 'bg-white/90 backdrop-blur-lg' : 'bg-white'} px-6 py-3 flex items-center justify-between h-16 transition-all duration-500`}>
                 {/* Left Section - Logo */}
                 <div className="flex items-center">

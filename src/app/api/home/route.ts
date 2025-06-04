@@ -6,7 +6,10 @@ import { db } from "@/utils/firebase/Firebase";
 
 export async function GET() {
   try {
-    const homeCollection = collection(db, "home");
+    const homeCollection = collection(
+      db,
+      process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string
+    );
     const querySnapshot = await getDocs(homeCollection);
 
     const homeData = querySnapshot.docs.map((doc) => ({

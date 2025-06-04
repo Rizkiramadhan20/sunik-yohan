@@ -17,35 +17,35 @@ import { motion } from 'framer-motion'
 export default function Home({ homeData }: { homeData: homeProps[] }) {
 
     return (
-        <section className='relative flex flex-col items-center justify-center min-h-screen py-20 bg-gradient-to-br from-white via-gray-50 to-gray-100 overflow-hidden'>
+        <section className='relative flex flex-col items-center justify-center min-h-screen py-16 md:py-20 bg-gradient-to-br from-white via-gray-50 to-gray-100 overflow-hidden'>
             <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-24 -right-24 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gradient-to-r from-blue-200 to-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
-                <div className="absolute -bottom-24 -left-24 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gradient-to-r from-purple-200 to-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-gradient-to-r from-pink-200 to-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+                <div className="absolute -top-12 sm:-top-24 -right-12 sm:-right-24 w-[200px] sm:w-[300px] md:w-[500px] h-[200px] sm:h-[300px] md:h-[500px] bg-gradient-to-r from-blue-200 to-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+                <div className="absolute -bottom-12 sm:-bottom-24 -left-12 sm:-left-24 w-[200px] sm:w-[300px] md:w-[500px] h-[200px] sm:h-[300px] md:h-[500px] bg-gradient-to-r from-purple-200 to-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[300px] md:w-[500px] h-[200px] sm:h-[300px] md:h-[500px] bg-gradient-to-r from-pink-200 to-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
             </div>
 
-            <div className="container relative px-4">
+            <div className="container relative px-4 sm:px-6">
                 {
                     homeData.map((Item, idx) => {
                         return (
                             <motion.div
                                 key={idx}
-                                className="flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-16 py-8 md:py-12"
+                                className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-16 py-6 sm:py-8 md:py-12"
                                 initial={{ opacity: 0, y: 50 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, amount: 0.3 }}
                                 transition={{ duration: 0.8, delay: idx * 0.2 }}
                             >
                                 <motion.div
-                                    className="flex-1 space-y-6 md:space-y-8 text-center lg:text-left"
+                                    className="flex-1 space-y-4 sm:space-y-6 md:space-y-8 text-center lg:text-left px-4 sm:px-0"
                                     initial={{ opacity: 0, x: -50 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true, amount: 0.3 }}
                                     transition={{ duration: 0.8, delay: idx * 0.3 }}
                                 >
-                                    <div className="space-y-4 md:space-y-6">
+                                    <div className="space-y-3 sm:space-y-4 md:space-y-6">
                                         <motion.h1
-                                            className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight"
+                                            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight"
                                             initial={{ opacity: 0, y: 20 }}
                                             whileInView={{ opacity: 1, y: 0 }}
                                             viewport={{ once: true, amount: 0.3 }}
@@ -54,7 +54,7 @@ export default function Home({ homeData }: { homeData: homeProps[] }) {
                                             {Item.title}
                                         </motion.h1>
                                         <motion.p
-                                            className="text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed"
+                                            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed"
                                             initial={{ opacity: 0, y: 20 }}
                                             whileInView={{ opacity: 1, y: 0 }}
                                             viewport={{ once: true, amount: 0.3 }}
@@ -71,7 +71,7 @@ export default function Home({ homeData }: { homeData: homeProps[] }) {
                                         transition={{ duration: 0.6, delay: idx * 0.6 }}
                                     >
                                         <Link href={Item.button.href}>
-                                            <Button className='group relative px-8 md:px-12 py-6 md:py-8 text-base md:text-lg font-semibold bg-gradient-to-r from-[#d9b596] to-[#c4a080] text-white rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#d9b596]/30 hover:-translate-y-1'>
+                                            <Button className='group relative px-6 sm:px-8 md:px-12 py-5 sm:py-6 md:py-8 text-sm sm:text-base md:text-lg font-semibold bg-gradient-to-r from-[#d9b596] to-[#c4a080] text-white rounded-xl sm:rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#d9b596]/30 hover:-translate-y-1'>
                                                 <span className="relative z-10 flex items-center gap-2">
                                                     {Item.button.label}
                                                     <svg
@@ -96,15 +96,15 @@ export default function Home({ homeData }: { homeData: homeProps[] }) {
                                 </motion.div>
 
                                 <motion.div
-                                    className="flex-1 relative w-full max-w-xl mt-8 lg:mt-0"
+                                    className="flex-1 relative w-full max-w-[280px] sm:max-w-[400px] md:max-w-xl mx-auto lg:mx-0 mt-4 lg:mt-0"
                                     initial={{ opacity: 0, x: 50 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true, amount: 0.3 }}
                                     transition={{ duration: 0.8, delay: idx * 0.3 }}
                                 >
-                                    <div className="absolute -right-4 md:-right-8 top-0 w-8 md:w-16 h-full bg-gradient-to-b from-amber-200 to-amber-50 rounded-r-3xl shadow-lg"></div>
+                                    <div className="absolute -right-2 sm:-right-4 md:-right-8 top-0 w-4 sm:w-8 md:w-16 h-full bg-gradient-to-b from-amber-200 to-amber-50 rounded-r-2xl sm:rounded-r-3xl shadow-lg"></div>
                                     <motion.div
-                                        className="relative aspect-square w-full overflow-hidden rounded-3xl shadow-2xl transform hover:scale-[1.02] transition-transform duration-500"
+                                        className="relative aspect-square w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl transform hover:scale-[1.02] transition-transform duration-500"
                                         whileHover={{ scale: 1.02 }}
                                         transition={{ duration: 0.3 }}
                                     >
@@ -124,7 +124,7 @@ export default function Home({ homeData }: { homeData: homeProps[] }) {
                 }
 
                 <motion.div
-                    className="absolute top-10 left-0 w-full transform hidden md:block"
+                    className="absolute top-10 left-0 w-full transform hidden lg:block"
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{
                         opacity: 1,
@@ -151,7 +151,7 @@ export default function Home({ homeData }: { homeData: homeProps[] }) {
                         <Image
                             src={varchar1}
                             alt='varchar'
-                            className="relative rounded-3xl w-20 h-20 md:w-28 md:h-28"
+                            className="relative rounded-2xl sm:rounded-3xl w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28"
                         />
                     </motion.div>
                 </motion.div>

@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 
 import { fetchHomeContents } from '@/components/content/home/utils/FetchHome';
 
-import HomeContent from '@/components/content/home/Home';
+import { fetchAboutContents } from "@/components/content/about/utils/FetchAbout"
+
+import Home from '@/components/content/home/Home';
+
+import About from "@/components/content/about/About"
 
 import HomeSkeleton from '@/components/content/home/HomeSkeleton';
 
-export default async function Home() {
+export default async function Page() {
   try {
     const homeData = await fetchHomeContents();
-    return <HomeContent homeData={homeData} />;
+    const aboutContentData = await fetchAboutContents();
+    return <Fragment>
+      <Home homeData={homeData} />
+      <About aboutContentData={aboutContentData} />
+    </Fragment>;
   } catch (error) {
     console.error('Error fetching home data:', error);
     return (
