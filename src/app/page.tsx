@@ -4,6 +4,8 @@ import { fetchHomeData } from '@/components/content/home/utils/FetchHome';
 
 import { fetchAboutContents } from "@/components/content/about/utils/FetchAbout"
 
+import { fetchServicesData } from "@/components/content/services/utils/FetchServices"
+
 import Home from '@/components/content/home/Home';
 
 import About from "@/components/content/about/About"
@@ -18,10 +20,11 @@ export default async function Page() {
   try {
     const homeData = await fetchHomeData();
     const aboutContentData = await fetchAboutContents();
+    const serviceData = await fetchServicesData();
     return <Fragment>
       <Home homeData={homeData} />
       <About aboutContentData={aboutContentData} />
-      <Services />
+      <Services serviceData={serviceData} />
       <Daily />
     </Fragment>;
   } catch (error) {

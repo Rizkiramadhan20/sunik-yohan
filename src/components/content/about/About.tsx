@@ -17,11 +17,6 @@ import { motion } from 'framer-motion'
 export default function About({ aboutContentData }: { aboutContentData: AboutData[] }) {
     return (
         <section className='relative py-8 md:py-16 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-slate-100 overflow-hidden'>
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -bottom-12 md:-bottom-24 -left-12 md:-left-24 w-[200px] sm:w-[300px] md:w-[600px] h-[200px] sm:h-[300px] md:h-[600px] bg-gradient-to-r from-[#e8a674]/50 via-[#e8a674]/30 to-[#e8a674]/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[300px] md:w-[600px] h-[200px] sm:h-[300px] md:h-[600px] bg-gradient-to-r from-[#e8a674]/40 via-[#e8a674]/20 to-[#e8a674]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-            </div>
-
             <div className="container relative px-4 sm:px-6">
                 {aboutContentData.map((Item, idx) => {
                     return (
