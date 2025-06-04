@@ -15,7 +15,9 @@ export async function GET() {
       return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
     }
 
-    const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/home`);
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/home/services`
+    );
     return NextResponse.json(data);
   } catch (error) {
     console.error("❌ Failed to fetch data:", error);

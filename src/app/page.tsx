@@ -10,6 +10,10 @@ import About from "@/components/content/about/About"
 
 import HomeSkeleton from '@/components/content/home/HomeSkeleton';
 
+import Daily from '@/components/content/daily/Daily';
+
+import Services from '@/components/content/services/Services';
+
 export default async function Page() {
   try {
     const homeData = await fetchHomeContents();
@@ -17,6 +21,8 @@ export default async function Page() {
     return <Fragment>
       <Home homeData={homeData} />
       <About aboutContentData={aboutContentData} />
+      <Services />
+      <Daily />
     </Fragment>;
   } catch (error) {
     console.error('Error fetching home data:', error);

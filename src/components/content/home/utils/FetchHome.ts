@@ -1,6 +1,6 @@
 import { homeProps } from "@/components/content/home/types/home";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/${process.env.NEXT_PUBLIC_COLLECTIONS_HOME}`;
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_URL}/api/home`;
 
 export const fetchHomeContents = async (): Promise<homeProps[]> => {
   try {
@@ -15,10 +15,15 @@ export const fetchHomeContents = async (): Promise<homeProps[]> => {
       throw new Error(`Failed to fetch home contents: ${response.statusText}`);
     }
 
-    const { data } = await response.json();
-    return data;
+    const result = await response.json();
+
+    if (!result.data) {
+      throw new Error("Invalid response format: missing data property");
+    }
+
+    return result.data;
   } catch (error) {
     console.error("Error fetching home contents:", error);
-    throw error;
+    return []; // Return empty array instead of throwing to prevent page crash
   }
 };

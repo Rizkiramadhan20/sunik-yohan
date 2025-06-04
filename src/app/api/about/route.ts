@@ -1,28 +1,34 @@
 import { NextResponse } from "next/server";
 
-import { collection, getDocs } from "firebase/firestore";
+import axios from "axios";
 
-import { db } from "@/utils/firebase/Firebase";
+import { headers } from "next/headers";
+
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 export async function GET() {
   try {
-    const aboutContentCollection = collection(
-      db,
-      process.env.NEXT_PUBLIC_COLLECTIONS_ABOUT_CONTENT as string
+    const headersList = await headers();
+    const apiKey = headersList.get("x-api-key");
+
+    if (!apiKey || apiKey !== API_KEY) {
+      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+    }
+
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/home/about`
     );
-    const querySnapshot = await getDocs(aboutContentCollection);
-
-    const aboutContentData = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return NextResponse.json({ data: aboutContentData }, { status: 200 });
+    return NextResponse.json(data);
   } catch (error) {
-    console.error("Error fetching about_content collection:", error);
+    console.error("❌ Failed to fetch data:", error);
     return NextResponse.json(
-      { error: "Failed to fetch about_content collection" },
+      { error: "Failed to fetch data" },
       { status: 500 }
     );
   }
+}
+
+// Endpoint to get the API key
+export async function POST() {
+  return NextResponse.json({ apiKey: API_KEY });
 }
