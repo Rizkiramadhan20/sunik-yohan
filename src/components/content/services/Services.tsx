@@ -1,53 +1,110 @@
+"use client"
+
 import React from 'react'
+
+import { motion } from 'framer-motion'
+
+import { useInView } from 'framer-motion'
+
+import { useRef } from 'react'
 
 import { ServicesData } from "@/components/content/services/types/services"
 
 import Image from 'next/image'
 
-export default function Services({ serviceData }: { serviceData: ServicesData[] }) {
-    return (
-        <section className='relative py-12 sm:py-16 lg:py-20 bg-white overflow-hidden'>
-            <div className="container relative px-4 sm:px-6">
-                {/* Header Section */}
-                <div className='max-w-3xl mx-auto text-center mb-16 sm:mb-20 lg:mb-28'>
-                    <p className='text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed'>
-                        WHAT WE SERVE
-                    </p>
+import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 
-                    <h1 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#333333] mb-4 sm:mb-6'>
+export default function Services({ serviceData }: { serviceData: ServicesData[] }) {
+    const ref = useRef(null)
+    const isInView = useInView(ref, { once: true })
+
+    const containerVariants = {
+        hidden: { y: 50 },
+        visible: {
+            y: 0,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    }
+
+    const itemVariants = {
+        hidden: { y: 50 },
+        visible: {
+            y: 0,
+            transition: {
+                duration: 0.5,
+                ease: "easeOut"
+            }
+        }
+    }
+
+    return (
+        <section className='relative py-8 sm:py-12 md:py-16 bg-white overflow-hidden'>
+            <div className="container relative px-4 sm:px-6 lg:px-8 mx-auto">
+                {/* Header Section */}
+                <motion.div
+                    ref={ref}
+                    initial="hidden"
+                    animate={isInView ? "visible" : "hidden"}
+                    variants={containerVariants}
+                    className='max-w-3xl mx-auto text-center mb-10 sm:mb-16 md:mb-20'
+                >
+                    <motion.p
+                        variants={itemVariants}
+                        className='text-sm sm:text-base md:text-lg text-[#FF204E] leading-relaxed font-medium'
+                    >
+                        WHAT WE SERVE
+                    </motion.p>
+
+                    <motion.h1
+                        variants={itemVariants}
+                        className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#333333] mt-2 sm:mt-3 mb-4 sm:mb-6'
+                    >
                         Your Favorite Food Delivery Partner
-                    </h1>
-                </div>
+                    </motion.h1>
+                </motion.div>
 
                 {/* Services Grid */}
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8'>
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate={isInView ? "visible" : "hidden"}
+                    className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8'
+                >
                     {serviceData.map((item, idx) => (
-                        <div
+                        <motion.div
                             key={idx}
-                            className='group relative bg-white rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2'
+                            variants={itemVariants}
                         >
-                            {/* Image Container */}
-                            <div className='relative w-full aspect-[4/3] overflow-hidden'>
-                                <Image
-                                    src={item.imageUrl}
-                                    alt={item.title}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-                            </div>
+                            <Card
+                                className='group relative bg-white rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2'
+                            >
+                                {/* Image Container */}
+                                <div className='relative w-full aspect-[4/3] sm:aspect-[4/3] overflow-hidden'>
+                                    <Image
+                                        src={item.imageUrl}
+                                        alt={item.title}
+                                        fill
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                        priority={idx < 3}
+                                    />
+                                </div>
 
-                            {/* Content */}
-                            <div className='p-4 sm:p-6'>
-                                <h3 className='text-xl sm:text-2xl font-bold text-amber-900 mb-2 sm:mb-3 group-hover:text-amber-600 transition-colors duration-300'>
-                                    {item.title}
-                                </h3>
-                                <p className='text-sm sm:text-base text-gray-600 leading-relaxed'>
-                                    {item.description}
-                                </p>
-                            </div>
-                        </div>
+                                {/* Content */}
+                                <CardContent className='p-4 sm:p-5 md:p-6'>
+                                    <CardTitle className='text-lg sm:text-xl md:text-2xl font-bold text-amber-900 mb-2 sm:mb-3 group-hover:text-amber-600 transition-colors duration-300'>
+                                        {item.title}
+                                    </CardTitle>
+                                    <CardDescription className='text-sm sm:text-base text-gray-600 leading-relaxed'>
+                                        {item.description}
+                                    </CardDescription>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     )

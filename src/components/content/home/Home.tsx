@@ -29,7 +29,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                         >
                             <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
                                 <motion.h3
-                                    className='px-4 sm:px-6 py-3 sm:py-4 bg-[#ffe9de] w-fit mx-auto lg:mx-0 rounded-full flex gap-2 text-sm sm:text-base md:text-lg'
+                                    className='px-4 sm:px-6 py-3 sm:py-4 bg-[#ffe9de] w-fit mx-auto lg:mx-0 rounded-full flex gap-2 text-sm sm:text-base md:text-lg text-[#FF204E]'
                                     initial={{ opacity: 0, y: 50 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true, amount: 0.3 }}
@@ -50,7 +50,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                                         viewport={{ once: true, amount: 0.3 }}
                                         transition={{ duration: 0.8, delay: idx * 0.3 }}
                                     >
-                                        {Item.title} <span className='text-[#c9a585]'>{Item.span}</span>
+                                        {Item.title} <span className='text-[#FF204E]'>{Item.span}</span>
                                     </motion.h1>
                                 </div>
 
@@ -73,7 +73,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                                 className="flex justify-center lg:justify-start"
                             >
                                 <Link href={Item.button.href}>
-                                    <Button className='group relative px-6 sm:px-8 py-6 md:py-7 lg:py-8 text-sm sm:text-base md:text-lg lg:text-xl font-semibold bg-gradient-to-r from-[#d9b596] to-[#c4a080] text-white rounded-xl sm:rounded-2xl lg:rounded-3xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#d9b596]/40'>
+                                    <Button className='group relative px-6 sm:px-8 py-6 md:py-7 lg:py-8 text-sm sm:text-base md:text-lg lg:text-xl font-semibold bg-gradient-to-r from-[#FF204E] to-[#FF204E] text-white rounded-xl sm:rounded-2xl lg:rounded-3xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF204E]/40'>
                                         <span className="relative z-10 flex items-center gap-2 sm:gap-3">
                                             {Item.button.label}
                                             <svg
@@ -91,7 +91,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                                                 />
                                             </svg>
                                         </span>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-[#c4a080] to-[#d9b596] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-[#FF204E] to-[#FF204E] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </Button>
                                 </Link>
                             </motion.div>
