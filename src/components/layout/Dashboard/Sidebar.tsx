@@ -34,13 +34,25 @@ export default function SuperAdminHeader({ onSidebarToggle }: HeaderProps) {
     React.useEffect(() => {
         const fetchTemperature = async () => {
             try {
+                if (!process.env.NEXT_PUBLIC_WEATHER_API_KEY) {
+                    console.warn('Weather API key is not configured');
+                    setLoading(false);
+                    return;
+                }
+
                 const response = await fetch(
                     `https://api.weatherapi.com/v1/current.json?key=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&q=Jakarta`
                 );
+
+                if (!response.ok) {
+                    throw new Error(`Weather API responded with status: ${response.status}`);
+                }
+
                 const data = await response.json();
                 setTemperature(data.current.temp_c);
             } catch (error) {
                 console.error('Error fetching temperature:', error);
+                setTemperature(null);
             } finally {
                 setLoading(false);
             }

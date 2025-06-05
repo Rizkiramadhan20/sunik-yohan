@@ -121,6 +121,30 @@
   }
 }
 
+@layer components {
+  .prose {
+    @apply max-w-none;
+  }
+  .prose h3 {
+    @apply text-2xl font-bold mt-8 mb-4 text-gray-900;
+  }
+  .prose h4 {
+    @apply text-xl font-bold mt-6 mb-3 text-gray-800;
+  }
+  .prose p {
+    @apply text-gray-700 leading-relaxed mb-4;
+  }
+  .prose strong {
+    @apply text-gray-900 font-semibold;
+  }
+  .prose blockquote {
+    @apply border-l-4 border-blue-500 pl-4 italic bg-blue-50 py-3 px-4 rounded-r-md my-6 text-gray-700;
+  }
+  .prose br {
+    @apply my-4;
+  }
+}
+
 .container {
   max-width: 100vw;
 

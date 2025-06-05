@@ -7,6 +7,7 @@ import {
   FileText,
   LayoutDashboard,
   Building2,
+  Newspaper,
 } from "lucide-react";
 
 export const menuItems = [
@@ -63,20 +64,29 @@ export const menuItems = [
   },
 
   {
+    href: "/dashboard/blog",
+    label: "Blog",
+    icon: Newspaper,
+  },
+
+  {
     href: "/dashboard/profile",
     label: "Profile",
     icon: User,
   },
+
   {
     href: "/dashboard/users",
     label: "Users",
     icon: Users,
   },
+
   {
     href: "/dashboard/contact",
     label: "Contact",
     icon: Contact,
   },
+
   {
     href: "/dashboard/messages",
     label: "Messages",

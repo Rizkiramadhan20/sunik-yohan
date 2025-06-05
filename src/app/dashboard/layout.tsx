@@ -22,7 +22,6 @@ export default function DashboardLayout({
     const { hasRole, user } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -36,7 +35,6 @@ export default function DashboardLayout({
         if (currentPath.startsWith('/dashboard')) {
             if (!hasRole(Role.ADMIN)) {
                 setIsAuthorized(false);
-                setLoading(false);
                 return;
             }
         } else {
@@ -45,7 +43,6 @@ export default function DashboardLayout({
         }
 
         setIsAuthorized(true);
-        setLoading(false);
     }, [hasRole, user]);
 
     useEffect(() => {
@@ -63,14 +60,6 @@ export default function DashboardLayout({
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
 
     if (!isAuthorized) {
         return <AccessDenied />;
