@@ -17,12 +17,6 @@ import { CreateModal } from './modal/CreateModal'
 
 import { EditModal } from './modal/EditModal'
 
-import { db } from '@/utils/firebase/Firebase'
-
-import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from 'firebase/firestore'
-
-import imagekit from '@/utils/imagekit/imagekit'
-
 import { Button } from "@/components/ui/button"
 
 import {
@@ -36,11 +30,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import { toast } from "sonner"
-
 import ServiceSkelaton from '@/hooks/dashboard/pages/services/ServicesSkelaton'
-
-import { servicesPropes } from "@/hooks/dashboard/pages/services/types/services"
 
 import {
     Card,
@@ -50,132 +40,21 @@ import {
     CardDescription,
 } from "@/components/ui/card"
 
+import { useManagementServices } from '@/hooks/dashboard/pages/services/utils/UseManagementServices'
+
 export default function HomeLayout() {
-    const [items, setItems] = React.useState<servicesPropes[]>([]);
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-    const [itemToDelete, setItemToDelete] = React.useState<string | null>(null);
-    const [isDeleting, setIsDeleting] = React.useState(false);
-
-    const fetchItems = async () => {
-        try {
-            const q = query(
-                collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_SERVICES as string),
-                orderBy("createdAt", "desc")
-            );
-            const querySnapshot = await getDocs(q);
-            const fetchedItems = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as servicesPropes[];
-            setItems(fetchedItems);
-        } catch (error) {
-            console.error("Error fetching items:", error);
-            toast.error("Failed to fetch items");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    React.useEffect(() => {
-        fetchItems();
-    }, []);
-
-    const handleImageUpload = async (file: File) => {
-        try {
-            const reader = new FileReader();
-
-            const base64Promise = new Promise<string>((resolve, reject) => {
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-
-            const base64 = await base64Promise;
-            const result = await imagekit.upload({
-                file: base64,
-                fileName: `services-${Date.now()}`,
-                folder: "/services",
-            });
-
-            return result.url;
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            throw new Error("Failed to upload image");
-        }
-    };
-
-    const handleCreate = async (data: {
-        title: string;
-        description: string;
-        image: File;
-    }) => {
-        try {
-            // Upload image to ImageKit
-            const imageUrl = await handleImageUpload(data.image);
-
-            // Save data to Firestore
-            const docRef = await addDoc(collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_SERVICES as string), {
-                title: data.title,
-                description: data.description,
-                imageUrl: imageUrl,
-                createdAt: new Date().toISOString()
-            });
-            console.log("Document written with ID: ", docRef.id);
-            toast.success("Service created successfully");
-
-            // Refresh the items list
-            await fetchItems();
-        } catch (e) {
-            console.error("Error adding document: ", e);
-            toast.error("Failed to create service");
-        }
-    };
-
-    const handleUpdate = async (data: {
-        id: string;
-        title: string;
-        description: string;
-        image?: File;
-    }) => {
-        try {
-            let imageUrl = items.find(item => item.id === data.id)?.imageUrl;
-
-            // If new image is provided, upload it
-            if (data.image) {
-                imageUrl = await handleImageUpload(data.image);
-            }
-
-            // Update data in Firestore
-            await updateDoc(doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_SERVICES as string, data.id), {
-                title: data.title,
-                description: data.description,
-                imageUrl: imageUrl,
-            });
-
-            toast.success("Service updated successfully");
-            await fetchItems();
-        } catch (error) {
-            console.error("Error updating service:", error);
-            toast.error("Failed to update service");
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        try {
-            setIsDeleting(true);
-            await deleteDoc(doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_SERVICES as string, id));
-            toast.success("Item deleted successfully");
-            await fetchItems();
-        } catch (error) {
-            console.error("Error deleting item:", error);
-            toast.error("Failed to delete item");
-        } finally {
-            setDeleteDialogOpen(false);
-            setItemToDelete(null);
-            setIsDeleting(false);
-        }
-    };
+    const {
+        items,
+        isLoading,
+        deleteDialogOpen,
+        setDeleteDialogOpen,
+        itemToDelete,
+        setItemToDelete,
+        isDeleting,
+        handleCreate,
+        handleUpdate,
+        handleDelete
+    } = useManagementServices();
 
     return (
         <section>

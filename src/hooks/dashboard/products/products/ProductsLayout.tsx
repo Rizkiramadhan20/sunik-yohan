@@ -13,7 +13,7 @@ import {
 
 import { Plus, LayoutDashboard, FileText, Calendar } from "lucide-react"
 
-export default function HomeLayout() {
+export default function ProductsLayout() {
     return (
         <section>
             <div className="flex items-center justify-between border border-gray-100 p-4 rounded-2xl">

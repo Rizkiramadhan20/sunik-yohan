@@ -4,7 +4,7 @@ export const fetchHomeData = async (): Promise<HomeData[]> => {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/home`, {
       next: {
-        revalidate: 0,
+        revalidate: 50, // Revalidate every hour
       },
     });
 

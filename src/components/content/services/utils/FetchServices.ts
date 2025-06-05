@@ -9,7 +9,7 @@ export const fetchServicesData = async (): Promise<ServicesData[]> => {
       `${process.env.NEXT_PUBLIC_API_URL}/home/services`,
       {
         next: {
-          revalidate: 0,
+          revalidate: 50, // Revalidate every hour
         },
       }
     );

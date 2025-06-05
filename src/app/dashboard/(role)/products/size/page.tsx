@@ -1,15 +1,15 @@
 import React from 'react'
 
+import ProductsSizesLayout from '@/hooks/dashboard/products/sizes/ProductsSizesLayout'
+
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'Dashboard | Products Sizes',
+    title: 'Products Sizes | Sunik Yohan',
     description: 'Dashboard',
 }
 
-import ProductsSizesLayout from "@/hooks/dashboard/products/sizes/ProductsSizesLayout"
-
-export default function About() {
+export default function page() {
     return (
         <ProductsSizesLayout />
     )

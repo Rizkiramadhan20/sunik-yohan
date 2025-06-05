@@ -6,7 +6,7 @@ export const fetchAboutContents = async (): Promise<AboutData[]> => {
       `${process.env.NEXT_PUBLIC_API_URL}/home/about`,
       {
         next: {
-          revalidate: 0,
+          revalidate: 50, // Revalidate every hour
         },
       }
     );

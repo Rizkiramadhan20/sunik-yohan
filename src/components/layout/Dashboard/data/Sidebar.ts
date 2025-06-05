@@ -46,12 +46,12 @@ export const menuItems = [
     icon: Building2,
     subItems: [
       {
-        href: "/dashboard/products",
+        href: "/dashboard/products/products",
         label: "products",
       },
 
       {
-        href: "/dashboard/products/category",
+        href: "/dashboard/products/categories",
         label: "Category",
       },
 
