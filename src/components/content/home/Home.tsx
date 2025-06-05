@@ -10,151 +10,181 @@ import { Button } from '@/components/ui/button'
 
 import Link from "next/link"
 
-import varchar1 from "@/base/assets/home.jpg"
-
 import { motion } from 'framer-motion'
+
+import varcha1 from "@/base/assets/Rectangle1.png"
 
 export default function Home({ homeData }: { homeData: HomeData[] }) {
 
     return (
-        <section className='relative flex flex-col items-center justify-center min-h-screen py-16 md:py-20 bg-gradient-to-br from-white via-gray-50 to-gray-100 overflow-hidden'>
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute -top-12 sm:-top-24 -right-12 sm:-right-24 w-[200px] sm:w-[300px] md:w-[500px] h-[200px] sm:h-[300px] md:h-[500px] bg-gradient-to-r from-blue-200 to-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
-                <div className="absolute -bottom-12 sm:-bottom-24 -left-12 sm:-left-24 w-[200px] sm:w-[300px] md:w-[500px] h-[200px] sm:h-[300px] md:h-[500px] bg-gradient-to-r from-purple-200 to-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[300px] md:w-[500px] h-[200px] sm:h-[300px] md:h-[500px] bg-gradient-to-r from-pink-200 to-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
-            </div>
+        <section className='relative flex flex-col items-center justify-center min-h-screen py-16 lg:py-20 bg-white overflow-hidden'>
+            <div className="container relative px-4 sm:px-6 lg:px-8">
+                {homeData.map((Item, idx) => (
+                    <div
+                        key={idx}
+                        className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-12 lg:gap-16 py-6 sm:py-8 md:py-12 lg:py-16"
+                    >
+                        <div
+                            className="flex-1 space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-10 text-center lg:text-left px-2 sm:px-4 lg:px-0"
+                        >
+                            <div className="space-y-3 sm:space-y-4 md:space-y-6 lg:space-y-8">
+                                <motion.h3
+                                    className='px-4 sm:px-6 py-3 sm:py-4 bg-[#ffe9de] w-fit mx-auto lg:mx-0 rounded-full flex gap-2 text-sm sm:text-base md:text-lg'
+                                    initial={{ opacity: 0, y: 50 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, amount: 0.3 }}
+                                    transition={{ duration: 0.8, delay: idx * 0.2 }}
+                                >
+                                    {Item.text}
+                                    <picture>
+                                        <source srcSet="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44b/512.webp" type="image/webp" />
+                                        <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f44b/512.gif" alt="👋" width="20" height="20" className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                                    </picture>
+                                </motion.h3>
 
-            <div className="container relative px-4 sm:px-6">
-                {
-                    homeData.map((Item, idx) => {
-                        return (
+                                <div className='flex flex-wrap gap-2 capitalize max-w-2xl sm:max-w-3xl mx-auto lg:mx-0'>
+                                    <motion.h1
+                                        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight"
+                                        initial={{ opacity: 0, x: -50 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        viewport={{ once: true, amount: 0.3 }}
+                                        transition={{ duration: 0.8, delay: idx * 0.3 }}
+                                    >
+                                        {Item.title} <span className='text-[#c9a585]'>{Item.span}</span>
+                                    </motion.h1>
+                                </div>
+
+                                <motion.p
+                                    className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl sm:max-w-3xl mx-auto lg:mx-0 leading-relaxed"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, amount: 0.3 }}
+                                    transition={{ duration: 0.6, delay: idx * 0.4 }}
+                                >
+                                    {Item.description}
+                                </motion.p>
+                            </div>
+
                             <motion.div
-                                key={idx}
-                                className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-16 py-6 sm:py-8 md:py-12"
-                                initial={{ opacity: 0, y: 50 }}
+                                initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, amount: 0.3 }}
-                                transition={{ duration: 0.8, delay: idx * 0.2 }}
+                                transition={{ duration: 0.6, delay: idx * 0.5 }}
+                                className="flex justify-center lg:justify-start"
+                            >
+                                <Link href={Item.button.href}>
+                                    <Button className='group relative px-6 sm:px-8 py-6 md:py-7 lg:py-8 text-sm sm:text-base md:text-lg lg:text-xl font-semibold bg-gradient-to-r from-[#d9b596] to-[#c4a080] text-white rounded-xl sm:rounded-2xl lg:rounded-3xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#d9b596]/40'>
+                                        <span className="relative z-10 flex items-center gap-2 sm:gap-3">
+                                            {Item.button.label}
+                                            <svg
+                                                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transition-transform duration-300 group-hover:translate-x-2"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                                />
+                                            </svg>
+                                        </span>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-[#c4a080] to-[#d9b596] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    </Button>
+                                </Link>
+                            </motion.div>
+                        </div>
+
+                        <div
+                            className="flex-1 relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-xl mx-auto lg:mx-0 mt-6 sm:mt-8 lg:mt-0"
+                        >
+                            <motion.div
+                                className="absolute top-0 right-0 transform hidden md:block"
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{
+                                    opacity: 1,
+                                    y: 0
+                                }}
+                                viewport={{ once: true, amount: 0.3 }}
+                                transition={{
+                                    duration: 0.8
+                                }}
                             >
                                 <motion.div
-                                    className="flex-1 space-y-4 sm:space-y-6 md:space-y-8 text-center lg:text-left px-4 sm:px-0"
-                                    initial={{ opacity: 0, x: -50 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true, amount: 0.3 }}
-                                    transition={{ duration: 0.8, delay: idx * 0.3 }}
+                                    className="relative"
+                                    animate={{
+                                        y: [0, -20, 0, -20, 0],
+                                        rotate: [0, 5, 0, -5, 0]
+                                    }}
+                                    transition={{
+                                        duration: 8,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        times: [0, 0.25, 0.5, 0.75, 1]
+                                    }}
                                 >
-                                    <div className="space-y-3 sm:space-y-4 md:space-y-6">
-                                        <motion.h1
-                                            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight"
-                                            initial={{ opacity: 0, y: 20 }}
-                                            whileInView={{ opacity: 1, y: 0 }}
-                                            viewport={{ once: true, amount: 0.3 }}
-                                            transition={{ duration: 0.6, delay: idx * 0.4 }}
-                                        >
-                                            {Item.title}
-                                        </motion.h1>
-                                        <motion.p
-                                            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl leading-relaxed"
-                                            initial={{ opacity: 0, y: 20 }}
-                                            whileInView={{ opacity: 1, y: 0 }}
-                                            viewport={{ once: true, amount: 0.3 }}
-                                            transition={{ duration: 0.6, delay: idx * 0.5 }}
-                                        >
-                                            {Item.description}
-                                        </motion.p>
-                                    </div>
-
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true, amount: 0.3 }}
-                                        transition={{ duration: 0.6, delay: idx * 0.6 }}
-                                    >
-                                        <Link href={Item.button.href}>
-                                            <Button className='group relative px-6 sm:px-8 md:px-12 py-5 sm:py-6 md:py-8 text-sm sm:text-base md:text-lg font-semibold bg-gradient-to-r from-[#d9b596] to-[#c4a080] text-white rounded-xl sm:rounded-2xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#d9b596]/30 hover:-translate-y-1'>
-                                                <span className="relative z-10 flex items-center gap-2">
-                                                    {Item.button.label}
-                                                    <svg
-                                                        className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                                        />
-                                                    </svg>
-                                                </span>
-                                                <div className="absolute inset-0 bg-gradient-to-r from-[#c4a080] to-[#d9b596] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            </Button>
-                                        </Link>
-                                    </motion.div>
-                                </motion.div>
-
-                                <motion.div
-                                    className="flex-1 relative w-full max-w-[280px] sm:max-w-[400px] md:max-w-xl mx-auto lg:mx-0 mt-4 lg:mt-0"
-                                    initial={{ opacity: 0, x: 50 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    viewport={{ once: true, amount: 0.3 }}
-                                    transition={{ duration: 0.8, delay: idx * 0.3 }}
-                                >
-                                    <div className="absolute -right-2 sm:-right-4 md:-right-8 top-0 w-4 sm:w-8 md:w-16 h-full bg-gradient-to-b from-amber-200 to-amber-50 rounded-r-2xl sm:rounded-r-3xl shadow-lg"></div>
-                                    <motion.div
-                                        className="relative aspect-square w-full overflow-hidden rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl transform hover:scale-[1.02] transition-transform duration-500"
-                                        whileHover={{ scale: 1.02 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Image
-                                            src={Item.imageUrl}
-                                            alt={Item.title}
-                                            fill
-                                            className="object-cover"
-                                            quality={100}
-                                            priority
-                                        />
-                                    </motion.div>
+                                    <Image
+                                        src={varcha1}
+                                        alt='varchar'
+                                        className="relative w-6 h-6"
+                                    />
                                 </motion.div>
                             </motion.div>
-                        )
-                    })
-                }
 
-                <motion.div
-                    className="absolute top-10 left-0 w-full transform hidden lg:block"
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{
-                        opacity: 1,
-                        y: 0
-                    }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{
-                        duration: 0.8
-                    }}
-                >
-                    <motion.div
-                        className="relative"
-                        animate={{
-                            y: [0, -15, 0, -15, 0],
-                            rotate: [0, 3, 0, -3, 0]
-                        }}
-                        transition={{
-                            duration: 6,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            times: [0, 0.25, 0.5, 0.75, 1]
-                        }}
-                    >
-                        <Image
-                            src={varchar1}
-                            alt='varchar'
-                            className="relative rounded-2xl sm:rounded-3xl w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28"
-                        />
-                    </motion.div>
-                </motion.div>
+                            <motion.div
+                                className="relative aspect-square w-full overflow-hidden"
+                                initial={{ opacity: 0, x: 50 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, amount: 0.3 }}
+                                transition={{ duration: 0.8, delay: idx * 0.3 }}
+                            >
+                                <Image
+                                    src={Item.imageUrl}
+                                    alt={Item.title}
+                                    fill
+                                    className="object-cover"
+                                    quality={100}
+                                    priority
+                                />
+                            </motion.div>
+
+                            <motion.div
+                                className="absolute bottom-10 -right-10 transform hidden md:block"
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{
+                                    opacity: 1,
+                                    y: 0
+                                }}
+                                viewport={{ once: true, amount: 0.3 }}
+                                transition={{
+                                    duration: 0.8
+                                }}
+                            >
+                                <motion.div
+                                    className="relative"
+                                    animate={{
+                                        y: [0, -20, 0, -20, 0],
+                                        rotate: [0, 5, 0, -5, 0]
+                                    }}
+                                    transition={{
+                                        duration: 8,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        times: [0, 0.25, 0.5, 0.75, 1]
+                                    }}
+                                >
+                                    <Image
+                                        src={varcha1}
+                                        alt='varchar'
+                                        className="relative w-6 h-6"
+                                    />
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </div>
+                ))}
             </div>
         </section>
     )

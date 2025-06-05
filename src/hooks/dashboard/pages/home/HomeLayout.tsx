@@ -103,6 +103,8 @@ export default function HomeLayout() {
         title: string;
         description: string;
         image: File;
+        text: string;
+        span: string;
         button: {
             label: string;
             href: string;
@@ -116,6 +118,8 @@ export default function HomeLayout() {
             const docRef = await addDoc(collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string), {
                 title: data.title,
                 description: data.description,
+                text: data.text,
+                span: data.span,
                 imageUrl: imageUrl,
                 button: data.button,
                 createdAt: new Date().toISOString()
@@ -135,6 +139,8 @@ export default function HomeLayout() {
         id: string;
         title: string;
         description: string;
+        text: string;
+        span: string;
         image?: File;
         button: {
             label: string;
@@ -153,6 +159,8 @@ export default function HomeLayout() {
             await updateDoc(doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_HOME as string, data.id), {
                 title: data.title,
                 description: data.description,
+                text: data.text,
+                span: data.span,
                 imageUrl: imageUrl,
                 button: data.button,
             });
@@ -281,9 +289,20 @@ export default function HomeLayout() {
                                 </div>
                                 <div className="flex flex-col justify-between p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-white to-gray-50">
                                     <div className="space-y-3 sm:space-y-4">
-                                        <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                                            {item.title}
+                                        <CardTitle className="text-md font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                                            {item.text}
                                         </CardTitle>
+
+                                        <div className='flex gap-2'>
+                                            <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                                                {item.title}
+                                            </CardTitle>
+
+                                            <CardTitle className="text-2xl sm:text-3xl text-[#242222] font-bold">
+                                                {item.span}
+                                            </CardTitle>
+                                        </div>
+
                                         <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
                                             {item.description}
                                         </CardDescription>

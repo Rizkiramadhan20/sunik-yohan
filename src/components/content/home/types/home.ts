@@ -5,11 +5,13 @@ export interface Button {
 
 export interface HomeData {
   id: string;
-  button: Button;
-  createdAt: string;
+  span: string;
+  text: string;
   title: string;
   imageUrl: string;
   description: string;
+  button: Button;
+  createdAt: string;
 }
 
 export interface ApiResponse {

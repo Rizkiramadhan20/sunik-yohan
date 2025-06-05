@@ -44,6 +44,12 @@ const formSchema = z.object({
     description: z.string().min(2, {
         message: "Description must be at least 2 characters.",
     }),
+    text: z.string().min(2, {
+        message: "Text must be at least 2 characters.",
+    }),
+    span: z.string().min(2, {
+        message: "Span must be at least 2 characters.",
+    }),
     image: z.instanceof(File).optional(),
     button: z.object({
         label: z.string().min(2, {
@@ -60,6 +66,8 @@ interface EditModalProps {
         id: string;
         title: string;
         description: string;
+        text: string;
+        span: string;
         imageUrl: string;
         button: {
             label: string;
@@ -70,6 +78,8 @@ interface EditModalProps {
         id: string;
         title: string;
         description: string;
+        text: string;
+        span: string;
         image?: File;
         button: {
             label: string;
@@ -89,6 +99,8 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
         defaultValues: {
             title: item.title,
             description: item.description,
+            text: item.text,
+            span: item.span,
             button: item.button,
         },
     })
@@ -169,19 +181,41 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 sm:space-y-6 px-0 md:px-6 py-4">
+                        <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                                        <Type className="h-4 w-4" />
+                                        Title
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Enter title"
+                                            {...field}
+                                            disabled={isLoading}
+                                            className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <FormField
                                 control={form.control}
-                                name="title"
+                                name="text"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
                                             <Type className="h-4 w-4" />
-                                            Title
+                                            Text
                                         </FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Enter title"
+                                                placeholder="Enter text"
                                                 {...field}
                                                 disabled={isLoading}
                                                 className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
@@ -193,16 +227,16 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
                             />
                             <FormField
                                 control={form.control}
-                                name="description"
+                                name="span"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
-                                            <FileText className="h-4 w-4" />
-                                            Description
+                                            <Type className="h-4 w-4" />
+                                            Span
                                         </FormLabel>
                                         <FormControl>
-                                            <Textarea
-                                                placeholder="Enter description"
+                                            <Input
+                                                placeholder="Enter span"
                                                 {...field}
                                                 disabled={isLoading}
                                                 className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
@@ -213,6 +247,28 @@ export function EditModal({ item, onSubmit }: EditModalProps) {
                                 )}
                             />
                         </div>
+
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                                        <FileText className="h-4 w-4" />
+                                        Description
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="Enter description"
+                                            {...field}
+                                            disabled={isLoading}
+                                            className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <FormField

@@ -22,6 +22,8 @@ interface CreateModalProps {
     onSubmit: (data: {
         title: string;
         description: string;
+        text: string;
+        span: string;
         image: File;
         button: {
             label: string;
@@ -37,6 +39,8 @@ export function CreateModal({ onSubmit }: CreateModalProps) {
     const [formData, setFormData] = React.useState({
         title: '',
         description: '',
+        text: '',
+        span: '',
         image: null as File | null,
         button: {
             label: '',
@@ -97,6 +101,8 @@ export function CreateModal({ onSubmit }: CreateModalProps) {
                 setFormData({
                     title: '',
                     description: '',
+                    text: '',
+                    span: '',
                     image: null,
                     button: {
                         label: '',
@@ -157,6 +163,37 @@ export function CreateModal({ onSubmit }: CreateModalProps) {
                                     id="description"
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    required
+                                    disabled={isLoading}
+                                    className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="text" className="flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                                    <Type className="h-4 w-4" />
+                                    Text
+                                </Label>
+                                <Input
+                                    id="text"
+                                    value={formData.text}
+                                    onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                                    required
+                                    disabled={isLoading}
+                                    className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="span" className="flex items-center gap-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                                    <Type className="h-4 w-4" />
+                                    Span
+                                </Label>
+                                <Input
+                                    id="span"
+                                    value={formData.span}
+                                    onChange={(e) => setFormData({ ...formData, span: e.target.value })}
                                     required
                                     disabled={isLoading}
                                     className="text-sm sm:text-base border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 transition-all duration-200"
