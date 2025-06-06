@@ -114,7 +114,7 @@ export default function HomeLayout() {
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Categories</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Sizes</h1>
                     </div>
 
                     <Breadcrumb>
@@ -136,7 +136,7 @@ export default function HomeLayout() {
                             <BreadcrumbItem>
                                 <BreadcrumbPage className="flex items-center gap-1 capitalize">
                                     <ShoppingBag className="h-4 w-4" />
-                                    <span className="hidden sm:inline">categories</span>
+                                    <span className="hidden sm:inline">sizes</span>
                                 </BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
@@ -155,9 +155,9 @@ export default function HomeLayout() {
                     <div className="rounded-full bg-muted p-3 mb-4">
                         <ShoppingBag className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-semibold">No categories found</h3>
+                    <h3 className="text-lg font-semibold">No sizes found</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                        Get started by creating a new category using the button above.
+                        Get started by creating a new size using the button above.
                     </p>
                 </div>
             ) : (
@@ -214,7 +214,7 @@ export default function HomeLayout() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the category.
+                            This action cannot be undone. This will permanently delete the size.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

@@ -6,11 +6,13 @@ import { fetchServicesData } from "@/components/content/services/utils/FetchServ
 
 import Home from '@/components/content/home/Home';
 
-import HomeSkeleton from '@/components/content/home/HomeSkeleton';
+import Services from '@/components/content/services/Services';
+
+import Menu from "@/components/content/menu/Menu"
 
 import Daily from '@/components/content/daily/Daily';
 
-import Services from '@/components/content/services/Services';
+import HomeSkeleton from '@/components/content/home/HomeSkeleton';
 
 export default async function Page() {
   try {
@@ -19,6 +21,7 @@ export default async function Page() {
     return <Fragment>
       <Home homeData={homeData} />
       <Services serviceData={serviceData} />
+      <Menu />
       <Daily />
     </Fragment>;
   } catch (error) {

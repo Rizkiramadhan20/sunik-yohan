@@ -14,6 +14,10 @@ import Image from 'next/image'
 
 import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 
+import varcha1 from "@/base/assets/Rectangle1.png"
+
+import varcha2 from "@/base/assets/Rectangle3.png"
+
 export default function Services({ serviceData }: { serviceData: ServicesData[] }) {
     const ref = useRef(null)
     const isInView = useInView(ref, { once: true })
@@ -104,6 +108,72 @@ export default function Services({ serviceData }: { serviceData: ServicesData[] 
                             </Card>
                         </motion.div>
                     ))}
+                </motion.div>
+
+                <motion.div
+                    className="absolute top-20 left-2 md:left-0 transform block"
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{
+                        opacity: 1,
+                        y: 0
+                    }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{
+                        duration: 0.8
+                    }}
+                >
+                    <motion.div
+                        className="relative"
+                        animate={{
+                            y: [0, -20, 0, -20, 0],
+                            rotate: [0, 5, 0, -5, 0]
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            times: [0, 0.25, 0.5, 0.75, 1]
+                        }}
+                    >
+                        <Image
+                            src={varcha1}
+                            alt='varchar'
+                            className="relative w-6 h-6"
+                        />
+                    </motion.div>
+                </motion.div>
+
+                <motion.div
+                    className="absolute top-0 md:right-0 right-2 transform block"
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{
+                        opacity: 1,
+                        y: 0
+                    }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{
+                        duration: 0.8
+                    }}
+                >
+                    <motion.div
+                        className="relative"
+                        animate={{
+                            y: [0, -20, 0, -20, 0],
+                            rotate: [0, 5, 0, -5, 0]
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            times: [0, 0.25, 0.5, 0.75, 1]
+                        }}
+                    >
+                        <Image
+                            src={varcha2}
+                            alt='varchar'
+                            className="relative w-6 h-6"
+                        />
+                    </motion.div>
                 </motion.div>
             </div>
         </section>

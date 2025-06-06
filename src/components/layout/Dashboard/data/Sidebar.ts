@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Building2,
   Newspaper,
+  Images,
 } from "lucide-react";
 
 export const menuItems = [
@@ -67,6 +68,12 @@ export const menuItems = [
     href: "/dashboard/blog",
     label: "Blog",
     icon: Newspaper,
+  },
+
+  {
+    href: "/dashboard/gallery",
+    label: "Gallery",
+    icon: Images,
   },
 
   {

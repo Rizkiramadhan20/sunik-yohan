@@ -101,7 +101,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                             className="flex-1 relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-xl mx-auto lg:mx-0 mt-6 sm:mt-8 lg:mt-0"
                         >
                             <motion.div
-                                className="absolute top-0 right-0 transform hidden md:block"
+                                className="absolute top-0 right-auto md:right-0 left-0 md:left-auto transform block"
                                 initial={{ opacity: 0, y: 50 }}
                                 whileInView={{
                                     opacity: 1,
@@ -151,7 +151,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                             </motion.div>
 
                             <motion.div
-                                className="absolute bottom-10 -right-10 transform hidden md:block"
+                                className="absolute bottom-10 -right-10 transform block"
                                 initial={{ opacity: 0, y: 50 }}
                                 whileInView={{
                                     opacity: 1,
