@@ -29,6 +29,7 @@ interface Product {
   size: string;
   content: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 const ITEMS_PER_PAGE = 8;
@@ -157,6 +158,7 @@ export const useManagementProducts = () => {
           size: sizeTitle,
           thumbnail: thumbnailUrl,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         }
       );
 
@@ -189,6 +191,7 @@ export const useManagementProducts = () => {
 
       updateData.category = categoryTitle;
       updateData.size = sizeTitle;
+      updateData.updatedAt = new Date().toISOString();
 
       await updateDoc(
         doc(

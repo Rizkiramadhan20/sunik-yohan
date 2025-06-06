@@ -4,6 +4,7 @@ import { format, isValid } from 'date-fns'
 import {
     Dialog,
     DialogContent,
+    DialogTitle,
 } from "@/components/ui/dialog"
 import { Hash, AlignLeft, Calendar, Clock, DollarSign } from "lucide-react"
 
@@ -11,7 +12,7 @@ interface ViewModalProps {
     item: {
         id: string;
         title: string;
-        description: string;
+        content: string;
         thumbnail: string;
         price: number;
         category: string;
@@ -41,6 +42,7 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-5xl max-h-[95vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-0 p-0">
+                <DialogTitle className="sr-only">Product Details</DialogTitle>
                 <div className="relative">
                     {/* Hero Image Section */}
                     <div className="relative w-full h-[300px] sm:h-[400px]">
@@ -94,9 +96,10 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
                                     <AlignLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Description</h3>
                                 </div>
-                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                    {item.description}
-                                </p>
+                                <div
+                                    className="text-gray-600 dark:text-gray-300 leading-relaxed"
+                                    dangerouslySetInnerHTML={{ __html: item.content }}
+                                />
                             </div>
 
                             {/* Timestamps Section */}

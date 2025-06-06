@@ -83,12 +83,10 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
                             <FileText className="h-4 w-4 text-blue-600" />
                             Content
                         </div>
-                        <div className="p-6 bg-white rounded-md border border-gray-200">
-                            <div
-                                className="prose"
-                                dangerouslySetInnerHTML={{ __html: item.content }}
-                            />
-                        </div>
+                        <div
+                            className="prose"
+                            dangerouslySetInnerHTML={{ __html: item.content }}
+                        />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
