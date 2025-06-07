@@ -20,6 +20,8 @@ interface ProductDialogProps {
         category: string;
         size: string;
         content: string;
+        stock: string;
+        description: string;
     };
     onSubmit: (data: any, imageFile?: File) => void;
     isLoading?: boolean;
@@ -34,10 +36,10 @@ export function ProductDialog({
 }: ProductDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-xl shadow-2xl border-0">
+            <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>
-                        {initialData ? "Edit Product" : "Create New Product"}
+                        {initialData ? "Edit Product" : "Add New Product"}
                     </DialogTitle>
                 </DialogHeader>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -26,6 +27,8 @@ interface ProductFormProps {
         category: string;
         size: string;
         content: string;
+        stock: string;
+        description: string;
     };
     onSubmit: (data: any, imageFile?: File) => void;
     isLoading?: boolean;
@@ -44,6 +47,8 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
         category: "",
         size: "",
         content: "",
+        stock: "0",
+        description: "",
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState(initialData?.thumbnail || "");
@@ -77,7 +82,7 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
             .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         if (name === 'price') {
             setFormData(prev => ({ ...prev, [name]: formatToIDR(value) }));
@@ -88,6 +93,10 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
                 [name]: value,
                 slug: slug
             }));
+        } else if (name === 'stock') {
+            // Remove non-digits and leading zeros, but keep at least "0"
+            const numericValue = value.replace(/\D/g, '').replace(/^0+/, '') || "0";
+            setFormData(prev => ({ ...prev, [name]: numericValue }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -213,6 +222,29 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
                     </div>
 
                     <div className="space-y-2">
+                        <Label htmlFor="stock" className="text-sm font-medium flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
+                            </svg>
+                            Stock
+                        </Label>
+                        <Input
+                            id="stock"
+                            name="stock"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={formData.stock || "0"}
+                            onChange={handleChange}
+                            required
+                            className="w-full focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter stock quantity"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
                         <Label htmlFor="shopeUrl" className="text-sm font-medium flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
@@ -227,6 +259,24 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
                             required
                             className="w-full focus:ring-2 focus:ring-blue-500"
                             placeholder="https://shop.example.com/product"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="description" className="text-sm font-medium flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
+                            </svg>
+                            Description
+                        </Label>
+                        <Textarea
+                            id="description"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            required
+                            className="w-full focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+                            placeholder="Enter product description"
                         />
                     </div>
                 </div>

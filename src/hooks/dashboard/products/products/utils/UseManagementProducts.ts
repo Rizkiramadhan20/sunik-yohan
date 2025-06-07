@@ -26,8 +26,10 @@ interface Product {
   shopeUrl: string;
   thumbnail: string;
   category: string;
+  stock: string;
   size: string;
   content: string;
+  description: string;
   createdAt?: string;
   updatedAt?: string;
 }

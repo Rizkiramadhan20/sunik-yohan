@@ -3,6 +3,7 @@ export interface ProductsData {
   title: string;
   price: string;
   shopeUrl: string;
+  description: string;
   thumbnail: string;
   size: string | null;
   category: string;
@@ -10,6 +11,8 @@ export interface ProductsData {
   content: string;
   createdAt: string;
   updatedAt: string;
+  sold: number;
+  stock: number;
 }
 
 export interface Pagination {

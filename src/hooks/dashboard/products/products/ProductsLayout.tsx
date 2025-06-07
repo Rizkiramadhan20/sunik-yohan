@@ -9,7 +9,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+
 import { Input } from "@/components/ui/input"
+
 import { Search } from "lucide-react"
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,6 +27,7 @@ import {
 import { Plus, LayoutDashboard, Package, Pencil, Trash2, ShoppingBag, Eye } from "lucide-react"
 
 import { useManagementProducts } from './utils/UseManagementProducts'
+
 import { useManagementProductsCategories } from '../categories/utils/UseManagementProductsCategories'
 
 import { ProductDialog } from './components/ProductDialog'
@@ -213,7 +216,7 @@ export default function ProductsLayout() {
                                                 </span>
                                             )}
 
-                                            {product.size && product.size !== "null" && (
+                                            {product.size && product.size !== "null" && product.size !== "NULL" && (
                                                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/90 backdrop-blur-sm text-gray-700 shadow-sm">
                                                     {product.size}
                                                 </span>
@@ -223,26 +226,46 @@ export default function ProductsLayout() {
                                 </CardHeader>
                                 <CardContent className="p-4">
                                     <CardTitle className="text-lg font-semibold line-clamp-1 group-hover:text-primary transition-colors duration-300">{product.title}</CardTitle>
-                                    <p className="text-sm text-gray-500 mt-2 font-medium flex items-center gap-1">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            className="h-4 w-4"
-                                        >
-                                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                        </svg>
-                                        {new Intl.NumberFormat('id-ID', {
-                                            style: 'currency',
-                                            currency: 'IDR',
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 0
-                                        }).format(Number(product.price) * 1000)}
-                                    </p>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <p className="text-sm text-gray-500 font-medium flex items-center gap-1">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="h-4 w-4"
+                                            >
+                                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                            </svg>
+                                            {new Intl.NumberFormat('id-ID', {
+                                                style: 'currency',
+                                                currency: 'IDR',
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            }).format(Number(product.price) * 1000)}
+                                        </p>
+                                        <p className="text-sm text-gray-500 font-medium flex items-center gap-1">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="h-4 w-4"
+                                            >
+                                                <path d="M20 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z" />
+                                                <path d="M8 2v4" />
+                                                <path d="M16 2v4" />
+                                                <path d="M2 10h20" />
+                                            </svg>
+                                            Stock: {product.stock || 0}
+                                        </p>
+                                    </div>
                                 </CardContent>
                                 <CardFooter className="p-4 pt-0 flex justify-end gap-2">
                                     <Button

@@ -1,12 +1,16 @@
 import React from 'react'
+
 import Image from 'next/image'
+
 import { format, isValid } from 'date-fns'
+
 import {
     Dialog,
     DialogContent,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Hash, AlignLeft, Calendar, Clock, DollarSign } from "lucide-react"
+
+import { Hash, AlignLeft, Calendar, Clock, DollarSign, Package } from "lucide-react"
 
 interface ViewModalProps {
     item: {
@@ -17,6 +21,9 @@ interface ViewModalProps {
         price: number;
         category: string;
         size: string;
+        stock: number;
+        sold: string;
+        description: string;
         createdAt: string;
         updatedAt: string;
     } | null;
@@ -55,15 +62,19 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <h1 className="text-3xl sm:text-4xl font-bold mb-2">{item.title}</h1>
-                            <p className="text-lg text-gray-200">{item.category}</p>
+                            <div className='flex gap-4 items-center'>
+                                <h1 className="text-3xl sm:text-4xl font-bold mb-2">{item.title}</h1>
+                                <div>|</div>
+                                <p className="text-lg text-gray-200">{item.category}</p>
+                            </div>
+                            <p className="text-lg text-gray-200 line-clamp-3">{item.description}</p>
                         </div>
                     </div>
 
                     <div className="p-6 sm:p-8">
                         <div className="grid gap-8">
                             {/* Price and Size Section */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 p-6 rounded-2xl">
                                     <div className="flex items-center gap-3 mb-2">
                                         <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -79,13 +90,35 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
                                     </p>
                                 </div>
 
-                                <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 p-6 rounded-2xl">
+                                {item.size && item.size !== "null" && (
+                                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 p-6 rounded-2xl">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <Hash className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Size</h3>
+                                        </div>
+                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {item.size}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 p-6 rounded-2xl">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <Hash className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Size</h3>
+                                        <Package className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Stock</h3>
                                     </div>
                                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                        {item.size || "N/A"}
+                                        {item.stock || 0}
+                                    </p>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 p-6 rounded-2xl">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Package className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Sold</h3>
+                                    </div>
+                                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        {item.sold || 0}
                                     </p>
                                 </div>
                             </div>
@@ -94,7 +127,7 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
                             <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/30 dark:to-gray-700/30 p-6 rounded-2xl">
                                 <div className="flex items-center gap-3 mb-4">
                                     <AlignLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Description</h3>
+                                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Details</h3>
                                 </div>
                                 <div
                                     className="text-gray-600 dark:text-gray-300 leading-relaxed"
