@@ -18,7 +18,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
 
     return (
         <section className='relative flex flex-col items-center justify-center min-h-screen py-16 lg:py-20 bg-white overflow-hidden'>
-            <div className="container relative px-4 sm:px-6 lg:px-8">
+            <div className="container relative px-4 md:px-10">
                 {homeData.map((Item, idx) => (
                     <div
                         key={idx}
@@ -151,7 +151,7 @@ export default function Home({ homeData }: { homeData: HomeData[] }) {
                             </motion.div>
 
                             <motion.div
-                                className="absolute bottom-10 -right-10 transform block"
+                                className="absolute bottom-10 -right-5 transform block"
                                 initial={{ opacity: 0, y: 50 }}
                                 whileInView={{
                                     opacity: 1,

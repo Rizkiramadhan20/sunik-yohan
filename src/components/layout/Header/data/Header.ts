@@ -12,8 +12,8 @@ export const menuHamburger = [
   },
 
   {
-    name: "Our Menu",
-    href: "/menu",
+    name: "Products",
+    href: "/products",
   },
 
   {

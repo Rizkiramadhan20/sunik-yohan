@@ -45,7 +45,7 @@ export default function Services({ serviceData }: { serviceData: ServicesData[] 
 
     return (
         <section className='relative py-8 sm:py-12 md:py-16 bg-white overflow-hidden'>
-            <div className="container relative px-4 sm:px-6 lg:px-8 mx-auto">
+            <div className="container relative px-4 md:px-10">
                 {/* Header Section */}
                 <motion.div
                     ref={ref}
@@ -111,7 +111,7 @@ export default function Services({ serviceData }: { serviceData: ServicesData[] 
                 </motion.div>
 
                 <motion.div
-                    className="absolute top-20 left-2 md:left-0 transform block"
+                    className="absolute top-20 left-2 transform block"
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{
                         opacity: 1,
@@ -144,7 +144,7 @@ export default function Services({ serviceData }: { serviceData: ServicesData[] 
                 </motion.div>
 
                 <motion.div
-                    className="absolute top-0 md:right-0 right-2 transform block"
+                    className="absolute top-0 right-2 transform block"
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{
                         opacity: 1,
