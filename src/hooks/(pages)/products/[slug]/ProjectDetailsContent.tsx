@@ -69,17 +69,19 @@ export default function ProjectDetailsContent({ slug, productsData }: ProjectDet
                                 <p>{product.description || "N/A"}</p>
                             </div>
 
-                            <div className='flex items-center gap-4'>
-                                <span className='text-gray-700 font-medium flex items-center gap-2'>
-                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                                    </svg>
-                                    Size:
-                                </span>
-                                <Button className='bg-gray-100 hover:bg-gray-200 text-gray-900 border-none'>
-                                    {product.size}
-                                </Button>
-                            </div>
+                            {product.size && product.size !== "null" && (
+                                <div className='flex items-center gap-4'>
+                                    <span className='text-gray-700 font-medium flex items-center gap-2'>
+                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                                        </svg>
+                                        Size:
+                                    </span>
+                                    <Button className='bg-gray-100 hover:bg-gray-200 text-gray-900 border-none'>
+                                        {product.size}
+                                    </Button>
+                                </div>
+                            )}
 
                             {/* Quantity and Add to Cart */}
                             <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>

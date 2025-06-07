@@ -55,26 +55,3 @@ export const fetchProductsDataBySlug = async (
     throw error;
   }
 };
-
-export const fetchProductCategories = async (): Promise<ProductCategory[]> => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/products/categories`,
-      {
-        next: {
-          revalidate: 50,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    console.error("Error fetching product categories:", error);
-    throw error;
-  }
-};
