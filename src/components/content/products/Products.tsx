@@ -27,7 +27,9 @@ import type { CartItem } from '@/utils/context/CartContext'
 import { Loader2 } from "lucide-react";
 
 import { useAuth } from '@/utils/context/AuthContext';
+
 import { useRouter } from 'next/navigation';
+
 import { toast } from 'sonner';
 
 export default function Products({ productsData }: { productsData: ProductsData[] }) {
@@ -112,7 +114,7 @@ export default function Products({ productsData }: { productsData: ProductsData[
     };
 
     return (
-        <section className='py-16 lg:py-20 bg-white  relative'>
+        <section className='py-16 lg:py-20 bg-white relative'>
             <div className="container px-4 md:px-10">
                 <div className='flex flex-col sm:flex-row justify-between items-start md:items-center mb-10 sm:mb-20'>
                     <div className='flex flex-col gap-2 mb-0'>

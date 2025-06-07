@@ -1,8 +1,12 @@
 "use client"
 
 import React from 'react'
+
 import { motion } from 'framer-motion'
+
 import { Skeleton } from '@/components/ui/skeleton'
+
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
 export default function HomeSkeleton() {
     return (
@@ -96,6 +100,66 @@ export default function HomeSkeleton() {
                             </motion.div>
                         </motion.div>
                     ))}
+                </div>
+            </section>
+
+            <section className='py-16 lg:py-20 bg-white relative'>
+                <div className="container px-4 md:px-10">
+                    <div className='flex flex-col sm:flex-row justify-between items-start md:items-center mb-10 sm:mb-20'>
+                        <div className='flex flex-col gap-2 mb-0'>
+                            <Skeleton className="h-6 w-24" />
+                            <Skeleton className="h-12 w-64 mt-2" />
+                            <Skeleton className="h-10 w-32 mt-4" />
+                        </div>
+
+                        <div className='hidden md:block'>
+                            <div className="flex items-center gap-4">
+                                <Skeleton className="h-10 w-10 rounded-full" />
+                                <Skeleton className="h-10 w-10 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row">
+                        {/* Menu Categories Skeleton */}
+                        <div className="w-full lg:w-1/4 border-b lg:border-b-0 pb-4 lg:pb-0 lg:pr-10 mb-6 lg:mb-0">
+                            <div className="flex lg:flex-col gap-2 lg:gap-3">
+                                {[1, 2, 3].map((i) => (
+                                    <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Product Cards Skeleton */}
+                        <div className="w-full lg:w-3/4">
+                            <div className="flex gap-6 overflow-x-auto pb-6">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <Card key={i} className="w-[300px] sm:w-[400px] flex-shrink-0">
+                                        <Skeleton className="aspect-[4/3] w-full" />
+                                        <CardContent className="p-6">
+                                            <div className="space-y-2">
+                                                <Skeleton className="h-6 w-3/4" />
+                                                <Skeleton className="h-6 w-1/4" />
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter className="p-6 pt-0">
+                                            <div className="flex gap-3 w-full">
+                                                <Skeleton className="h-10 flex-1" />
+                                                <Skeleton className="h-10 flex-1" />
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className='block md:hidden'>
+                        <div className="flex items-center justify-center gap-4 mt-6">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                    </div>
                 </div>
             </section>
         </>
