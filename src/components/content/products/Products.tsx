@@ -114,7 +114,7 @@ export default function Products({ productsData }: { productsData: ProductsData[
     };
 
     return (
-        <section className='py-16 lg:py-20 bg-white relative'>
+        <section className='py-16 lg:py-20 bg-white relative overflow-hidden'>
             <div className="container px-4 md:px-10">
                 <div className='flex flex-col sm:flex-row justify-between items-start md:items-center mb-10 sm:mb-20'>
                     <div className='flex flex-col gap-2 mb-0'>
@@ -199,90 +199,136 @@ export default function Products({ productsData }: { productsData: ProductsData[
                             ref={scrollContainerRef}
                             className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide"
                         >
-                            {filteredProducts.map((product) => (
-                                <Card
+                            {filteredProducts.map((product, index) => (
+                                <div
                                     key={product.id}
-                                    className="group w-[300px] sm:w-[400px] flex-shrink-0 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                    className="flex-shrink-0"
                                 >
-                                    <div className="aspect-[4/3] relative overflow-hidden">
-                                        <Image
-                                            src={product.thumbnail}
-                                            alt={product.title}
-                                            className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                            fill
-                                        />
-                                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    </div>
-                                    <CardContent className="p-6">
-                                        <div className="space-y-2">
-                                            <h4 className="text-xl font-bold text-[#333333] line-clamp-1">{product.title}</h4>
-                                            <p className="text-lg text-[#FF204E] font-semibold">{product.price}</p>
+                                    <Card
+                                        className="group w-[300px] sm:w-[400px] overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                    >
+                                        <div className="aspect-[4/3] relative overflow-hidden">
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 50 }}
+                                                whileInView={{
+                                                    opacity: 1,
+                                                    y: 0
+                                                }}
+                                                viewport={{ once: true, amount: 0.3 }}
+                                                transition={{
+                                                    duration: 0.5,
+                                                    delay: index * 0.1
+                                                }}
+                                                className="w-full h-full"
+                                            >
+                                                <Image
+                                                    src={product.thumbnail}
+                                                    alt={product.title}
+                                                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                                    fill
+                                                />
+                                            </motion.div>
+                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                         </div>
-                                    </CardContent>
-                                    <CardFooter className="p-6 pt-0">
-                                        <div className="flex gap-3 w-full">
-                                            <button
-                                                onClick={() => handleAddToCart({
-                                                    id: product.id,
-                                                    title: product.title,
-                                                    price: product.price,
-                                                    thumbnail: product.thumbnail
-                                                })}
-                                                disabled={loadingProductId === product.id}
-                                                className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-white bg-[#FF204E] rounded-lg transition-colors duration-300 hover:bg-[#e61e4d] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {loadingProductId === product.id ? (
-                                                    <>
-                                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                                        Adding...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <svg
-                                                            className="w-5 h-5 mr-2"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                                            />
-                                                        </svg>
-                                                        Add to Cart
-                                                    </>
-                                                )}
-                                            </button>
-                                            <Link
-                                                href={`/products/${product.slug}`}
-                                                className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-[#FF204E] border-2 border-[#FF204E] rounded-lg transition-colors duration-300 hover:bg-[#FF204E] hover:text-white"
-                                            >
-                                                <svg
-                                                    className="w-5 h-5 mr-2"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
+                                        <CardContent className="p-6">
+                                            <div className="space-y-2">
+                                                <motion.h4
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{
+                                                        opacity: 1,
+                                                        y: 0
+                                                    }}
+                                                    viewport={{ once: true, amount: 0.3 }}
+                                                    transition={{
+                                                        duration: 0.5,
+                                                        delay: index * 0.1 + 0.2
+                                                    }}
+                                                    className="text-xl font-bold text-[#333333] line-clamp-1"
                                                 >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                    />
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                    />
-                                                </svg>
-                                                Details
-                                            </Link>
-                                        </div>
-                                    </CardFooter>
-                                </Card>
+                                                    {product.title}
+                                                </motion.h4>
+                                                <motion.p
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{
+                                                        opacity: 1,
+                                                        y: 0
+                                                    }}
+                                                    viewport={{ once: true, amount: 0.3 }}
+                                                    transition={{
+                                                        duration: 0.5,
+                                                        delay: index * 0.1 + 0.3
+                                                    }}
+                                                    className="text-lg text-[#FF204E] font-semibold"
+                                                >
+                                                    {product.price}
+                                                </motion.p>
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter className="p-6 pt-0">
+                                            <div className="flex gap-3 w-full">
+                                                <button
+                                                    onClick={() => handleAddToCart({
+                                                        id: product.id,
+                                                        title: product.title,
+                                                        price: product.price,
+                                                        thumbnail: product.thumbnail
+                                                    })}
+                                                    disabled={loadingProductId === product.id}
+                                                    className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-white bg-[#FF204E] rounded-lg transition-colors duration-300 hover:bg-[#e61e4d] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {loadingProductId === product.id ? (
+                                                        <>
+                                                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                            Adding...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg
+                                                                className="w-5 h-5 mr-2"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                                                />
+                                                            </svg>
+                                                            Add to Cart
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <Link
+                                                    href={`/products/${product.slug}`}
+                                                    className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-[#FF204E] border-2 border-[#FF204E] rounded-lg transition-colors duration-300 hover:bg-[#FF204E] hover:text-white"
+                                                >
+                                                    <svg
+                                                        className="w-5 h-5 mr-2"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                        />
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                        />
+                                                    </svg>
+                                                    Details
+                                                </Link>
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                </div>
                             ))}
                         </div>
                     </div>

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 
 export default function HomeSkeleton() {
     return (
@@ -158,6 +158,49 @@ export default function HomeSkeleton() {
                         <div className="flex items-center justify-center gap-4 mt-6">
                             <Skeleton className="h-10 w-10 rounded-full" />
                             <Skeleton className="h-10 w-10 rounded-full" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className='py-8 sm:py-12 md:py-16 lg:py-20 bg-white relative'>
+                <div className='container px-4 md:px-6 lg:px-10'>
+                    <div className='flex flex-col sm:flex-row justify-between items-start md:items-center mb-6 sm:mb-10 md:mb-16'>
+                        <div className='flex flex-col gap-1 sm:gap-2 mb-4 sm:mb-0'>
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-12 w-64 mt-1 sm:mt-2 md:mt-3" />
+                        </div>
+
+                        <div className='flex items-center gap-4'>
+                            <Skeleton className="h-10 w-32" />
+                        </div>
+                    </div>
+
+                    <div className='relative'>
+                        <div className="flex gap-6 overflow-x-auto pb-6">
+                            {[1, 2, 3].map((_, index) => (
+                                <div
+                                    key={index}
+                                    className="flex-shrink-0"
+                                >
+                                    <Card className="w-[300px] sm:w-[400px] overflow-hidden">
+                                        <CardContent className="p-0 relative overflow-hidden">
+                                            <div className="aspect-[4/3] relative overflow-hidden">
+                                                <Skeleton className="w-full h-full" />
+                                            </div>
+                                            <div className='absolute bottom-4 right-4'>
+                                                <Skeleton className="h-6 w-24" />
+                                            </div>
+                                        </CardContent>
+                                        <CardHeader className='p-4 sm:p-6 text-center'>
+                                            <Skeleton className="h-6 w-3/4 mx-auto mb-2" />
+                                            <Skeleton className="h-4 w-full mb-2" />
+                                            <Skeleton className="h-4 w-2/3 mx-auto mb-3 sm:mb-4" />
+                                            <Skeleton className="h-6 w-24 mx-auto" />
+                                        </CardHeader>
+                                    </Card>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
