@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react'
 
 import { ProductsData } from '@/components/content/products/types/products'
@@ -8,14 +10,15 @@ import Image from 'next/image';
 
 import ShopeFod from "@/base/assets/shofepod.png"
 
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ProjectDetailsContentProps {
     slug: string;
     productsData: ProductsData | ProductsData[];
+    allProducts: ProductsData[];
 }
 
-export default function ProjectDetailsContent({ slug, productsData }: ProjectDetailsContentProps) {
+export default function ProjectDetailsContent({ slug, productsData, allProducts }: ProjectDetailsContentProps) {
     const productsArray = Array.isArray(productsData) ? productsData : [productsData];
     const product = productsArray[0];
 
@@ -24,14 +27,14 @@ export default function ProjectDetailsContent({ slug, productsData }: ProjectDet
     }
 
     return (
-        <section className='min-h-screen py-8 md:py-12 lg:py-16 bg-gray-50'>
+        <section className='min-h-screen py-20 md:py-24'>
             <div className='container mx-auto px-4 lg:px-8'>
                 <div className='flex flex-col lg:flex-row gap-8 lg:gap-16'>
                     {/* Image Gallery */}
                     <div className='w-full lg:w-1/2'>
-                        <div className='w-full aspect-square rounded-3xl overflow-hidden bg-white shadow-lg transition-all duration-300 hover:shadow-xl'>
+                        <div className='w-full aspect-square rounded-lg overflow-hidden bg-gray-50'>
                             <div
-                                className='w-full h-full bg-cover bg-center transition-transform duration-500 hover:scale-105'
+                                className='w-full h-full bg-cover bg-center'
                                 style={{ backgroundImage: `url(${product.thumbnail})` }}
                             />
                         </div>
@@ -39,99 +42,191 @@ export default function ProjectDetailsContent({ slug, productsData }: ProjectDet
 
                     {/* Product Details */}
                     <div className='w-full lg:w-1/2'>
-                        <div className='sticky top-24 space-y-8 bg-white p-6 rounded-3xl shadow-sm'>
-                            <div>
-                                <p className='text-sm font-medium text-orange-500 mb-2 uppercase tracking-wider'>{product.category}</p>
-                                <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>{product.title}</h1>
-                                <span className='text-3xl font-bold text-gray-900'>Rp. {product.price}</span>
-                            </div>
-
-                            {/* Stock Information */}
-                            <div className='flex items-center gap-8 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl'>
-                                <div className='flex items-center gap-2'>
-                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                    </svg>
-                                    <span className='font-semibold text-gray-900'>{product.sold || 0}</span>
-                                    <span>sold</span>
+                        <Card className='sticky top-24 border border-gray-100'>
+                            <CardHeader className='space-y-4'>
+                                <div>
+                                    <p className='text-sm text-gray-500 mb-2 uppercase tracking-wider'>{product.category}</p>
+                                    <CardTitle className='text-2xl md:text-3xl font-medium text-gray-900 mb-4'>{product.title}</CardTitle>
+                                    <span className='text-2xl font-medium text-gray-900'>Rp. {product.price}</span>
                                 </div>
-                                <div className='flex items-center gap-2'>
-                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                    </svg>
-                                    <span className='font-semibold text-gray-900'>{product.stock || 0}</span>
-                                    <span>in stock</span>
+                            </CardHeader>
+                            <CardContent className='space-y-6'>
+                                {/* Stock and Size Information */}
+                                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                                    {/* Stock Card */}
+                                    <Card className='border border-gray-100'>
+                                        <CardContent className='p-4'>
+                                            <div className='flex items-center gap-4'>
+                                                <div className='p-2 bg-gray-50 rounded-md'>
+                                                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className='text-sm text-gray-500'>Stock Available</p>
+                                                    <p className='text-lg font-medium text-gray-900'>{product.stock || 0}</p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Sold Information */}
+                                    <Card className='border border-gray-100'>
+                                        <CardContent className='p-4'>
+                                            <div className='flex items-center gap-4'>
+                                                <div className='p-2 bg-gray-50 rounded-md'>
+                                                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className='text-sm text-gray-500'>Total Sold</p>
+                                                    <p className='text-lg font-medium text-gray-900'>{product.sold || 0}</p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Size Card */}
+                                    {product.size && product.size !== "null" && (
+                                        <Card className='border border-gray-100'>
+                                            <CardContent className='p-4'>
+                                                <div className='flex items-center gap-4'>
+                                                    <div className='p-2 bg-gray-50 rounded-md'>
+                                                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p className='text-sm text-gray-500'>Size</p>
+                                                        <p className='text-lg font-medium text-gray-900'>{product.size}</p>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    )}
                                 </div>
-                            </div>
 
-                            {/* Description */}
-                            <div className='text-gray-600 leading-relaxed text-lg'>
-                                <p>{product.description || "N/A"}</p>
-                            </div>
-
-                            {product.size && product.size !== "null" && (
-                                <div className='flex items-center gap-4'>
-                                    <span className='text-gray-700 font-medium flex items-center gap-2'>
-                                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                                        </svg>
-                                        Size:
-                                    </span>
-                                    <Button className='bg-gray-100 hover:bg-gray-200 text-gray-900 border-none'>
-                                        {product.size}
-                                    </Button>
+                                {/* Description */}
+                                <div className='text-gray-600 leading-relaxed'>
+                                    <p>{product.description || "N/A"}</p>
                                 </div>
-                            )}
 
-                            {/* Quantity and Add to Cart */}
-                            <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>
-                                <div className='flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white'>
-                                    <button className='px-4 py-3 text-gray-500 hover:bg-gray-50 transition-colors'>
+                                {/* Quantity and Add to Cart */}
+                                <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>
+                                    <div className='flex items-center border border-gray-200 rounded-md overflow-hidden bg-white'>
+                                        <button className='px-4 py-2 text-gray-500 hover:bg-gray-50'>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"></path>
+                                            </svg>
+                                        </button>
+                                        <span className='px-4 py-2 border-x border-gray-200 font-medium'>1</span>
+                                        <button className='px-4 py-2 text-gray-500 hover:bg-gray-50'>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <button className='flex-grow bg-gray-900 text-white py-2 px-6 rounded-md hover:bg-gray-800 font-medium flex items-center justify-center gap-2'>
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"></path>
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                         </svg>
+                                        Add to Cart
                                     </button>
-                                    <span className='px-4 py-3 border-x border-gray-200 font-medium'>1</span>
-                                    <button className='px-4 py-3 text-gray-500 hover:bg-gray-50 transition-colors'>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                                        </svg>
-                                    </button>
+
+                                    <Link href={product.shopeUrl} className='flex-shrink-0'>
+                                        <button className='w-full p-2 bg-white text-orange-500 border border-orange-500 rounded-md hover:bg-orange-50 flex items-center justify-center gap-2'>
+                                            <Image
+                                                src={ShopeFod}
+                                                alt="Shopee"
+                                                width={20}
+                                                height={20}
+                                                className="object-contain"
+                                            />
+                                            <span className='text-sm font-medium'>Beli Sekarang</span>
+                                        </button>
+                                    </Link>
                                 </div>
-
-                                <button className='flex-grow bg-gray-900 text-white py-3 px-6 rounded-xl hover:bg-gray-800 transition-all duration-200 hover:shadow-lg font-medium flex items-center justify-center gap-2'>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                    Add to Cart
-                                </button>
-
-                                <Link href={product.shopeUrl} className='flex-shrink-0'>
-                                    <button className='w-full p-3 bg-white text-orange-500 border border-orange-500 rounded-xl hover:bg-orange-50 transition-all duration-200 hover:shadow-md flex items-center justify-center gap-2'>
-                                        <Image
-                                            src={ShopeFod}
-                                            alt="Shopee"
-                                            width={20}
-                                            height={20}
-                                            className="object-contain"
-                                        />
-                                        <span className='text-sm font-semibold'>Beli Sekarang</span>
-                                    </button>
-                                </Link>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
                 {/* Detail Section */}
-                <div className='mt-16 pt-8 border-t border-gray-200'>
-                    <h3 className='text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2'>
-                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div className='mt-12 pt-8 border-t border-gray-100'>
+                    <h3 className='text-xl font-medium text-gray-900 mb-6 flex items-center gap-2'>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                         </svg>
                         Product Details
                     </h3>
-                    <div className='prose prose-lg max-w-none text-gray-600 bg-white p-8 rounded-3xl shadow-sm' dangerouslySetInnerHTML={{ __html: product.content }} />
+                    <Card className='border border-gray-100'>
+                        <CardContent className='prose prose-lg max-w-none text-gray-600 p-6 border-t border-gray-100' dangerouslySetInnerHTML={{ __html: product.content }} />
+                    </Card>
+                </div>
+
+                {/* Related Products Section */}
+                <div className='mt-12'>
+                    <h3 className='text-xl font-medium text-gray-900 mb-6 flex items-center gap-2'>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Related Products
+                    </h3>
+                    <div className='lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:gap-6 flex overflow-x-auto gap-6 pb-4 -mx-4 px-4 snap-x snap-mandatory lg:mx-0 lg:px-0 lg:pb-0 ml-0'>
+                        {(() => {
+                            const filteredProducts = allProducts
+                                .filter(p => p.id !== product.id)
+                                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+                            const food = filteredProducts
+                                .filter(p => p.category.toLowerCase() === 'makanan')
+                                .slice(0, 2);
+
+                            const beverage = filteredProducts
+                                .filter(p => p.category.toLowerCase() === 'minuman')
+                                .slice(0, 2);
+
+                            return [...food, ...beverage].map((relatedProduct) => (
+                                <Link
+                                    key={relatedProduct.id}
+                                    href={`/products/${relatedProduct.slug}`}
+                                    className='group lg:w-auto w-[280px] flex-none lg:flex-1 snap-start'
+                                >
+                                    <Card className='overflow-hidden border border-gray-100 hover:border-gray-200 transition-all duration-300 hover:shadow-lg h-full'>
+                                        <div className='aspect-[4/3] relative overflow-hidden bg-gray-50'>
+                                            <div
+                                                className='w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110'
+                                                style={{ backgroundImage: `url(${relatedProduct.thumbnail})` }}
+                                            />
+                                            <div className='absolute bottom-3 left-3 flex gap-2'>
+                                                <span className='px-2 py-1 bg-gray-900/90 text-white text-xs font-medium rounded-md backdrop-blur-sm'>
+                                                    {relatedProduct.category}
+                                                </span>
+                                                {relatedProduct.size && relatedProduct.size !== "null" && (
+                                                    <span className='px-2 py-1 bg-gray-900/90 text-white text-xs font-medium rounded-md backdrop-blur-sm'>
+                                                        {relatedProduct.size}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <CardContent className='p-4 space-y-3 transition-colors duration-300 group-hover:bg-gray-50'>
+                                            <h4 className='text-base font-medium text-gray-900 line-clamp-1 group-hover:text-gray-700'>{relatedProduct.title}</h4>
+
+                                            <div className='flex items-center text-sm text-gray-500'>
+                                                <span>Stock: {relatedProduct.stock || 0}</span>
+                                                <span className='mx-2'>•</span>
+                                                <span>Sold: {relatedProduct.sold || 0}</span>
+                                            </div>
+
+                                            <p className='text-lg font-medium text-gray-900 group-hover:text-gray-700'>Rp. {relatedProduct.price}</p>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
+                            ));
+                        })()}
+                    </div>
                 </div>
             </div>
         </section>

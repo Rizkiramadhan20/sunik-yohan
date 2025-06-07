@@ -4,7 +4,7 @@ import ProjectDetailsContent from '@/hooks/(pages)/products/[slug]/ProjectDetail
 
 import { generateMetadata as getProductsMetadata } from '@/hooks/(pages)/products/[slug]/meta/metadata'
 
-import { fetchProductsDataBySlug } from "@/components/content/products/utils/FetchProducts"
+import { fetchProductsData, fetchProductsDataBySlug } from "@/components/content/products/utils/FetchProducts"
 
 import ProductsSlugSkeleton from '@/hooks/(pages)/products/[slug]/ProductsSlugSkeleton';
 
@@ -23,9 +23,14 @@ export async function generateMetadata(
 export default async function Page({ params }: Props) {
     try {
         const resolvedParams = await params
-        const productsData = await fetchProductsDataBySlug(resolvedParams.slug);
+        const [productData, allProducts] = await Promise.all([
+            fetchProductsDataBySlug(resolvedParams.slug),
+            fetchProductsData()
+        ]);
         return (
-            <ProjectDetailsContent slug={resolvedParams.slug} productsData={productsData} />
+            <ProjectDetailsContent slug={resolvedParams.slug} productsData={productData}
+                allProducts={allProducts}
+            />
         );
     } catch (error) {
         console.error('Error fetching home data:', error);
