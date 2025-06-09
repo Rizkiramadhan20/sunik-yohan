@@ -228,18 +228,6 @@ export default function ProductsLayout() {
                                     <CardTitle className="text-lg font-semibold line-clamp-1 group-hover:text-primary transition-colors duration-300">{product.title}</CardTitle>
                                     <div className="flex items-center justify-between mt-2">
                                         <p className="text-sm text-gray-500 font-medium flex items-center gap-1">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className="h-4 w-4"
-                                            >
-                                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                            </svg>
                                             {new Intl.NumberFormat('id-ID', {
                                                 style: 'currency',
                                                 currency: 'IDR',

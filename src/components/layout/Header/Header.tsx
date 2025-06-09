@@ -21,9 +21,10 @@ import {
     NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 
-import Logo from "@/base/assets/logo.jpeg"
+import Logo from "@/base/assets/logo.png"
+
 import { useCart } from '@/utils/context/CartContext';
-import { CartItem } from '@/utils/context/CartContext';
+
 import { Minus, Plus, Trash2 } from 'lucide-react';
 
 export default function Header() {
@@ -65,7 +66,7 @@ export default function Header() {
                                 alt="Logo"
                                 width={110}
                                 height={40}
-                                className="h-10 w-auto"
+                                className="h-16 w-auto rounded-full"
                                 priority
                             />
                         </Link>

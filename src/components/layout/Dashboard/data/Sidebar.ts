@@ -3,12 +3,14 @@ import {
   MessageSquare,
   House,
   Users,
-  User,
   FileText,
   LayoutDashboard,
   Building2,
   Newspaper,
   Images,
+  UserRoundPen,
+  CircleUserRound,
+  ArrowLeftRight,
 } from "lucide-react";
 
 export const menuItems = [
@@ -61,6 +63,11 @@ export const menuItems = [
         href: "/dashboard/products/size",
         label: "Size",
       },
+
+      {
+        href: "/dashboard/products/banner",
+        label: "Banner",
+      },
     ],
   },
 
@@ -77,15 +84,48 @@ export const menuItems = [
   },
 
   {
+    href: "/dashboard/transaksi",
+    label: "Transaksi",
+    icon: ArrowLeftRight,
+    subItems: [
+      {
+        href: "/dashboard/transaksi/transaksi",
+        label: "Transaksi",
+      },
+
+      {
+        href: "/dashboard/transaksi/pending",
+        label: "Pending",
+      },
+
+      {
+        href: "/dashboard/transaksi/delivery",
+        label: "Delivery",
+      },
+
+      {
+        href: "/dashboard/transaksi/success",
+        label: "Success",
+      },
+    ],
+  },
+
+  {
+    href: "/dashboard/testimonials",
+    label: "Testimonials",
+    icon: Users,
+  },
+
+  {
     href: "/dashboard/profile",
     label: "Profile",
-    icon: User,
+    icon: UserRoundPen,
   },
 
   {
     href: "/dashboard/users",
     label: "Users",
-    icon: Users,
+    icon: CircleUserRound,
   },
 
   {

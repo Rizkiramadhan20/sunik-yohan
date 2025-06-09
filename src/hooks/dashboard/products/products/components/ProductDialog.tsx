@@ -36,18 +36,20 @@ export function ProductDialog({
 }: ProductDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>
+                    <DialogTitle className="text-xl font-semibold">
                         {initialData ? "Edit Product" : "Add New Product"}
                     </DialogTitle>
                 </DialogHeader>
 
-                <ProductForm
-                    initialData={initialData}
-                    onSubmit={onSubmit}
-                    isLoading={isLoading}
-                />
+                <div className="mt-4">
+                    <ProductForm
+                        initialData={initialData}
+                        onSubmit={onSubmit}
+                        isLoading={isLoading}
+                    />
+                </div>
             </DialogContent>
         </Dialog>
     );

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 import Header from "@/components/layout/Header/Header";
 
-// import Footer from "@/components/layout/Footer/Footer";
+import Footer from "@/components/layout/Footer/Footer";
 
 import { Toaster } from "sonner";
 
@@ -34,7 +34,7 @@ const Pathname = ({ children }: { children: React.ReactNode }) => {
             />
             {!isAdminRoute && <Header />}
             {children}
-            {/* {!isAdminRoute && <Footer />} */}
+            {!isAdminRoute && <Footer />}
         </main>
     );
 };

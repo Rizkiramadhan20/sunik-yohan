@@ -1,5 +1,7 @@
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 
+import { FaTiktok } from "react-icons/fa";
+
 export const menuHamburger = [
   {
     name: "Home",
@@ -37,7 +39,7 @@ export const socialMedia = [
     href: "https://www.instagram.com/rzkir.20",
   },
   {
-    icon: Linkedin,
+    icon: FaTiktok,
     href: "https://www.linkedin.com/in/rizki-ramadhan12",
   },
   {

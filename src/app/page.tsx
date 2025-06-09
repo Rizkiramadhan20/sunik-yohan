@@ -8,6 +8,8 @@ import { fetchProductsData } from "@/components/content/products/utils/FetchProd
 
 import { fetchBlogData } from "@/components/content/blog/utils/FetchBlog"
 
+import { fetchDailyData } from "@/components/content/daily/utils/FetchDaily"
+
 import Home from '@/components/content/home/Home';
 
 import Services from '@/components/content/services/Services';
@@ -26,12 +28,14 @@ export default async function Page() {
     const serviceData = await fetchServicesData();
     const productsData = await fetchProductsData();
     const blogData = await fetchBlogData();
+    const dailyData = await fetchDailyData();
+
     return <Fragment>
       <Home homeData={homeData} />
       <Services serviceData={serviceData} />
       <Products productsData={productsData} />
       <Blog blogData={blogData} />
-      <Daily />
+      <Daily dailyData={dailyData} />
     </Fragment>;
   } catch (error) {
     console.error('Error fetching home data:', error);

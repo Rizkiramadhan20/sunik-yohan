@@ -1,7 +1,9 @@
 "use client"
 
 import React, { useState, useRef } from 'react'
+
 import { format, formatDistanceToNow, differenceInMonths } from 'date-fns'
+
 import { id } from 'date-fns/locale'
 
 import Image from 'next/image'
@@ -96,58 +98,61 @@ export default function Blog({ blogData }: { blogData: BlogData[] }) {
                         ref={scrollContainerRef}
                         className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide"
                     >
-                        {blogData.map((blog, index) => (
-                            <div
-                                key={blog.id}
-                                className="flex-shrink-0"
-                            >
-                                <Card className="group w-[300px] sm:w-[400px] overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                                    <CardContent className="p-0 relative overflow-hidden">
-                                        <div className="aspect-[4/3] relative overflow-hidden">
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 50 }}
-                                                whileInView={{
-                                                    opacity: 1,
-                                                    y: 0
-                                                }}
-                                                viewport={{ once: true, amount: 0.3 }}
-                                                transition={{
-                                                    duration: 0.5,
-                                                    delay: index * 0.1
-                                                }}
-                                                className="w-full h-full"
-                                            >
-                                                <Image
-                                                    src={blog.thumbnail}
-                                                    alt={blog.title}
-                                                    className="object-cover transition-transform duration-300 group-hover:scale-110"
-                                                    fill
-                                                />
-                                            </motion.div>
-                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                        </div>
-                                        <div className='absolute bottom-4 right-4 bg-[#FF204E] text-white px-3 py-1 rounded-md text-sm'>
-                                            {differenceInMonths(new Date(), new Date(blog.createdAt)) >= 1
-                                                ? format(new Date(blog.createdAt), 'dd MMM yyyy', { locale: id })
-                                                : formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true, locale: id })
-                                            }
-                                        </div>
-                                    </CardContent>
-                                    <CardHeader className='p-4 sm:p-6 text-center'>
-                                        <CardTitle className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 line-clamp-1 md:line-clamp-2'>{blog.title}</CardTitle>
-                                        <CardDescription className='text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2'>
-                                            {blog.description}
-                                        </CardDescription>
-                                        <Link href={`/blogs/${blog.slug}`} className='text-red-500 hover:text-red-600 font-medium flex items-center justify-center text-sm sm:text-base'>
-                                            Read Blog
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.5 8.5l4 4-4 4M3.5 12.5h18" />
-                                            </svg>
-                                        </Link>
-                                    </CardHeader>
-                                </Card>
-                            </div>
-                        ))}
+                        {blogData
+                            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                            .slice(0, 6)
+                            .map((blog, index) => (
+                                <div
+                                    key={blog.id}
+                                    className="w-[calc(33.333%-16px)] min-w-[300px]"
+                                >
+                                    <Card className="group w-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                                        <CardContent className="p-0 relative overflow-hidden">
+                                            <div className="aspect-[4/3] relative overflow-hidden">
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 50 }}
+                                                    whileInView={{
+                                                        opacity: 1,
+                                                        y: 0
+                                                    }}
+                                                    viewport={{ once: true, amount: 0.3 }}
+                                                    transition={{
+                                                        duration: 0.5,
+                                                        delay: index * 0.1
+                                                    }}
+                                                    className="w-full h-full"
+                                                >
+                                                    <Image
+                                                        src={blog.thumbnail}
+                                                        alt={blog.title}
+                                                        className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                                        fill
+                                                    />
+                                                </motion.div>
+                                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                            </div>
+                                            <div className='absolute bottom-4 right-4 bg-[#FF204E] text-white px-3 py-1 rounded-md text-sm'>
+                                                {differenceInMonths(new Date(), new Date(blog.createdAt)) >= 1
+                                                    ? format(new Date(blog.createdAt), 'dd MMM yyyy', { locale: id })
+                                                    : formatDistanceToNow(new Date(blog.createdAt), { addSuffix: true, locale: id })
+                                                }
+                                            </div>
+                                        </CardContent>
+                                        <CardHeader className='p-4 sm:p-6 text-center'>
+                                            <CardTitle className='text-lg sm:text-xl font-semibold text-gray-800 mb-2 line-clamp-1 md:line-clamp-2'>{blog.title}</CardTitle>
+                                            <CardDescription className='text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2'>
+                                                {blog.description}
+                                            </CardDescription>
+                                            <Link href={`/blogs/${blog.slug}`} className='text-red-500 hover:text-red-600 font-medium flex items-center justify-center text-sm sm:text-base'>
+                                                Read Blog
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.5 8.5l4 4-4 4M3.5 12.5h18" />
+                                                </svg>
+                                            </Link>
+                                        </CardHeader>
+                                    </Card>
+                                </div>
+                            ))}
                     </div>
 
                     {/* Mobile Navigation Buttons */}
