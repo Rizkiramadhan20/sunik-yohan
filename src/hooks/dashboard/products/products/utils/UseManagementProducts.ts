@@ -29,6 +29,7 @@ interface Product {
   stock: string;
   size: string;
   content: string;
+  ratings?: string | null;
   description: string;
   createdAt?: string;
   updatedAt?: string;
@@ -47,6 +48,7 @@ export const useManagementProducts = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [lastVisible, setLastVisible] = useState<any>(null);
   const [hasNextPage, setHasNextPage] = useState(true);
+  const [lastVisibleDocs, setLastVisibleDocs] = useState<any[]>([]);
 
   const { items: categories } = useManagementProductsCategories();
   const { items: sizes } = useManagementProductsSizes();
@@ -65,7 +67,8 @@ export const useManagementProducts = () => {
           orderBy("createdAt", "desc"),
           limit(ITEMS_PER_PAGE)
         );
-      } else {
+      } else if (page > currentPage) {
+        // Going forward
         q = query(
           collection(
             db,
@@ -73,6 +76,18 @@ export const useManagementProducts = () => {
           ),
           orderBy("createdAt", "desc"),
           startAfter(lastVisible),
+          limit(ITEMS_PER_PAGE)
+        );
+      } else {
+        // Going backward
+        const prevPageLastVisible = lastVisibleDocs[page - 2];
+        q = query(
+          collection(
+            db,
+            process.env.NEXT_PUBLIC_COLLECTIONS_PRODUCTS as string
+          ),
+          orderBy("createdAt", "desc"),
+          startAfter(prevPageLastVisible),
           limit(ITEMS_PER_PAGE)
         );
       }
@@ -84,7 +99,16 @@ export const useManagementProducts = () => {
       })) as Product[];
 
       setItems(fetchedItems);
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+
+      // Store the last visible document for this page
+      const lastVisibleDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+      setLastVisible(lastVisibleDoc);
+
+      // Update the array of last visible documents
+      const newLastVisibleDocs = [...lastVisibleDocs];
+      newLastVisibleDocs[page - 1] = lastVisibleDoc;
+      setLastVisibleDocs(newLastVisibleDocs);
+
       setHasNextPage(querySnapshot.docs.length === ITEMS_PER_PAGE);
 
       const totalItemsQuery = query(
@@ -159,6 +183,7 @@ export const useManagementProducts = () => {
           category: categoryTitle,
           size: sizeTitle,
           thumbnail: thumbnailUrl,
+          ratings: data.ratings || null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
@@ -193,6 +218,7 @@ export const useManagementProducts = () => {
 
       updateData.category = categoryTitle;
       updateData.size = sizeTitle;
+      updateData.ratings = data.ratings || null;
       updateData.updatedAt = new Date().toISOString();
 
       await updateDoc(

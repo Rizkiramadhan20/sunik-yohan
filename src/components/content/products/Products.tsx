@@ -24,7 +24,7 @@ import { useCart } from '@/utils/context/CartContext'
 
 import type { CartItem } from '@/utils/context/CartContext'
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 
 import { useAuth } from '@/utils/context/AuthContext';
 
@@ -70,7 +70,6 @@ export default function Products({ productsData }: { productsData: ProductsData[
         }
     };
 
-    // Add scroll event listener
     React.useEffect(() => {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer) {
@@ -102,7 +101,6 @@ export default function Products({ productsData }: { productsData: ProductsData[
             // Show message first
             toast.info('Silakan login terlebih dahulu untuk menambahkan ke keranjang');
 
-            // Wait for 1.5 seconds before redirecting
             setTimeout(() => {
                 // Save the current URL to redirect back after login
                 localStorage.setItem('redirectAfterLogin', window.location.pathname);
@@ -227,6 +225,29 @@ export default function Products({ productsData }: { productsData: ProductsData[
                                                     className="object-cover transition-transform duration-300 group-hover:scale-110"
                                                     fill
                                                 />
+
+                                                <div className='absolute bottom-4 left-2 flex items-center justify-center px-6 py-2 rounded-full bg-white'>
+                                                    {product.ratings && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: 20 }}
+                                                            whileInView={{
+                                                                opacity: 1,
+                                                                y: 0
+                                                            }}
+                                                            viewport={{ once: true, amount: 0.3 }}
+                                                            transition={{
+                                                                duration: 0.5,
+                                                                delay: index * 0.1 + 0.2
+                                                            }}
+                                                            className="flex items-center gap-1"
+                                                        >
+                                                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                                            <span className="text-sm font-medium text-gray-700">
+                                                                {product.ratings}
+                                                            </span>
+                                                        </motion.div>
+                                                    )}
+                                                </div>
                                             </motion.div>
                                             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                         </div>
@@ -258,9 +279,9 @@ export default function Products({ productsData }: { productsData: ProductsData[
                                                         duration: 0.5,
                                                         delay: index * 0.1 + 0.3
                                                     }}
-                                                    className="text-lg text-[#FF204E] font-semibold"
+                                                    className="text-gray-600 line-clamp-2"
                                                 >
-                                                    {product.price}
+                                                    {product.description}
                                                 </motion.p>
                                             </div>
                                         </CardContent>

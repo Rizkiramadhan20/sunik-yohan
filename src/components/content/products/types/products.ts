@@ -9,10 +9,11 @@ export interface ProductsData {
   category: string;
   slug: string;
   content: string;
-  createdAt: string;
-  updatedAt: string;
   sold: number;
   stock: number;
+  ratings?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Pagination {

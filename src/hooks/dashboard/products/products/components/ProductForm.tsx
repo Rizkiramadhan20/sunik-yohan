@@ -29,6 +29,7 @@ interface ProductFormProps {
         content: string;
         stock: string;
         description: string;
+        ratings?: string | null;
     };
     onSubmit: (data: any, imageFile?: File) => void;
     isLoading?: boolean;
@@ -49,6 +50,7 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
         content: "",
         stock: "0",
         description: "",
+        ratings: null,
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState(initialData?.thumbnail || "");
@@ -68,6 +70,13 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
         }
     }, [initialData, categories, sizes]);
 
+    // Update form data when initialData changes
+    useEffect(() => {
+        if (initialData) {
+            setFormData(initialData);
+        }
+    }, [initialData]);
+
     const formatToIDR = (value: string) => {
         // Remove all non-digit characters
         const number = value.replace(/\D/g, '');
@@ -82,24 +91,53 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
             .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
     };
 
+    const formatRating = (value: string) => {
+        // Remove all non-digit and non-decimal characters
+        const number = value.replace(/[^\d.]/g, '');
+        // Ensure only one decimal point
+        const parts = number.split('.');
+        if (parts.length > 2) {
+            return parts[0] + '.' + parts.slice(1).join('');
+        }
+        // Limit to 2 decimal places
+        if (parts.length === 2) {
+            return parts[0] + '.' + parts[1].slice(0, 2);
+        }
+        return number;
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        if (name === 'price') {
-            setFormData(prev => ({ ...prev, [name]: formatToIDR(value) }));
-        } else if (name === 'title') {
-            const slug = generateSlug(value);
+
+        if (name === "price") {
+            setFormData(prev => ({
+                ...prev,
+                [name]: formatToIDR(value)
+            }));
+            return;
+        }
+
+        if (name === "title") {
             setFormData(prev => ({
                 ...prev,
                 [name]: value,
-                slug: slug
+                slug: generateSlug(value)
             }));
-        } else if (name === 'stock') {
-            // Remove non-digits and leading zeros, but keep at least "0"
-            const numericValue = value.replace(/\D/g, '').replace(/^0+/, '') || "0";
-            setFormData(prev => ({ ...prev, [name]: numericValue }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+            return;
         }
+
+        if (name === "ratings") {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value === "" ? null : formatRating(value)
+            }));
+            return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleSelectChange = (name: string, value: string) => {
@@ -221,6 +259,26 @@ export function ProductForm({ initialData, onSubmit, isLoading }: ProductFormPro
                         />
                     </div>
 
+                    <div className="space-y-2">
+                        <Label htmlFor="ratings" className="text-sm font-medium flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            Ratings
+                        </Label>
+                        <Input
+                            id="ratings"
+                            name="ratings"
+                            type="text"
+                            value={formData.ratings || ""}
+                            onChange={handleChange}
+                            className="w-full focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter ratings (optional)"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label htmlFor="stock" className="text-sm font-medium flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

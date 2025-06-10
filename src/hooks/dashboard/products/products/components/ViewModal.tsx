@@ -10,7 +10,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 
-import { Hash, AlignLeft, Calendar, Clock, DollarSign, Package } from "lucide-react"
+import { Hash, AlignLeft, Calendar, Clock, DollarSign, Package, Star } from "lucide-react"
 
 interface ViewModalProps {
     item: {
@@ -24,6 +24,7 @@ interface ViewModalProps {
         stock: number;
         sold: string;
         description: string;
+        ratings?: string | null;
         createdAt: string;
         updatedAt: string;
     } | null;
@@ -73,7 +74,7 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
 
                     <div className="p-6 sm:p-8">
                         <div className="grid gap-8">
-                            {/* Price and Size Section */}
+                            {/* Price, Size, Stock, and Ratings Section */}
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 p-6 rounded-2xl">
                                     <div className="flex items-center gap-3 mb-2">
@@ -98,6 +99,18 @@ export function ViewModal({ item, isOpen, onClose }: ViewModalProps) {
                                         </div>
                                         <p className="text-2xl font-bold text-gray-900 dark:text-white">
                                             {item.size}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {item.ratings && (
+                                    <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 p-6 rounded-2xl">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <Star className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                                            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">Ratings</h3>
+                                        </div>
+                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {item.ratings}
                                         </p>
                                     </div>
                                 )}
