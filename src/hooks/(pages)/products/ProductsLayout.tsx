@@ -12,7 +12,7 @@ import Link from 'next/link'
 
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, Star } from 'lucide-react'
 
 import { useCart } from '@/utils/context/CartContext'
 
@@ -103,9 +103,9 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
 
     return (
         <Fragment>
-            <div className='min-h-[50vh] container px-4 md:px-8 relative overflow-hidden pt-24'>
+            <div className='min-h-[50vh] container px-4 md:px-8 relative overflow-hidden pt-16 md:pt-24'>
                 <div
-                    className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl shadow-xl"
+                    className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-xl md:rounded-2xl shadow-xl"
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                 >
@@ -182,14 +182,118 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                 </div>
             </div>
 
-            <section id="products-section" className='min-h-screen py-16 bg-gray-50'>
+            {/* Ratings */}
+            <section className='py-12 md:py-20'>
+                <div className='container px-4 md:px-8'>
+                    <div className="mb-8 md:mb-12">
+                        <h2 className='text-3xl md:text-4xl font-bold relative'>
+                            Produk Terbaik
+                            <div className="absolute -bottom-2 left-0 w-20 md:w-24 h-1 bg-gradient-to-r from-black to-black rounded-full"></div>
+                        </h2>
+                    </div>
+
+                    <div className="w-full">
+                        <style jsx>{`
+                            .scrollbar-hide::-webkit-scrollbar {
+                                display: none;
+                            }
+                            .scrollbar-hide {
+                                -ms-overflow-style: none;
+                                scrollbar-width: none;
+                            }
+                        `}</style>
+                        <div className="flex gap-4 md:gap-6 overflow-x-auto pb-6 scrollbar-hide">
+                            {productsData
+                                .filter(product => product.ratings && product.ratings !== "null")
+                                .sort((a, b) => {
+                                    const ratingA = parseFloat(a.ratings || "0");
+                                    const ratingB = parseFloat(b.ratings || "0");
+                                    return ratingB - ratingA;
+                                })
+                                .slice(0, 6)
+                                .map((item, idx) => (
+                                    <motion.div
+                                        key={idx}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ duration: 0.3, delay: idx * 0.1 }}
+                                        className='group bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex-shrink-0 w-[250px] md:w-[300px]'
+                                    >
+                                        <div className='grid grid-cols-1 gap-4'>
+                                            <div className='relative aspect-square w-full overflow-hidden'>
+                                                <Image
+                                                    src={item.thumbnail}
+                                                    alt={item.title}
+                                                    quality={100}
+                                                    fill
+                                                    className='object-cover group-hover:scale-105 transition-transform duration-300'
+                                                />
+                                                <div className='absolute right-0 bottom-0 p-2 rounded-tl-2xl bg-white'>
+                                                    <button
+                                                        className='text-black rounded-full p-3 transition-colors duration-300 cursor-pointer'
+                                                        onClick={() => handleAddToCart({
+                                                            id: item.id,
+                                                            title: item.title,
+                                                            price: item.price,
+                                                            thumbnail: item.thumbnail
+                                                        })}
+                                                        disabled={loadingProductId === item.id}
+                                                    >
+                                                        {loadingProductId === item.id ? (
+                                                            <Loader2 className="w-6 h-6 animate-spin" />
+                                                        ) : (
+                                                            <svg
+                                                                className="w-6 h-6"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                                                />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                <div className='absolute left-0 bottom-0 px-4 py-2 bg-white rounded-tr-2xl'>
+                                                    {item.size && item.size !== "null" && (
+                                                        <p className='text-gray-600 text-sm line-clamp-2'>Size : {item.size}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className='p-6'>
+                                                <h3 className='font-bold text-xl mb-2 line-clamp-1'>{item.title}</h3>
+                                                <div className='flex items-center justify-between mb-4'>
+                                                    <span className='font-bold text-lg text-blue-600'>Rp. {item.price}</span>
+                                                    <div className='flex items-center gap-1'>
+                                                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                                        <span className='font-medium'>{item.ratings}</span>
+                                                    </div>
+                                                </div>
+                                                <Link href={`/products/${item.slug}`} className='w-full'>
+                                                    <Button className='w-full'>Lihat Details</Button>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="products-section" className='min-h-screen pb-10 bg-gray-50'>
                 <div className="container px-4 md:px-8">
                     <div className="mb-6 sm:mb-12 overflow-x-auto pb-2">
-                        <div className='flex justify-between items-center'>
-                            <h1 className='text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight'>Product Kami</h1>
+                        <div className='flex justify-between items-start md:items-center flex-col md:flex-row gap-4'>
+                            <h1 className='text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight'>Product Kami</h1>
 
-                            <div className='flex items-center gap-2'>
-                                <div className="flex items-center justify-start gap-1 sm:gap-2 p-1 bg-secondary/20 dark:bg-secondary/10 rounded-xl border border-border w-fit sm:min-w-0">
+                            <div className='flex items-center flex-col md:flex-row gap-2 w-full md:w-auto'>
+                                <div className="flex items-center justify-start gap-1 sm:gap-2 p-1 bg-secondary/20 dark:bg-secondary/10 rounded-xl border border-border w-full md:w-fit overflow-x-auto scrollbar-hide">
                                     {categories.map((category) => (
                                         <motion.button
                                             key={category}
@@ -222,7 +326,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
 
                                 {selectedCategory === 'Minuman' && (
                                     <Select value={selectedSize} onValueChange={setSelectedSize}>
-                                        <SelectTrigger className="w-[180px]">
+                                        <SelectTrigger className="w-full md:w-[180px]">
                                             <SelectValue placeholder="Select size" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -243,22 +347,22 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                         </div>
                     </div>
 
-                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
                         {currentProducts.map((item, idx) => (
-                            <div key={idx} className={`group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${idx === 0 ? 'ring-2 ring-blue-500' : ''}`}>
+                            <div key={idx} className={`group bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${idx === 0 ? 'ring-2 ring-blue-500' : ''}`}>
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                    <div className='p-6'>
-                                        <h3 className='font-bold text-xl mb-2 line-clamp-1'>{item.title}</h3>
+                                    <div className='p-4 md:p-6'>
+                                        <h3 className='font-bold text-lg md:text-xl mb-2 line-clamp-1'>{item.title}</h3>
 
                                         <p className='text-gray-600 text-sm mb-4 line-clamp-2'>{item.description}</p>
 
                                         <div className='flex items-center justify-between'>
-                                            <span className='font-bold text-lg text-blue-600'>Rp. {item.price}</span>
+                                            <span className='font-bold text-base md:text-lg text-blue-600'>Rp. {item.price}</span>
                                         </div>
 
-                                        <div className='mt-8 flex gap-3'>
+                                        <div className='mt-6 md:mt-8 flex gap-3'>
                                             <Link href={`/products/${item.slug}`} className='flex-1'>
-                                                <Button>Lihat Details</Button>
+                                                <Button className='w-full text-sm md:text-base'>Lihat Details</Button>
                                             </Link>
                                         </div>
                                     </div>
