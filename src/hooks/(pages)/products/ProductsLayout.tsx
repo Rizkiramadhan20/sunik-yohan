@@ -10,15 +10,36 @@ import Image from 'next/image'
 
 import Link from 'next/link'
 
-import { Button } from '@/components/ui/button'
-
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+
+import { useCart } from '@/utils/context/CartContext'
+
+import { useAuth } from '@/utils/context/AuthContext'
+
+import { useRouter } from 'next/navigation'
+
+import { toast } from 'sonner'
+
+import type { CartItem } from '@/utils/context/CartContext'
+
+import { Button } from '@/components/ui/button'
+
+import { Pagination } from "@/components/ui/pagination"
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function ProductsLayout({ productsData, bannerData }: { productsData: ProductsData[], bannerData: BannerData[] }) {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isHovered, setIsHovered] = useState(false)
+    const [selectedCategory, setSelectedCategory] = useState<string>('All')
+    const [selectedSize, setSelectedSize] = useState<string>('all')
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 12
+    const { addToCart, loadingProductId } = useCart()
+    const { user } = useAuth()
+    const router = useRouter()
 
     useEffect(() => {
         if (!isHovered) {
@@ -35,6 +56,49 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
 
     const prevSlide = () => {
         setCurrentIndex((prev) => (prev - 1 + bannerData.length) % bannerData.length)
+    }
+
+    const filteredProducts = selectedCategory === 'All'
+        ? productsData
+        : productsData.filter(product => {
+            const categoryMatch = product.category === selectedCategory;
+            if (selectedCategory === 'Minuman' && selectedSize !== 'all') {
+                return categoryMatch && product.size === selectedSize;
+            }
+            return categoryMatch;
+        });
+
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const currentProducts = filteredProducts.slice(startIndex, endIndex)
+
+    const categories = ['All', ...new Set(productsData.map(item => item.category))]
+
+    const handleAddToCart = (product: Omit<CartItem, 'quantity'>) => {
+        if (!user) {
+            // Show message first
+            toast.info('Silakan login terlebih dahulu untuk menambahkan ke keranjang')
+
+            // Wait for 1.5 seconds before redirecting
+            setTimeout(() => {
+                // Save the current URL to redirect back after login
+                localStorage.setItem('redirectAfterLogin', window.location.pathname)
+                router.push('/signin')
+            }, 1500)
+            return
+        }
+        addToCart(product)
+    }
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page)
+        // Scroll to top of products section
+        const productsSection = document.getElementById('products-section')
+        if (productsSection) {
+            productsSection.scrollIntoView({ behavior: 'smooth' })
+        }
     }
 
     return (
@@ -92,17 +156,18 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3"
+                        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2"
                     >
                         {bannerData.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
-                                className={`w-3 h-3 rounded-full transition-all duration-300 ${idx === currentIndex
-                                    ? 'bg-white scale-125'
-                                    : 'bg-white/50 hover:bg-white/80'
+                                className={`h-1 rounded-full transition-all duration-300 focus:outline-none ${idx === currentIndex
+                                    ? 'bg-white w-10 md:w-16 opacity-100'
+                                    : 'bg-white/50 w-6 md:w-10 opacity-60 hover:opacity-80'
                                     }`}
                                 aria-label={`Go to slide ${idx + 1}`}
+                                style={{ minWidth: '1.5rem' }}
                             />
                         ))}
                     </motion.div>
@@ -117,59 +182,146 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                 </div>
             </div>
 
-            <section className='min-h-screen py-20 bg-gray-50'>
+            <section id="products-section" className='min-h-screen py-16 bg-gray-50'>
                 <div className="container px-4 md:px-8">
-                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
-                        {
-                            productsData.map((item, idx) => {
-                                return (
-                                    <div key={idx} className={`group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${idx === 0 ? 'ring-2 ring-blue-500' : ''}`}>
-                                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                            <div className='p-6'>
-                                                <h3 className='font-bold text-xl mb-2 line-clamp-1'>{item.title}</h3>
-                                                <p className='text-gray-600 text-sm mb-4 line-clamp-2'>{item.description}</p>
-                                                <div className='flex items-center justify-between'>
-                                                    <span className='font-bold text-lg text-blue-600'>Rp. {item.price}</span>
-                                                </div>
+                    <div className="mb-6 sm:mb-12 overflow-x-auto pb-2">
+                        <div className='flex justify-between items-center'>
+                            <h1 className='text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent leading-tight tracking-tight'>Product Kami</h1>
 
-                                                <Link href={item.slug} className='mt-8 flex'>
-                                                    <Button>Lihat Details</Button>
-                                                </Link>
-                                            </div>
-
-                                            <div className='relative aspect-square w-full overflow-hidden'>
-                                                <Image
-                                                    src={item.thumbnail}
-                                                    alt={item.title}
-                                                    quality={100}
-                                                    fill
-                                                    className='object-cover group-hover:scale-105 transition-transform duration-300'
+                            <div className='flex items-center gap-2'>
+                                <div className="flex items-center justify-start gap-1 sm:gap-2 p-1 bg-secondary/20 dark:bg-secondary/10 rounded-xl border border-border w-fit sm:min-w-0">
+                                    {categories.map((category) => (
+                                        <motion.button
+                                            key={category}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            whileInView={{ opacity: 1, scale: 1 }}
+                                            viewport={{ once: true }}
+                                            transition={{ duration: 0.3, delay: categories.indexOf(category) * 0.1 }}
+                                            className={`relative px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium whitespace-nowrap transition-colors duration-200 capitalize cursor-pointer ${selectedCategory === category
+                                                ? 'text-primary-foreground'
+                                                : 'text-muted-foreground hover:text-foreground'
+                                                }`}
+                                            onClick={() => setSelectedCategory(category)}
+                                        >
+                                            {selectedCategory === category && (
+                                                <motion.div
+                                                    layoutId="activeYoutubeCategory"
+                                                    className="absolute inset-0 bg-primary rounded-lg"
+                                                    initial={false}
+                                                    transition={{
+                                                        type: "spring",
+                                                        stiffness: 400,
+                                                        damping: 30
+                                                    }}
                                                 />
+                                            )}
+                                            <span className="relative z-10">{category}</span>
+                                        </motion.button>
+                                    ))}
+                                </div>
 
-                                                <div className='absolute right-0 bottom-0 p-2 rounded-tl-2xl bg-white'>
-                                                    <button className=' text-black rounded-full p-3 transition-colors duration-300'>
-                                                        <svg
-                                                            className="w-6 h-6"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth={2}
-                                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                                            />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
+                                {selectedCategory === 'Minuman' && (
+                                    <Select value={selectedSize} onValueChange={setSelectedSize}>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Select size" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Sizes</SelectItem>
+                                            {[...new Set(productsData
+                                                .filter(item => item.category === 'Minuman')
+                                                .map(item => item.size)
+                                                .filter(size => size !== null && size !== undefined && size !== "null"))]
+                                                .map((size, idx) => (
+                                                    <SelectItem key={idx} value={size || ''}>
+                                                        {size}
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
+                        {currentProducts.map((item, idx) => (
+                            <div key={idx} className={`group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${idx === 0 ? 'ring-2 ring-blue-500' : ''}`}>
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                                    <div className='p-6'>
+                                        <h3 className='font-bold text-xl mb-2 line-clamp-1'>{item.title}</h3>
+
+                                        <p className='text-gray-600 text-sm mb-4 line-clamp-2'>{item.description}</p>
+
+                                        <div className='flex items-center justify-between'>
+                                            <span className='font-bold text-lg text-blue-600'>Rp. {item.price}</span>
+                                        </div>
+
+                                        <div className='mt-8 flex gap-3'>
+                                            <Link href={`/products/${item.slug}`} className='flex-1'>
+                                                <Button>Lihat Details</Button>
+                                            </Link>
                                         </div>
                                     </div>
-                                )
-                            })
-                        }
+
+                                    <div className='relative aspect-square w-full overflow-hidden'>
+                                        <Image
+                                            src={item.thumbnail}
+                                            alt={item.title}
+                                            quality={100}
+                                            fill
+                                            className='object-cover group-hover:scale-105 transition-transform duration-300'
+                                        />
+
+                                        <div className='absolute right-0 bottom-0 p-2 rounded-tl-2xl bg-white'>
+                                            <button className=' text-black rounded-full p-3 transition-colors duration-300 cursor-pointer' onClick={() => handleAddToCart({
+                                                id: item.id,
+                                                title: item.title,
+                                                price: item.price,
+                                                thumbnail: item.thumbnail
+                                            })}
+                                                disabled={loadingProductId === item.id}>
+                                                {loadingProductId === item.id ? (
+                                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                                ) : (
+                                                    <svg
+                                                        className="w-6 h-6"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                                        />
+                                                    </svg>
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        <div className='absolute left-0 bottom-0 px-4 py-2 bg-white rounded-tr-2xl'>
+                                            {
+                                                item.size && item.size !== "null" && (
+                                                    <p className='text-gray-600 text-sm line-clamp-2'>Size: {item.size}</p>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
+
+                    {totalPages > 1 && (
+                        <div className="mt-8 flex justify-center">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    )}
                 </div>
             </section>
         </Fragment>
