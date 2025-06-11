@@ -1,54 +1,51 @@
 import React, { Fragment } from 'react';
 
-import { fetchProductsData } from "@/components/content/products/utils/FetchProducts"
+import { fetchBlogData } from "@/components/content/blog/utils/FetchBlog"
 
-import { fetchBannerData } from "@/hooks/(pages)/banner/utils/FetchBanner"
+import Blog from '@/hooks/(pages)/blog/BlogLayout';
 
-import Product from '@/hooks/(pages)/products/ProductsLayout';
-
-import ProductSkeleton from '@/hooks/(pages)/products/ProductsSkeleton';
+import BlogSkeleton from '@/hooks/(pages)/blog/BlogSkeleton';
 
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Products | Sunik Yohan',
-    description: 'Explore our collection of products at Sunik Yohan',
-    keywords: 'products, collection, Sunik Yohan',
+    title: 'Blog | Sunik Yohan',
+    description: 'Read our latest articles and insights at Sunik Yohan',
+    keywords: 'blog, articles, insights, Sunik Yohan',
     openGraph: {
-        title: 'Products | Sunik Yohan',
-        description: 'Explore our collection of products at Sunik Yohan',
+        title: 'Blog | Sunik Yohan',
+        description: 'Read our latest articles and insights at Sunik Yohan',
         type: 'website',
         locale: 'id_ID',
         siteName: 'Sunik Yohan',
         images: [
             {
-                url: '/public/products.png', // Make sure to add this image to your public folder
+                url: '/public/blog.png', // Make sure to add this image to your public folder
                 width: 1200,
                 height: 630,
-                alt: 'Sunik Yohan Products',
+                alt: 'Sunik Yohan Blog',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Products | Sunik Yohan',
-        description: 'Explore our collection of products at Sunik Yohan',
-        images: ['/public/products.png'], // Same image as OpenGraph
+        title: 'Blog | Sunik Yohan',
+        description: 'Read our latest articles and insights at Sunik Yohan',
+        images: ['/public/blog.png'], // Same image as OpenGraph
     },
 };
 
 export default async function Page() {
     try {
-        const productsData = await fetchProductsData();
-        const bannerData = await fetchBannerData();
+        const blogData = await fetchBlogData();
 
         return <Fragment>
-            <Product productsData={productsData} bannerData={bannerData} />
+            <Blog blogData={blogData} />
         </Fragment>;
     } catch (error) {
-        console.error('Error fetching products data:', error);
+        console.error('Error fetching blog data:', error);
         return (
-            <ProductSkeleton />
+            <BlogSkeleton />
         );
     }
 }
