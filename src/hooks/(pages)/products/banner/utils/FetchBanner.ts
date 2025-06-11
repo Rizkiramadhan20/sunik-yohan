@@ -1,4 +1,7 @@
-import { BannerData, ApiResponse } from "@/hooks/(pages)/banner/types/banner";
+import {
+  BannerData,
+  ApiResponse,
+} from "@/hooks/(pages)/products/banner/types/banner";
 
 export const fetchBannerData = async (): Promise<BannerData[]> => {
   try {

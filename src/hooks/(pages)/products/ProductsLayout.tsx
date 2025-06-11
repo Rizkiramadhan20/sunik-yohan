@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 
 import { ProductsData } from "@/components/content/products/types/products"
 
-import { BannerData } from "@/hooks/(pages)/banner/types/banner"
+import { BannerData } from "@/hooks/(pages)/products/banner/types/banner"
 
 import Image from 'next/image'
 

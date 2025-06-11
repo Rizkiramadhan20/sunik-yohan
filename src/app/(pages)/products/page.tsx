@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 
 import { fetchProductsData } from "@/components/content/products/utils/FetchProducts"
 
-import { fetchBannerData } from "@/hooks/(pages)/banner/utils/FetchBanner"
+import { fetchBannerData } from "@/hooks/(pages)/products/banner/utils/FetchBanner"
 
 import Product from '@/hooks/(pages)/products/ProductsLayout';
 
