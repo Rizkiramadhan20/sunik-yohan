@@ -29,17 +29,25 @@ export const menuItems = [
         href: "/dashboard/pages/home",
         label: "Home",
       },
+
       {
         href: "/dashboard/pages/about",
         label: "About",
       },
+
       {
         href: "/dashboard/pages/services",
         label: "Services",
       },
+
       {
         href: "/dashboard/pages/daily",
         label: "Daily",
+      },
+
+      {
+        href: "/dashboard/pages/apps",
+        label: "Apps",
       },
     ],
   },
