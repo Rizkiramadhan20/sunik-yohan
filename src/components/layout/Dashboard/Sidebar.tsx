@@ -67,6 +67,8 @@ export default function SuperAdminHeader({ onSidebarToggle }: HeaderProps) {
     };
 
     const isLinkActive = (href: string) => {
+        if (!pathname) return false;
+
         if (href === '/') {
             return pathname === '/';
         }

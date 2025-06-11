@@ -2,6 +2,8 @@
 
 import React from 'react'
 
+import { motion } from 'framer-motion'
+
 import { BlogData } from '@/components/content/blog/types/blog'
 
 import Image from 'next/image'
@@ -47,73 +49,107 @@ export default function BlogLayout({
         })
     }
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    }
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.5
+            }
+        }
+    }
+
     return (
-        <section className="py-8 sm:py-12 pt-20 sm:pt-28">
+        <motion.section
+            className="py-8 sm:py-12 pt-20 sm:pt-28"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+        >
             <div className="container px-4 md:px-8">
                 {/* Top Blog Section */}
                 {topBlog && (
-                    <Link href={`/blog/${topBlog.slug}`} className="block mb-8 sm:mb-12">
-                        <Card className="relative rounded-lg shadow-lg overflow-hidden aspect-[16/9] sm:aspect-[21/9]">
-                            <Image
-                                src={topBlog.thumbnail}
-                                alt={topBlog.title}
-                                fill
-                                className="object-cover transition-transform duration-300 hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                            <CardContent className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white">
-                                <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{topBlog.title}</CardTitle>
-                                <CardDescription className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 line-clamp-2">{topBlog.description}</CardDescription>
-                                <div className="flex items-center text-xs sm:text-sm text-gray-300 mb-2">
-                                    <Image src={profile} alt="Author" width={16} height={16} className="rounded-full mr-2 sm:w-5 sm:h-5" />
-                                    <span>Sunik Yohan</span>
-                                    <span className="mx-2"> • </span>
-                                    <span>{formatDate(topBlog.createdAt)}</span>
+                    <motion.div variants={itemVariants}>
+                        <Link href={`/blog/${topBlog.slug}`} className="block mb-8 sm:mb-12">
+                            <Card className="relative rounded-lg shadow-lg overflow-hidden aspect-[16/9] sm:aspect-[21/9]">
+                                <Image
+                                    src={topBlog.thumbnail}
+                                    alt={topBlog.title}
+                                    fill
+                                    className="object-cover transition-transform duration-300 hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                                <CardContent className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 text-white">
+                                    <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">{topBlog.title}</CardTitle>
+                                    <CardDescription className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 line-clamp-2">{topBlog.description}</CardDescription>
+                                    <div className="flex items-center text-xs sm:text-sm text-gray-300 mb-2">
+                                        <Image src={profile} alt="Author" width={16} height={16} className="rounded-full mr-2 sm:w-5 sm:h-5" />
+                                        <span>Sunik Yohan</span>
+                                        <span className="mx-2"> • </span>
+                                        <span>{formatDate(topBlog.createdAt)}</span>
+                                    </div>
+                                </CardContent>
+                                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 sm:w-6 sm:h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+                                    </svg>
                                 </div>
-                            </CardContent>
-                            <div className="absolute top-4 sm:top-6 right-4 sm:right-6 text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 sm:w-6 sm:h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                                </svg>
-                            </div>
-                        </Card>
-                    </Link>
+                            </Card>
+                        </Link>
+                    </motion.div>
                 )}
 
                 {/* All Blogs Section */}
                 {remainingBlogs.length > 0 && (
-                    <div>
+                    <motion.div variants={containerVariants}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                             {remainingBlogs.map((blog) => (
-                                <Link key={blog.id} href={`/blog/${blog.slug}`}>
-                                    <Card className="hover:shadow-lg transition-shadow">
-                                        <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
-                                            <Image
-                                                src={blog.thumbnail}
-                                                alt={blog.title}
-                                                fill
-                                                className="object-cover transition-transform duration-300 hover:scale-110"
-                                            />
-                                        </div>
-                                        <CardContent className="p-3 sm:p-4">
-                                            <CardTitle className="text-base sm:text-lg font-semibold mb-2">{blog.title}</CardTitle>
-                                            <CardDescription className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{blog.description}</CardDescription>
-                                            <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                                                <Image src={profile} alt="Author" width={16} height={16} className="rounded-full mr-2 sm:w-5 sm:h-5" />
-                                                <span>Sunik Yohan</span>
-                                                <span className="mx-2"> • </span>
-                                                <span>{formatDate(blog.createdAt)}</span>
+                                <motion.div key={blog.id} variants={itemVariants}>
+                                    <Link href={`/blog/${blog.slug}`}>
+                                        <Card className="hover:shadow-lg transition-shadow">
+                                            <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
+                                                <Image
+                                                    src={blog.thumbnail}
+                                                    alt={blog.title}
+                                                    fill
+                                                    className="object-cover transition-transform duration-300 hover:scale-110"
+                                                />
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                </Link>
+                                            <CardContent className="p-3 sm:p-4">
+                                                <CardTitle className="text-base sm:text-lg font-semibold mb-2">{blog.title}</CardTitle>
+                                                <CardDescription className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{blog.description}</CardDescription>
+                                                <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                                                    <Image src={profile} alt="Author" width={16} height={16} className="rounded-full mr-2 sm:w-5 sm:h-5" />
+                                                    <span>Sunik Yohan</span>
+                                                    <span className="mx-2"> • </span>
+                                                    <span>{formatDate(blog.createdAt)}</span>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                </motion.div>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Pagination */}
-                <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <motion.div
+                    className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4"
+                    variants={itemVariants}
+                >
                     <div className="text-xs sm:text-sm text-muted-foreground">
                         Page {currentPage} of {pagination.totalPages}
                     </div>
@@ -123,8 +159,8 @@ export default function BlogLayout({
                         totalPages={pagination.totalPages}
                         onPageChange={onPageChange}
                     />
-                </div>
+                </motion.div>
             </div>
-        </section>
+        </motion.section>
     )
 }

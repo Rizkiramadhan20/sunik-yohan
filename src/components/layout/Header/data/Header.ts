@@ -27,11 +27,6 @@ export const menuHamburger = [
     name: "Blog",
     href: "/blog",
   },
-
-  {
-    name: "Contact",
-    href: "/contact",
-  },
 ];
 
 export const socialMedia = [

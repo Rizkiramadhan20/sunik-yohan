@@ -128,7 +128,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
     return (
         <Fragment>
             {/* Banner */}
-            <div className='min-h-[50vh] container px-4 md:px-8 relative overflow-hidden pt-16 md:pt-24'>
+            <div className='min-h-auto md:min-h-[50vh] container px-4 md:px-8 relative overflow-hidden pt-24'>
                 <div
                     className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-xl md:rounded-2xl shadow-xl"
                     onMouseEnter={() => setIsHovered(true)}
@@ -208,7 +208,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
             </div>
 
             {/* Products Populer */}
-            <section className='py-12 md:py-20'>
+            <section className='pt-12 md:pt-20'>
                 <div className='container px-4 md:px-8'>
                     <div className="mb-8 md:mb-12">
                         <h2 className='text-3xl md:text-4xl font-bold relative'>
@@ -373,7 +373,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                         </div>
                     </div>
 
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
+                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
                         {currentProducts.map((item, idx) => (
                             <div
                                 key={idx}
@@ -382,7 +382,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                 onClick={() => setActiveProductId(item.id)}
                             >
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                                    <div className='p-4 md:p-6'>
+                                    <div className='p-4 md:p-6 order-2 md:order-1'>
                                         <h3 className='font-bold text-lg md:text-xl mb-2 line-clamp-1'>{item.title}</h3>
 
                                         <p className='text-gray-600 text-sm mb-4 line-clamp-2'>{item.description}</p>
@@ -398,7 +398,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                         </div>
                                     </div>
 
-                                    <div className='relative aspect-square w-full overflow-hidden'>
+                                    <div className='relative aspect-square w-full overflow-hidden order-1 md:order-2'>
                                         <Image
                                             src={item.thumbnail}
                                             alt={item.title}
