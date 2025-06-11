@@ -33,7 +33,7 @@ export default async function Page({ params }: Props) {
             />
         );
     } catch (error) {
-        console.error('Error fetching home data:', error);
+        console.error('Error fetching products data:', error);
         return (
             <ProductsSlugSkeleton />
         );

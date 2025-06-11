@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, MapPin, ShoppingCart, LogIn, Home, Info, Utensils, Newspaper, Phone } from "lucide-react";
+import { Menu, X, MapPin, ShoppingCart, LogIn, Home, Info, Utensils, Newspaper, Phone, Image as ImageIcon } from "lucide-react";
 import { menuHamburger } from "@/components/layout/Header/data/Header"
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/utils/context/AuthContext";
@@ -87,6 +87,7 @@ export default function Header() {
                                             {item.name === "Home" && <Home className="h-5 w-5" />}
                                             {item.name === "About" && <Info className="h-5 w-5" />}
                                             {item.name === "Products" && <Utensils className="h-5 w-5" />}
+                                            {item.name === "Gallery" && <ImageIcon className="h-5 w-5" />}
                                             {item.name === "Blog" && <Newspaper className="h-5 w-5" />}
                                             {item.name === "Contact" && <Phone className="h-5 w-5" />}
                                             {item.name}
@@ -211,7 +212,7 @@ export default function Header() {
                                     <Menu className="h-5 w-5 text-gray-600" />
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="bottom" className="h-[75vh] p-0 bg-white/80 backdrop-blur-xl border-t rounded-t-[var(--radius)]">
+                            <SheetContent side="bottom" className="h-[80vh] p-0 bg-white/80 backdrop-blur-xl border-t rounded-t-[var(--radius)]">
                                 <div className="flex flex-col h-full">
                                     <SheetHeader className="px-6 py-4 border-b">
                                         <SheetTitle className="text-gray-900 text-xl font-semibold">Menu</SheetTitle>
@@ -229,7 +230,8 @@ export default function Header() {
                                                         >
                                                             {item.name === "Home" && <Home className="h-5 w-5" />}
                                                             {item.name === "About" && <Info className="h-5 w-5" />}
-                                                            {item.name === "Our Menu" && <Utensils className="h-5 w-5" />}
+                                                            {item.name === "Products" && <Utensils className="h-5 w-5" />}
+                                                            {item.name === "Gallery" && <ImageIcon className="h-5 w-5" />}
                                                             {item.name === "Blog" && <Newspaper className="h-5 w-5" />}
                                                             {item.name === "Contact" && <Phone className="h-5 w-5" />}
                                                             {item.name}

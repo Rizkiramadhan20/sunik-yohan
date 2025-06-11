@@ -143,7 +143,7 @@ export default function Blog({ blogData }: { blogData: BlogData[] }) {
                                             <CardDescription className='text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2'>
                                                 {blog.description}
                                             </CardDescription>
-                                            <Link href={`/blogs/${blog.slug}`} className='text-red-500 hover:text-red-600 font-medium flex items-center justify-center text-sm sm:text-base'>
+                                            <Link href={`/blog/${blog.slug}`} className='text-red-500 hover:text-red-600 font-medium flex items-center justify-center text-sm sm:text-base'>
                                                 Read Blog
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.5 8.5l4 4-4 4M3.5 12.5h18" />

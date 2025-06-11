@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Facebook, Instagram, Youtube } from "lucide-react";
 
 import { FaTiktok } from "react-icons/fa";
 
@@ -16,6 +16,11 @@ export const menuHamburger = [
   {
     name: "Products",
     href: "/products",
+  },
+
+  {
+    name: "Gallery",
+    href: "/gallery",
   },
 
   {

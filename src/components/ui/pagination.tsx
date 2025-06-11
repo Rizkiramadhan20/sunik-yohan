@@ -63,7 +63,7 @@ export function Pagination({
                     "hover:bg-accent hover:text-accent-foreground",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     "disabled:pointer-events-none disabled:opacity-50",
-                    "border border-input bg-background"
+                    "border border-input bg-background cursor-pointer"
                 )}
             >
                 <ChevronLeft className="h-4 w-4 mr-2" />
@@ -88,9 +88,9 @@ export function Pagination({
                             key={page}
                             onClick={() => onPageChange(Number(page))}
                             className={cn(
-                                "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors",
+                                "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors cursor-pointer",
                                 "h-10 w-10",
-                                "hover:bg-accent hover:text-accent-foreground",
+                                "hover:bg-accent",
                                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                                 currentPage === page
                                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -112,7 +112,7 @@ export function Pagination({
                     "hover:bg-accent hover:text-accent-foreground",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     "disabled:pointer-events-none disabled:opacity-50",
-                    "border border-input bg-background"
+                    "border border-input bg-background cursor-pointer"
                 )}
             >
                 Next

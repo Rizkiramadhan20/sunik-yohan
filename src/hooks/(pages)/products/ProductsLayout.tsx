@@ -36,10 +36,23 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
     const [selectedCategory, setSelectedCategory] = useState<string>('All')
     const [selectedSize, setSelectedSize] = useState<string>('all')
     const [currentPage, setCurrentPage] = useState(1)
+    const [activeProductId, setActiveProductId] = useState<string | null>(null)
     const itemsPerPage = 12
     const { addToCart, loadingProductId } = useCart()
     const { user } = useAuth()
     const router = useRouter()
+
+    // Initialize data safely
+    useEffect(() => {
+        try {
+            if (productsData && productsData.length > 0) {
+                // Set initial active product
+                setActiveProductId(productsData[0].id)
+            }
+        } catch (error) {
+            console.error('Error initializing products:', error)
+        }
+    }, [productsData])
 
     useEffect(() => {
         if (!isHovered) {
@@ -58,21 +71,32 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
         setCurrentIndex((prev) => (prev - 1 + bannerData.length) % bannerData.length)
     }
 
-    const filteredProducts = selectedCategory === 'All'
-        ? productsData
-        : productsData.filter(product => {
-            const categoryMatch = product.category === selectedCategory;
-            if (selectedCategory === 'Minuman' && selectedSize !== 'all') {
-                return categoryMatch && product.size === selectedSize;
-            }
-            return categoryMatch;
-        });
+    const filteredProducts = React.useMemo(() => {
+        if (!productsData) return []
+
+        return selectedCategory === 'All'
+            ? productsData
+            : productsData.filter(product => {
+                const categoryMatch = product.category === selectedCategory;
+                if (selectedCategory === 'Minuman' && selectedSize !== 'all') {
+                    return categoryMatch && product.size === selectedSize;
+                }
+                return categoryMatch;
+            });
+    }, [productsData, selectedCategory, selectedSize]);
 
     // Calculate pagination
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     const currentProducts = filteredProducts.slice(startIndex, endIndex)
+
+    // Update active product when current products change
+    useEffect(() => {
+        if (currentProducts.length > 0 && !activeProductId) {
+            setActiveProductId(currentProducts[0].id)
+        }
+    }, [currentProducts, activeProductId])
 
     const categories = ['All', ...new Set(productsData.map(item => item.category))]
 
@@ -103,6 +127,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
 
     return (
         <Fragment>
+            {/* Banner */}
             <div className='min-h-[50vh] container px-4 md:px-8 relative overflow-hidden pt-16 md:pt-24'>
                 <div
                     className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-xl md:rounded-2xl shadow-xl"
@@ -182,7 +207,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                 </div>
             </div>
 
-            {/* Ratings */}
+            {/* Products Populer */}
             <section className='py-12 md:py-20'>
                 <div className='container px-4 md:px-8'>
                     <div className="mb-8 md:mb-12">
@@ -268,7 +293,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                             <div className='p-6'>
                                                 <h3 className='font-bold text-xl mb-2 line-clamp-1'>{item.title}</h3>
                                                 <div className='flex items-center justify-between mb-4'>
-                                                    <span className='font-bold text-lg text-blue-600'>Rp. {item.price}</span>
+                                                    <span className='font-bold text-lg text-gray-600'>Rp. {item.price}</span>
                                                     <div className='flex items-center gap-1'>
                                                         <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                                                         <span className='font-medium'>{item.ratings}</span>
@@ -286,7 +311,8 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                 </div>
             </section>
 
-            <section id="products-section" className='min-h-screen pb-10 bg-gray-50'>
+            {/* All Products */}
+            <section id="products-section" className='min-h-full py-10 bg-gray-50'>
                 <div className="container px-4 md:px-8">
                     <div className="mb-6 sm:mb-12 overflow-x-auto pb-2">
                         <div className='flex justify-between items-start md:items-center flex-col md:flex-row gap-4'>
@@ -310,7 +336,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                             {selectedCategory === category && (
                                                 <motion.div
                                                     layoutId="activeYoutubeCategory"
-                                                    className="absolute inset-0 bg-primary rounded-lg"
+                                                    className="absolute inset-0 bg-[#FF204E] rounded-lg"
                                                     initial={false}
                                                     transition={{
                                                         type: "spring",
@@ -349,7 +375,12 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
 
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8'>
                         {currentProducts.map((item, idx) => (
-                            <div key={idx} className={`group bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${idx === 0 ? 'ring-2 ring-blue-500' : ''}`}>
+                            <div
+                                key={idx}
+                                className={`group bg-white rounded-xl md:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${activeProductId === item.id ? 'ring-2 ring-[#FF204E]' : ''
+                                    }`}
+                                onClick={() => setActiveProductId(item.id)}
+                            >
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                     <div className='p-4 md:p-6'>
                                         <h3 className='font-bold text-lg md:text-xl mb-2 line-clamp-1'>{item.title}</h3>
@@ -357,7 +388,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                         <p className='text-gray-600 text-sm mb-4 line-clamp-2'>{item.description}</p>
 
                                         <div className='flex items-center justify-between'>
-                                            <span className='font-bold text-base md:text-lg text-blue-600'>Rp. {item.price}</span>
+                                            <span className='font-bold text-base md:text-lg text-gray-600'>Rp. {item.price}</span>
                                         </div>
 
                                         <div className='mt-6 md:mt-8 flex gap-3'>
@@ -404,10 +435,12 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                             </button>
                                         </div>
 
-                                        <div className='absolute left-0 bottom-0 px-4 py-2 bg-white rounded-tr-2xl'>
+                                        <div className='absolute left-0 bottom-0'>
                                             {
                                                 item.size && item.size !== "null" && (
-                                                    <p className='text-gray-600 text-sm line-clamp-2'>Size: {item.size}</p>
+                                                    <div className='px-4 py-2 bg-white rounded-tr-2xl'>
+                                                        <p className='text-gray-600 text-sm line-clamp-2'>Size: {item.size}</p>
+                                                    </div>
                                                 )
                                             }
                                         </div>
@@ -418,7 +451,11 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                     </div>
 
                     {totalPages > 1 && (
-                        <div className="mt-8 flex justify-center">
+                        <div className="mt-10 flex gap-4 justify-between items-center flex-col md:flex-row">
+                            <span className="text-sm text-muted-foreground ml-2">
+                                Menu {currentPage} of {totalPages}
+                            </span>
+
                             <Pagination
                                 currentPage={currentPage}
                                 totalPages={totalPages}
