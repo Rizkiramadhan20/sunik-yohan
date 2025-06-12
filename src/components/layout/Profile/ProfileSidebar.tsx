@@ -60,12 +60,6 @@ const sidebarNavItems: NavItem[] = [
     },
 
     {
-        title: "Alamat",
-        href: "/profile/address",
-        icon: MapPin,
-    },
-
-    {
         title: "Transaksi",
         href: "/profile/tranksaksi",
         icon: CreditCard,
@@ -76,6 +70,12 @@ const sidebarNavItems: NavItem[] = [
             { title: "Berhasil", href: "/profile/tranksaksi/success" },
             { title: "Dibatalkan", href: "/profile/tranksaksi/canceled" },
         ],
+    },
+
+    {
+        title: "Alamat",
+        href: "/profile/address",
+        icon: MapPin,
     },
 
     {
@@ -128,23 +128,27 @@ export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
 
     return (
         <div className="w-64 bg-background border-r flex flex-col h-full">
-            <div className="p-6">
-                <div className="flex flex-col items-center mb-6">
-                    <Avatar className="w-20 h-20 mb-4 ring-4 ring-primary/10">
-                        {user.photoURL ? (
-                            <AvatarImage src={user.photoURL} alt={user.displayName || "Profile"} />
-                        ) : (
-                            <AvatarFallback className="text-2xl">
-                                {user.displayName?.charAt(0) || "U"}
-                            </AvatarFallback>
-                        )}
-                    </Avatar>
-                    <h2 className="text-lg font-semibold text-foreground truncate max-w-[180px] text-center">{user.displayName}</h2>
-                    <p className="text-sm text-muted-foreground truncate max-w-[180px] text-center">{user.email}</p>
+            <div className="p-4">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Avatar className="w-6 h-6">
+                            {user.photoURL ? (
+                                <AvatarImage src={user.photoURL} alt={user.displayName || "Profile"} className="object-cover" />
+                            ) : (
+                                <AvatarFallback className="text-sm text-primary">
+                                    {user.displayName?.charAt(0) || "U"}
+                                </AvatarFallback>
+                            )}
+                        </Avatar>
+                    </div>
+                    <div>
+                        <h2 className="text-sm font-medium text-foreground">{user.displayName}</h2>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
                 </div>
             </div>
 
-            <ScrollArea className="flex-1 px-3">
+            <ScrollArea className="flex-1 px-2">
                 <nav className="space-y-1">
                     {sidebarNavItems.map((item) => {
                         const hasSubItems = item.subItems && item.subItems.length > 0;
@@ -162,15 +166,15 @@ export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
                                             <Button
                                                 variant="ghost"
                                                 className={cn(
-                                                    "w-full justify-start items-center",
-                                                    isItemActive && "bg-accent text-accent-foreground"
+                                                    "w-full justify-start items-center h-9 px-2",
+                                                    isItemActive && "bg-primary/10 text-primary"
                                                 )}
                                             >
                                                 <item.icon className={cn(
-                                                    "w-5 h-5 mr-3",
+                                                    "w-4 h-4 mr-2",
                                                     isItemActive ? "text-primary" : "text-muted-foreground"
                                                 )} />
-                                                {item.title}
+                                                <span className="text-sm">{item.title}</span>
                                                 <ChevronDown
                                                     className={cn(
                                                         "w-4 h-4 ml-auto transition-transform duration-200",
@@ -185,8 +189,8 @@ export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
                                                     <Button
                                                         variant="ghost"
                                                         className={cn(
-                                                            "w-full justify-start items-center text-sm",
-                                                            isActive(subItem.href) && "bg-accent text-accent-foreground"
+                                                            "w-full justify-start items-center h-8 px-2 text-sm",
+                                                            isActive(subItem.href) && "bg-primary/10 text-primary"
                                                         )}
                                                     >
                                                         {subItem.title}
@@ -203,15 +207,15 @@ export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
                                         <Button
                                             variant="ghost"
                                             className={cn(
-                                                "w-full justify-start items-center",
-                                                isItemActive && "bg-accent text-accent-foreground"
+                                                "w-full justify-start items-center h-9 px-2",
+                                                isItemActive && "bg-primary/10 text-primary"
                                             )}
                                         >
                                             <item.icon className={cn(
-                                                "w-5 h-5 mr-3",
+                                                "w-4 h-4 mr-2",
                                                 isItemActive ? "text-primary" : "text-muted-foreground"
                                             )} />
-                                            {item.title}
+                                            <span className="text-sm">{item.title}</span>
                                             {isItemActive && (
                                                 <ChevronRight className="w-4 h-4 ml-auto" />
                                             )}
@@ -224,15 +228,15 @@ export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
                 </nav>
             </ScrollArea>
 
-            <div className="p-3">
-                <Separator className="mb-3" />
+            <div className="p-2">
+                <Separator className="mb-2" />
                 <Button
                     variant="ghost"
-                    className="w-full justify-start items-center text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="w-full justify-start items-center h-9 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={logout}
                 >
-                    <LogOut className="w-5 h-5 mr-3" />
-                    Logout
+                    <LogOut className="w-4 h-4 mr-2" />
+                    <span className="text-sm">Logout</span>
                 </Button>
             </div>
         </div>

@@ -1,19 +1,12 @@
 "use client";
 
 import { useAuth } from "@/utils/context/AuthContext";
-
 import { Role } from "@/types/Auth";
-
 import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
 import ProfileSidebar from "@/components/layout/Profile/ProfileSidebar";
-
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-
 import { Menu } from "lucide-react";
 
 export default function ProfileLayout({
@@ -23,8 +16,10 @@ export default function ProfileLayout({
 }) {
     const { user, hasRole } = useAuth();
     const router = useRouter();
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
+    // Handle authentication and role check
     useEffect(() => {
         if (!user) {
             router.push("/signin");
@@ -33,35 +28,68 @@ export default function ProfileLayout({
         }
     }, [user, router, hasRole]);
 
+    // Handle responsive layout
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (!mobile) {
+                setIsSidebarOpen(false);
+            }
+        };
+
+        // Initial check
+        handleResize();
+
+        // Add event listener
+        window.addEventListener('resize', handleResize);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Early return if not authenticated
     if (!user || !hasRole(Role.USER)) return null;
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            {/* Mobile Sidebar Trigger */}
-            <div className="lg:hidden fixed top-4 left-4 z-50">
-                <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" size="icon" className="bg-white rounded-md shadow-md">
-                            <Menu className="h-6 w-6" />
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="w-64 p-0 bg-white border-r rounded-r-[var(--radius)]">
-                        <SheetHeader className="sr-only">
-                            <SheetTitle>Navigation Menu</SheetTitle>
-                        </SheetHeader>
-                        <ProfileSidebar onLinkClick={() => setIsMobileSidebarOpen(false)} />
+        <div className="flex h-screen bg-background">
+            {/* Mobile Sidebar */}
+            {isMobile && (
+                <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                    <SheetContent side="left" className="p-0 w-80">
+                        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                        <ProfileSidebar onLinkClick={() => setIsSidebarOpen(false)} />
                     </SheetContent>
                 </Sheet>
-            </div>
+            )}
 
             {/* Desktop Sidebar */}
-            <div className="hidden lg:block w-64 flex-shrink-0">
-                <ProfileSidebar />
-            </div>
+            {!isMobile && (
+                <aside className="fixed top-0 left-0 z-30 h-screen bg-background border-r">
+                    <ProfileSidebar />
+                </aside>
+            )}
 
-            <main className="flex-1 p-6 lg:ml-0 md:ml-20">
-                {children}
-            </main>
+            {/* Main content */}
+            <div className="flex-1 flex flex-col min-h-screen lg:ml-64">
+                {/* Mobile Header */}
+                {isMobile && (
+                    <div className="flex items-center justify-between p-4 border-b">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden"
+                        >
+                            <Menu className="h-5 w-5" />
+                        </Button>
+                    </div>
+                )}
+                {/* Page content */}
+                <main className="flex-1 px-4 py-4 overflow-x-hidden">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 } 
