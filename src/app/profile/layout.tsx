@@ -1,11 +1,19 @@
 "use client";
 
 import { useAuth } from "@/utils/context/AuthContext";
+
+import { Role } from "@/types/Auth";
+
 import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import ProfileSidebar from "@/components/layout/Profile/ProfileSidebar";
+
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
 import { Button } from "@/components/ui/button";
+
 import { Menu } from "lucide-react";
 
 export default function ProfileLayout({
@@ -13,17 +21,19 @@ export default function ProfileLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { user } = useAuth();
+    const { user, hasRole } = useAuth();
     const router = useRouter();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (!user) {
             router.push("/signin");
+        } else if (!hasRole(Role.USER)) {
+            router.push("/");
         }
-    }, [user, router]);
+    }, [user, router, hasRole]);
 
-    if (!user) return null;
+    if (!user || !hasRole(Role.USER)) return null;
 
     return (
         <div className="flex min-h-screen bg-gray-50">

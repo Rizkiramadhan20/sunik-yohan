@@ -1,12 +1,19 @@
 "use client";
 
 import { useAuth } from "@/utils/context/AuthContext";
+
 import { useEffect } from "react";
+
 import { useRouter } from "next/navigation";
+
 import { Card, CardContent } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { User, Mail, Phone, ChevronLeft } from "lucide-react";
+
 import { Timestamp } from "firebase/firestore";
 
 export default function ProfilePage() {

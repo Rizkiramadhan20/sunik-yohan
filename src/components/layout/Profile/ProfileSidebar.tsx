@@ -12,13 +12,13 @@ import { Button } from "@/components/ui/button";
 
 import {
     User,
-    Settings,
     LifeBuoy,
     LogOut,
     ChevronRight,
     Shield,
     ChevronDown,
     CreditCard,
+    UserPen,
     MapPin
 } from "lucide-react";
 
@@ -89,14 +89,9 @@ const sidebarNavItems: NavItem[] = [
     },
 
     {
-        title: "Settings",
-        href: "/profile/settings",
-        icon: Settings,
-        subItems: [
-            { title: "Profile", href: "/profile/settings/profile" },
-            { title: "Billing", href: "/profile/settings/billing" },
-            { title: "Preferences", href: "/profile/settings/preferences" },
-        ],
+        title: "Profile",
+        href: "/profile/profile",
+        icon: UserPen,
     },
 
     {
