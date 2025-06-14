@@ -22,7 +22,11 @@ import { toast } from "sonner";
 
 import { doc, getDoc } from "firebase/firestore";
 
-import { db } from "@/utils/firebase/Firebase";
+import { db as freeDb } from "@/utils/firebase/Firebase";
+
+import { createTransaction } from "@/utils/firebase/transaction";
+
+import { collection, addDoc } from "firebase/firestore";
 
 import { useForm } from "react-hook-form";
 
@@ -65,6 +69,12 @@ interface SavedAddress {
     postalCode: string;
     isPrimary?: boolean;
     district?: string;
+    lat?: number;
+    lng?: number;
+    location?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 const NoAddressFound = () => {
@@ -111,7 +121,51 @@ const NoAddressFound = () => {
 // Tambahkan type StepStatus
 type StepStatus = "current" | "complete" | "upcoming";
 
-type PaymentMethod = 'qris' | 'bca';
+type PaymentMethod = 'dana' | 'shopeepay' | 'seabank';
+
+// Add CountdownTimer component
+const CountdownTimer = ({ endTime }: { endTime: string }) => {
+    const [timeLeft, setTimeLeft] = useState({
+        hours: 24,
+        minutes: 0,
+        seconds: 0
+    });
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const end = new Date(endTime).getTime();
+            const distance = end - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+
+            const hours = Math.floor(distance / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            setTimeLeft({ hours, minutes, seconds });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [endTime]);
+
+    return (
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+                <span className="font-medium">{timeLeft.hours.toString().padStart(2, '0')}</span>
+                <span>:</span>
+                <span className="font-medium">{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                <span>:</span>
+                <span className="font-medium">{timeLeft.seconds.toString().padStart(2, '0')}</span>
+            </div>
+            <span>remaining</span>
+        </div>
+    );
+};
 
 export default function Checkout() {
     const { user } = useAuth();
@@ -120,9 +174,10 @@ export default function Checkout() {
     const [isLoading, setIsLoading] = useState(false);
     const [hasAddress, setHasAddress] = useState(true);
     const [currentStep, setCurrentStep] = useState<'address' | 'payment'>('address');
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('qris');
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('dana');
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [coordinates, setCoordinates] = useState<{ lat: number; lng: number }>({ lat: -6.5741124, lng: 106.6320672 });
 
     const steps: { title: string; description: string; status: StepStatus }[] = [
         {
@@ -142,7 +197,6 @@ export default function Checkout() {
         handleSubmit,
         formState: { errors, isValid },
         setValue,
-        watch,
         trigger,
         getValues
     } = useForm<CheckoutFormData>({
@@ -173,9 +227,11 @@ export default function Checkout() {
 
         const fetchUserAddress = async () => {
             try {
-                const userDocRef = doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string, user.uid);
+                const userDocRef = doc(freeDb, process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string, user.uid);
                 const userDoc = await getDoc(userDocRef);
                 const userData = userDoc.data();
+
+                console.log('User data from Firestore:', userData);
 
                 if (!userData?.addresses || userData.addresses.length === 0) {
                     setHasAddress(false);
@@ -183,6 +239,8 @@ export default function Checkout() {
                 }
 
                 const primaryAddress = userData.addresses.find((addr: SavedAddress) => addr.isPrimary);
+                console.log('Primary address found:', primaryAddress);
+
                 if (primaryAddress) {
                     setValue('firstName', primaryAddress.fullName, { shouldValidate: true });
                     setValue('email', user.email || '', { shouldValidate: true });
@@ -192,7 +250,17 @@ export default function Checkout() {
                     setValue('city', primaryAddress.city, { shouldValidate: true });
                     setValue('postalCode', primaryAddress.postalCode, { shouldValidate: true });
                     setValue('phone', primaryAddress.phone, { shouldValidate: true });
-                    setValue('district', primaryAddress.district || '', { shouldValidate: true });
+
+                    // Set coordinates from location object
+                    if (primaryAddress.location?.lat && primaryAddress.location?.lng) {
+                        const coords = {
+                            lat: primaryAddress.location.lat,
+                            lng: primaryAddress.location.lng
+                        };
+                        setCoordinates(coords);
+                        const coordinatesStr = `${coords.lat},${coords.lng}`;
+                        setValue('district', coordinatesStr, { shouldValidate: true });
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching user address:", error);
@@ -204,10 +272,19 @@ export default function Checkout() {
     }, [user, router, setValue]);
 
     const calculateTotal = () => {
-        return items.reduce((total, item) => {
-            const price = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
-            return total + (price * item.quantity);
+        const total = items.reduce((sum, item) => {
+            // Convert price from "5.000" to 5000
+            const priceStr = item.price.replace(/[^0-9]/g, ""); // Remove all non-numeric characters
+            const price = parseInt(priceStr, 10); // Convert to integer
+            return sum + (price * item.quantity);
         }, 0);
+        return total;
+    };
+
+    const generateTransactionId = () => {
+        const timestamp = Date.now().toString();
+        const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+        return `TRX-${timestamp}-${random}`;
     };
 
     const onSubmit = async (data: CheckoutFormData) => {
@@ -224,11 +301,48 @@ export default function Checkout() {
             return;
         }
 
+        if (!paymentProof) {
+            toast.error('Please upload payment proof');
+            return;
+        }
+
         try {
+            // Upload payment proof to ImageKit
+            const formData = new FormData();
+            formData.append('file', paymentProof);
+            formData.append('fileName', `${user.uid}_${Date.now()}_${paymentProof.name}`);
+
+            const uploadResponse = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload payment proof');
+            }
+
+            const { url } = await uploadResponse.json();
+
+            // Get the current district value (coordinates)
+            const districtValue = getValues('district');
+            console.log('District value before order creation:', districtValue);
+
+            // Calculate order expiration time (24 hours from now)
+            const orderDate = new Date();
+            const expirationTime = new Date(orderDate.getTime() + 24 * 60 * 60 * 1000);
+
+            // Create order data with transaction ID
+            const total = calculateTotal();
             const orderData = {
+                transactionId: generateTransactionId(),
                 userId: user.uid,
+                userInfo: {
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL
+                },
                 items,
-                totalAmount: calculateTotal(),
+                totalAmount: total,
                 shippingInfo: {
                     firstName: data.firstName,
                     email: data.email,
@@ -237,25 +351,71 @@ export default function Checkout() {
                     province: data.province,
                     city: data.city,
                     postalCode: data.postalCode,
-                    phone: data.phone
+                    phone: data.phone,
+                    district: districtValue || '-6.5741124,106.6320672'
                 },
                 paymentInfo: {
-                    cardNumber: data.cardNumber?.replace(/\s/g, '') || '',
-                    expiry: data.expiry || '',
-                    cvv: data.cvv || ''
+                    method: paymentMethod,
+                    proof: url,
+                    status: 'success'
                 },
                 message: data.message,
-                orderDate: new Date().toISOString()
+                orderDate: orderDate.toISOString(),
+                expirationTime: expirationTime.toISOString(),
+                status: 'pending',
+                deliveryStatus: {
+                    status: 'pending',
+                    history: [
+                        {
+                            status: 'pending',
+                            timestamp: orderDate.toISOString(),
+                            description: 'Order placed'
+                        }
+                    ],
+                    estimatedDelivery: new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
+                }
             };
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            console.log('Order data being saved:', orderData);
 
-            // Clear the cart after successful order
-            clearCart();
+            try {
+                // First try to save to free database
+                const freeOrdersRef = collection(freeDb, 'orders');
+                const docRef = await addDoc(freeOrdersRef, orderData);
+                const transactionId = docRef.id;
 
-            toast.success('Order placed successfully!');
-            router.push('/dashboard/orders');
+                // Clear the cart after successful order
+                clearCart();
+
+                // Update success message to include countdown
+                toast.success(
+                    <div className="flex flex-col gap-2">
+                        <p>Order placed successfully! Please wait for confirmation.</p>
+                        <CountdownTimer endTime={expirationTime.toISOString()} />
+                    </div>
+                );
+
+                // Redirect to transaction page with the transaction ID
+                router.push(`/transaction/${transactionId}`);
+            } catch (error) {
+                console.log('Free database limit reached, switching to transaction database');
+                // If free database fails, save to transaction database
+                const { id: transactionId } = await createTransaction(orderData);
+
+                // Clear the cart after successful order
+                clearCart();
+
+                // Update success message to include countdown
+                toast.success(
+                    <div className="flex flex-col gap-2">
+                        <p>Order placed successfully! Please wait for confirmation.</p>
+                        <CountdownTimer endTime={expirationTime.toISOString()} />
+                    </div>
+                );
+
+                // Redirect to transaction page with the transaction ID
+                router.push(`/transaction/${transactionId}`);
+            }
         } catch (error) {
             console.error('Checkout error:', error);
             toast.error('Failed to place order. Please try again.');
@@ -400,11 +560,9 @@ export default function Checkout() {
                                             <Input
                                                 id="firstName"
                                                 {...register('firstName', { required: true })}
-                                                className={`${errors.firstName ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                readOnly
                                             />
-                                            {errors.firstName && (
-                                                <p className="text-red-500 text-sm">{errors.firstName.message}</p>
-                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="email" className="text-gray-700">Email</Label>
@@ -412,33 +570,27 @@ export default function Checkout() {
                                                 id="email"
                                                 type="email"
                                                 {...register('email', { required: true })}
-                                                className={`${errors.email ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                readOnly
                                             />
-                                            {errors.email && (
-                                                <p className="text-red-500 text-sm">{errors.email.message}</p>
-                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="streetName" className="text-gray-700">Street Name</Label>
                                             <Input
                                                 id="streetName"
                                                 {...register('streetName', { required: true })}
-                                                className={`${errors.streetName ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                readOnly
                                             />
-                                            {errors.streetName && (
-                                                <p className="text-red-500 text-sm">{errors.streetName.message}</p>
-                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="landmark" className="text-gray-700">Landmark</Label>
                                             <Input
                                                 id="landmark"
                                                 {...register('landmark', { required: true })}
-                                                className={`${errors.landmark ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                readOnly
                                             />
-                                            {errors.landmark && (
-                                                <p className="text-red-500 text-sm">{errors.landmark.message}</p>
-                                            )}
                                         </div>
                                         <div className="grid grid-cols-2 gap-6">
                                             <div className="space-y-2">
@@ -446,22 +598,18 @@ export default function Checkout() {
                                                 <Input
                                                     id="province"
                                                     {...register('province', { required: true })}
-                                                    className={`${errors.province ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                    className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                    readOnly
                                                 />
-                                                {errors.province && (
-                                                    <p className="text-red-500 text-sm">{errors.province.message}</p>
-                                                )}
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="city" className="text-gray-700">City</Label>
                                                 <Input
                                                     id="city"
                                                     {...register('city', { required: true })}
-                                                    className={`${errors.city ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                    className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                    readOnly
                                                 />
-                                                {errors.city && (
-                                                    <p className="text-red-500 text-sm">{errors.city.message}</p>
-                                                )}
                                             </div>
                                         </div>
                                         <div className="space-y-2">
@@ -469,11 +617,9 @@ export default function Checkout() {
                                             <Input
                                                 id="postalCode"
                                                 {...register('postalCode', { required: true })}
-                                                className={`${errors.postalCode ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                readOnly
                                             />
-                                            {errors.postalCode && (
-                                                <p className="text-red-500 text-sm">{errors.postalCode.message}</p>
-                                            )}
                                         </div>
 
                                         <div className="space-y-2">
@@ -484,7 +630,7 @@ export default function Checkout() {
                                                     width="100%"
                                                     height="100%"
                                                     frameBorder="0"
-                                                    src={`https://www.openstreetmap.org/export/embed.html?bbox=106.62206172943115%2C-6.576112400000001%2C106.64206172943115%2C-6.572112400000001&layer=mapnik&marker=-6.574112400000001,106.63206172943115`}
+                                                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lng - 0.01}%2C${coordinates.lat - 0.002}%2C${coordinates.lng + 0.01}%2C${coordinates.lat + 0.002}&layer=mapnik&marker=${coordinates.lat},${coordinates.lng}`}
                                                     allowFullScreen
                                                 />
                                             </div>
@@ -500,11 +646,9 @@ export default function Checkout() {
                                                 id="phone"
                                                 type="tel"
                                                 {...register('phone')}
-                                                className={`${errors.phone ? "border-red-500" : ""} bg-gray-50 border-gray-200 rounded-xl h-12`}
+                                                className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                readOnly
                                             />
-                                            {errors.phone && (
-                                                <p className="text-red-500 text-sm">{errors.phone.message}</p>
-                                            )}
                                         </div>
 
                                         <div className="space-y-2">
@@ -522,11 +666,6 @@ export default function Checkout() {
                                             type="submit"
                                             className="w-full mt-8 bg-[#FF204E] text-white hover:bg-[#e61e4d] h-14 rounded-xl text-lg font-medium transition-colors duration-200"
                                             disabled={isLoading || items.length === 0}
-                                            onClick={() => {
-                                                console.log('Button clicked');
-                                                console.log('Form validation state:', isValid);
-                                                console.log('Current form errors:', errors);
-                                            }}
                                         >
                                             {isLoading ? (
                                                 <div className="flex items-center justify-center gap-2">
@@ -561,75 +700,73 @@ export default function Checkout() {
                                         <div className="space-y-4">
                                             <Label className="text-gray-700">Upload Payment Proof</Label>
                                             <div className="space-y-4">
-                                                <div className="flex items-center justify-center w-full">
-                                                    <label
-                                                        htmlFor="payment-proof"
-                                                        className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100"
-                                                    >
-                                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                            {previewUrl ? (
-                                                                <div className="relative w-full h-full">
-                                                                    <Image
-                                                                        src={previewUrl}
-                                                                        alt="Payment proof preview"
-                                                                        fill
-                                                                        className="object-contain rounded-xl"
+                                                {!previewUrl ? (
+                                                    <div className="flex items-center justify-center w-full">
+                                                        <label
+                                                            htmlFor="payment-proof"
+                                                            className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100"
+                                                        >
+                                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                <svg
+                                                                    className="w-8 h-8 mb-4 text-gray-500"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={2}
+                                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                                                                     />
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={(e) => {
-                                                                            e.preventDefault();
-                                                                            setPreviewUrl(null);
-                                                                            setPaymentProof(null);
-                                                                        }}
-                                                                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                                                                    >
-                                                                        <svg
-                                                                            className="w-4 h-4"
-                                                                            fill="none"
-                                                                            stroke="currentColor"
-                                                                            viewBox="0 0 24 24"
-                                                                        >
-                                                                            <path
-                                                                                strokeLinecap="round"
-                                                                                strokeLinejoin="round"
-                                                                                strokeWidth={2}
-                                                                                d="M6 18L18 6M6 6l12 12"
-                                                                            />
-                                                                        </svg>
-                                                                    </button>
-                                                                </div>
-                                                            ) : (
-                                                                <>
-                                                                    <svg
-                                                                        className="w-8 h-8 mb-4 text-gray-500"
-                                                                        fill="none"
-                                                                        stroke="currentColor"
-                                                                        viewBox="0 0 24 24"
-                                                                    >
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            strokeWidth={2}
-                                                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                                                        />
-                                                                    </svg>
-                                                                    <p className="mb-2 text-sm text-gray-500">
-                                                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                                                    </p>
-                                                                    <p className="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                        <input
-                                                            id="payment-proof"
-                                                            type="file"
-                                                            className="hidden"
-                                                            accept="image/*"
-                                                            onChange={handleFileChange}
+                                                                </svg>
+                                                                <p className="mb-2 text-sm text-gray-500">
+                                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                                </p>
+                                                                <p className="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
+                                                            </div>
+                                                            <input
+                                                                id="payment-proof"
+                                                                type="file"
+                                                                className="hidden"
+                                                                accept="image/*"
+                                                                onChange={handleFileChange}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                ) : (
+                                                    <div className="relative w-full h-64 border-2 border-gray-200 rounded-xl overflow-hidden">
+                                                        <Image
+                                                            src={previewUrl}
+                                                            alt="Payment proof preview"
+                                                            fill
+                                                            className="object-contain"
                                                         />
-                                                    </label>
-                                                </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setPreviewUrl(null);
+                                                                setPaymentProof(null);
+                                                            }}
+                                                            className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                                        >
+                                                            <svg
+                                                                className="w-5 h-5"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth={2}
+                                                                    d="M6 18L18 6M6 6l12 12"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                )}
                                                 {paymentProof && (
                                                     <p className="text-sm text-gray-500">
                                                         Selected file: {paymentProof.name}

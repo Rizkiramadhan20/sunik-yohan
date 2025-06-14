@@ -1,12 +1,28 @@
+"use client"
+
 import Image from "next/image";
 
 import Link from "next/link";
+
+import { useRouter } from "next/navigation";
+
+import { useState } from "react";
 
 import Logo from "@/base/assets/logo.png";
 
 import { socialMedia, menuHamburger } from "@/components/layout/Header/data/Header";
 
 export default function Footer() {
+    const router = useRouter();
+    const [trackingId, setTrackingId] = useState("");
+
+    const handleTrackingSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (trackingId.trim()) {
+            router.push(`/tracking/${trackingId.trim()}`);
+        }
+    };
+
     return (
         <footer className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-white to-gray-50 border-t border-gray-100">
             <div className="container mx-auto px-4 sm:px-6">
@@ -66,10 +82,12 @@ export default function Footer() {
                         <p className="text-gray-600 text-sm font-medium leading-relaxed mb-4 md:mb-6">
                             Masukkan nomor pesanan Anda<br />untuk melacak status pesanan
                         </p>
-                        <form className="relative">
+                        <form className="relative" onSubmit={handleTrackingSubmit}>
                             <input
                                 type="text"
                                 placeholder="Nomor Pesanan"
+                                value={trackingId}
+                                onChange={(e) => setTrackingId(e.target.value)}
                                 className="w-full px-4 md:px-5 py-3 md:py-3.5 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm pr-12 md:pr-14 shadow-sm transition-all duration-300"
                             />
                             <button

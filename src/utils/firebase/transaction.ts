@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 
 import {
   Analytics,
@@ -8,7 +8,7 @@ import {
   ConsentSettings,
 } from "firebase/analytics";
 
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 import { getAuth } from "firebase/auth";
 
@@ -24,7 +24,13 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_TRANSACTIONS_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase with a named app
+let app: FirebaseApp;
+try {
+  app = getApp('transaction');
+} catch (e) {
+  app = initializeApp(firebaseConfig, 'transaction');
+}
 
 let analytics: Analytics | null = null;
 if (typeof window !== "undefined") {
@@ -44,4 +50,57 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-export { app, analytics, db, auth, database };
+// Transaction service
+interface TransactionData {
+  transactionId: string;
+  userId: string;
+  userInfo: {
+    displayName: string;
+    email: string;
+    photoURL?: string;
+  };
+  items: any[];
+  totalAmount: number;
+  shippingInfo: {
+    firstName: string;
+    email: string;
+    streetName: string;
+    landmark: string;
+    province: string;
+    city: string;
+    postalCode: string;
+    phone: string;
+    district?: string; // Format: "latitude,longitude" e.g. "-6.5741124,106.6320672"
+  };
+  paymentInfo: {
+    method: string;
+    proof: string;
+    status: string;
+  };
+  message?: string;
+  orderDate: string;
+  expirationTime: string;
+  status: string;
+  deliveryStatus: {
+    status: string;
+    history: Array<{
+      status: string;
+      timestamp: string;
+      description: string;
+    }>;
+    estimatedDelivery: string;
+  };
+}
+
+const createTransaction = async (data: TransactionData) => {
+  try {
+    const transactionRef = collection(db, 'transaction');
+    const docRef = await addDoc(transactionRef, data);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    throw error;
+  }
+};
+
+export { app, analytics, db, auth, database, createTransaction };
