@@ -30,7 +30,7 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
     const resolvedParams = use(params);
 
     useEffect(() => {
-        const transactionsRef = collection(db, "transaction");
+        const transactionsRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string);
         const q = query(transactionsRef, where("transactionId", "==", resolvedParams.id));
 
         const unsubscribe = onSnapshot(q,

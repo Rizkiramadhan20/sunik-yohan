@@ -26,8 +26,6 @@ import { db as freeDb } from "@/utils/firebase/Firebase";
 
 import { createTransaction } from "@/utils/firebase/transaction";
 
-import { collection, addDoc } from "firebase/firestore";
-
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -352,7 +350,7 @@ export default function Checkout() {
                     city: data.city,
                     postalCode: data.postalCode,
                     phone: data.phone,
-                    district: districtValue || '-6.5741124,106.6320672'
+                    district: districtValue as string
                 },
                 paymentInfo: {
                     method: paymentMethod,
@@ -379,27 +377,7 @@ export default function Checkout() {
             console.log('Order data being saved:', orderData);
 
             try {
-                // First try to save to free database
-                const freeOrdersRef = collection(freeDb, 'orders');
-                const docRef = await addDoc(freeOrdersRef, orderData);
-                const transactionId = docRef.id;
-
-                // Clear the cart after successful order
-                clearCart();
-
-                // Update success message to include countdown
-                toast.success(
-                    <div className="flex flex-col gap-2">
-                        <p>Order placed successfully! Please wait for confirmation.</p>
-                        <CountdownTimer endTime={expirationTime.toISOString()} />
-                    </div>
-                );
-
-                // Redirect to transaction page with the transaction ID
-                router.push(`/transaction/${transactionId}`);
-            } catch (error) {
-                console.log('Free database limit reached, switching to transaction database');
-                // If free database fails, save to transaction database
+                // Save to transaction database
                 const { id: transactionId } = await createTransaction(orderData);
 
                 // Clear the cart after successful order
@@ -415,6 +393,9 @@ export default function Checkout() {
 
                 // Redirect to transaction page with the transaction ID
                 router.push(`/transaction/${transactionId}`);
+            } catch (error) {
+                console.error('Failed to save transaction:', error);
+                toast.error('Failed to place order. Please try again.');
             }
         } catch (error) {
             console.error('Checkout error:', error);

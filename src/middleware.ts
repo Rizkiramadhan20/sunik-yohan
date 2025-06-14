@@ -50,7 +50,8 @@ export async function middleware(request: NextRequest) {
     !hasSessionCookie &&
     !publicPaths.includes(pathname) &&
     !pathname.startsWith("/_next") &&
-    !pathname.startsWith("/products/")
+    !pathname.startsWith("/products/") &&
+    !pathname.startsWith("/blog/")
   ) {
     // Store the original URL to redirect back after login
     const response = NextResponse.redirect(new URL("/signin", request.url));

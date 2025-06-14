@@ -31,7 +31,7 @@ export default function TransactionPage() {
     useEffect(() => {
         const fetchTransaction = async () => {
             try {
-                const transactionDocRef = doc(transactionDb, 'transaction', params.id as string);
+                const transactionDocRef = doc(transactionDb, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string, params.id as string);
                 const transactionDoc = await getDoc(transactionDocRef);
 
                 if (transactionDoc.exists()) {
