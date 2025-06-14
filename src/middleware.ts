@@ -6,10 +6,11 @@ import type { NextRequest } from "next/server";
 const publicPaths = [
   "/",
   "/about",
-  "/contact",
+  "/products",
+  "/gallery",
+  "/blog",
   "/signin",
   "/signup",
-  "/products",
 ];
 
 export async function middleware(request: NextRequest) {
