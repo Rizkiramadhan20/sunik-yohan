@@ -49,6 +49,11 @@ export const menuItems = [
         href: "/dashboard/pages/apps",
         label: "Apps",
       },
+
+      {
+        href: "/dashboard/pages/ongkir",
+        label: "Ongkir",
+      },
     ],
   },
 
