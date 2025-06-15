@@ -21,7 +21,8 @@ const deliveryStages = [
 
 const transactionStages = [
     { id: 'pending', label: 'Pending', description: 'Order has been placed and waiting for confirmation' },
-    { id: 'accepted', label: 'Accepted', description: 'Order has been accepted by the seller' }
+    { id: 'accepted', label: 'Accepted', description: 'Order has been accepted by the seller' },
+    { id: 'rejected', label: 'Rejected', description: 'Order has been rejected by the seller' }
 ];
 
 export default function TrackingPage({ params }: { params: Promise<{ id: string }> }) {
@@ -142,6 +143,15 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-gray-600">Current Status:</span>
                                         <span className="font-medium text-red-500 capitalize">{transaction.status}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-gray-600">Transaction Status:</span>
+                                        <span className={`font-medium capitalize ${transaction.status === 'rejected' ? 'text-red-500' :
+                                            transaction.status === 'accepted' ? 'text-green-500' :
+                                                'text-yellow-500'
+                                            }`}>
+                                            {transaction.status}
+                                        </span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-gray-600">Order Date:</span>
@@ -337,6 +347,69 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
                                                                         </div>
                                                                     </div>
                                                                 ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Transaction Timeline */}
+                            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 md:p-8">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <h2 className="text-lg font-semibold text-gray-700">Transaction Status</h2>
+                                </div>
+                                <div className="relative">
+                                    {/* Progress Line */}
+                                    <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200">
+                                        <div
+                                            className="absolute top-0 left-0 w-full bg-purple-500 transition-all duration-500"
+                                            style={{
+                                                height: `${(transactionStages.findIndex(stage => stage.id === transaction.status) / (transactionStages.length - 1)) * 100}%`
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Timeline Items */}
+                                    <div className="space-y-6 sm:space-y-8">
+                                        {transactionStages.map((stage, index) => {
+                                            const currentIndex = transactionStages.findIndex(s => s.id === transaction.status);
+                                            const isCompleted = index < currentIndex;
+                                            const isCurrent = index === currentIndex;
+
+                                            return (
+                                                <div key={stage.id} className="relative flex items-start">
+                                                    {/* Timeline Dot */}
+                                                    <div className={`absolute left-0 w-8 h-8 rounded-full flex items-center justify-center z-10
+                                                        ${isCompleted ? 'bg-purple-500' : isCurrent ? 'bg-purple-500' : 'bg-gray-200'}`}>
+                                                        {isCompleted ? (
+                                                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        ) : (
+                                                            <div className={`w-2 h-2 rounded-full ${isCurrent ? 'bg-white' : 'bg-gray-400'}`} />
+                                                        )}
+                                                    </div>
+
+                                                    {/* Content */}
+                                                    <div className="ml-10 sm:ml-12 w-full">
+                                                        <div className={`font-medium ${isCompleted || isCurrent ? 'text-gray-900' : 'text-gray-500'}`}>
+                                                            {stage.label}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500 mt-1">
+                                                            {stage.description}
+                                                        </div>
+                                                        {isCurrent && (
+                                                            <div className="mt-2 text-sm text-purple-500">
+                                                                Current Status
                                                             </div>
                                                         )}
                                                     </div>

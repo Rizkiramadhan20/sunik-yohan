@@ -108,17 +108,17 @@ export const menuItems = [
 
       {
         href: "/dashboard/transaction/pending",
-        label: "Pending",
+        label: "Tertunda",
       },
 
       {
         href: "/dashboard/transaction/delivery",
-        label: "Delivery",
+        label: "Pengiriman",
       },
 
       {
-        href: "/dashboard/transaction/success",
-        label: "Success",
+        href: "/dashboard/transaction/completed",
+        label: "Selesai",
       },
     ],
   },

@@ -27,12 +27,16 @@ const Pathname = ({ children }: { children: React.ReactNode }) => {
         <main>
             <Toaster
                 position="top-center"
+                richColors
                 toastOptions={{
                     duration: 3000,
                     style: {
-                        background: '#333',
+                        background: 'black',
                         color: '#fff',
+                        border: '1px solid #e5e7eb',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                     },
+                    className: 'font-medium',
                 }}
             />
             {!isAdminRoute && <Header />}

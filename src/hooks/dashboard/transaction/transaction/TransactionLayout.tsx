@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { collection, onSnapshot, updateDoc, doc } from 'firebase/firestore'
-import { db } from '@/utils/firebase/transaction'
+import { collection, onSnapshot, updateDoc, doc, getDoc } from 'firebase/firestore'
+import { db as transactionDb } from '@/utils/firebase/transaction'
+import { db as productDb } from '@/utils/firebase/Firebase'
 import { TransactionData } from '@/utils/firebase/transaction'
 import { formatCurrency } from '@/utils/format/currency'
 import { toast } from 'sonner'
@@ -41,10 +42,34 @@ export default function TransactionLayout() {
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
-            const transactionRef = doc(db, 'transaction', docId);
+            const transactionRef = doc(transactionDb, 'transaction', docId);
+            const transactionDoc = await getDoc(transactionRef);
+            const transactionData = transactionDoc.data();
+
+            // Update transaction status
             await updateDoc(transactionRef, {
                 status: newStatus
             });
+
+            // If status is accepted, update product stock
+            if (newStatus === 'accepted' && transactionData) {
+                // Update stock for each item in the transaction
+                for (const item of transactionData.items) {
+                    const productRef = doc(productDb, process.env.NEXT_PUBLIC_COLLECTIONS_PRODUCTS as string, item.id);
+                    const productDoc = await getDoc(productRef);
+
+                    if (productDoc.exists()) {
+                        const productData = productDoc.data();
+                        const currentStock = parseInt(productData.stock) || 0;
+                        const newStock = Math.max(0, currentStock - item.quantity);
+
+                        await updateDoc(productRef, {
+                            stock: newStock.toString(),
+                            sold: (parseInt(productData.sold) || 0) + item.quantity
+                        });
+                    }
+                }
+            }
 
             // Show success notification
             toast.success('Status transaksi berhasil diperbarui', {
@@ -61,12 +86,18 @@ export default function TransactionLayout() {
     };
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'transaction'), (querySnapshot) => {
+        const unsubscribe = onSnapshot(collection(transactionDb, 'transaction'), (querySnapshot) => {
             const transactionData = querySnapshot.docs.map(doc => ({
                 ...doc.data(),
                 docId: doc.id // Store the Firestore document ID
             })) as TransactionData[];
-            setTransactions(transactionData);
+
+            // Sort transactions by orderDate in descending order (newest first)
+            const sortedTransactions = transactionData.sort((a, b) =>
+                new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
+            );
+
+            setTransactions(sortedTransactions);
             setLoading(false);
         }, (error) => {
             console.error('Error fetching transactions:', error);
