@@ -1,12 +1,23 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+
 import { collection, onSnapshot, updateDoc, doc, getDoc } from 'firebase/firestore'
+
 import { db as transactionDb } from '@/utils/firebase/transaction'
+
 import { db as productDb } from '@/utils/firebase/Firebase'
+
 import { TransactionData } from '@/utils/firebase/transaction'
+
 import { formatCurrency } from '@/utils/format/currency'
+
 import { toast } from 'sonner'
+
+import { FaPrint } from "react-icons/fa"
+
+import { useRouter } from 'next/navigation'
+
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -15,17 +26,15 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { LayoutDashboard, FileText, Info, DollarSign, CreditCard, MapPin, Clock, ShoppingBag, MessageSquare } from "lucide-react"
+
+import { LayoutDashboard, FileText, Info } from "lucide-react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
 import { Skeleton } from "@/components/ui/skeleton"
+
 import Image from 'next/image'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+
 import {
     Select,
     SelectContent,
@@ -34,11 +43,47 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-// import TransactionSkeleton from './TransactionSkeleton'
+import ShippingInfo from './modal/ShippingInfo'
+
+import OrderModal from './modal/OrderModal'
+
+import { usePrinter } from './lib/Printer'
+
+interface ExtendedTransactionData extends TransactionData {
+    paymentInfo: {
+        method: string;
+        proof: string;
+        status: string;
+        amount: number;
+    };
+}
 
 export default function TransactionLayout() {
-    const [transactions, setTransactions] = useState<TransactionData[]>([])
+    const [transactions, setTransactions] = useState<ExtendedTransactionData[]>([])
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
+    const { handlePrint, getButtonText } = usePrinter()
+
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(transactionDb, 'transaction'), (querySnapshot) => {
+            const transactionData = querySnapshot.docs.map(doc => ({
+                ...doc.data(),
+                docId: doc.id
+            })) as ExtendedTransactionData[];
+
+            const sortedTransactions = transactionData.sort((a, b) =>
+                new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
+            );
+
+            setTransactions(sortedTransactions);
+            setLoading(false);
+        }, (error) => {
+            console.error('Error fetching transactions:', error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
@@ -85,32 +130,9 @@ export default function TransactionLayout() {
         }
     };
 
-    useEffect(() => {
-        const unsubscribe = onSnapshot(collection(transactionDb, 'transaction'), (querySnapshot) => {
-            const transactionData = querySnapshot.docs.map(doc => ({
-                ...doc.data(),
-                docId: doc.id // Store the Firestore document ID
-            })) as TransactionData[];
-
-            // Sort transactions by orderDate in descending order (newest first)
-            const sortedTransactions = transactionData.sort((a, b) =>
-                new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
-            );
-
-            setTransactions(sortedTransactions);
-            setLoading(false);
-        }, (error) => {
-            console.error('Error fetching transactions:', error);
-            setLoading(false);
-        });
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-    }, []);
-
     return (
-        <section>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-100 p-4 rounded-2xl gap-4">
+        <section className="print:bg-white">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-100 p-4 rounded-2xl gap-4 print:hidden">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2 pb-4">
                         <svg
@@ -164,6 +186,13 @@ export default function TransactionLayout() {
                         </BreadcrumbList>
                     </Breadcrumb>
                 </div>
+
+                <button
+                    onClick={() => handlePrint()}
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                    <FaPrint /> {getButtonText()}
+                </button>
             </div>
 
             {loading ? (
@@ -184,13 +213,13 @@ export default function TransactionLayout() {
                     ))}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6 print:grid-cols-1 print:gap-6">
                     {transactions.map((transaction) => (
-                        <Card key={transaction.transactionId} className="w-full hover:shadow-lg transition-shadow">
-                            <CardHeader>
+                        <Card key={transaction.transactionId} className="w-full hover:shadow-lg transition-shadow print:shadow-none print:border print:border-gray-200">
+                            <CardHeader className="print:border-b print:border-gray-200">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg">Transaksi #{transaction.transactionId}</CardTitle>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${transaction.paymentInfo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium print:bg-transparent print:text-black ${transaction.paymentInfo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                         transaction.paymentInfo.status === 'success' ? 'bg-green-100 text-green-800' :
                                             'bg-red-100 text-red-800'
                                         }`}>
@@ -203,8 +232,8 @@ export default function TransactionLayout() {
                             <CardContent>
                                 <div className="space-y-6">
                                     {/* Customer Information */}
-                                    <div className="flex items-start gap-4">
-                                        <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                                    <div className="flex items-start gap-4 print:border-b print:border-gray-200 print:pb-4">
+                                        <div className="relative w-16 h-16 rounded-full overflow-hidden print:w-20 print:h-20">
                                             <Image
                                                 src={transaction.userInfo.photoURL || '/default-avatar.png'}
                                                 alt={transaction.userInfo.displayName}
@@ -214,17 +243,14 @@ export default function TransactionLayout() {
                                         </div>
                                         <div>
                                             <h3 className="font-medium">{transaction.userInfo.displayName}</h3>
-                                            <p className="text-sm text-gray-500">{transaction.userInfo.email}</p>
+                                            <p className="text-sm text-gray-500 print:text-gray-700">{transaction.userInfo.email}</p>
                                         </div>
                                     </div>
 
                                     {/* Order Summary */}
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium flex items-center gap-2">
-                                            <DollarSign className="h-4 w-4" />
-                                            Ringkasan Pesanan
-                                        </h4>
-                                        <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                                    <div className="space-y-2 print:border-b print:border-gray-200 print:pb-4">
+                                        <h4 className="font-medium">Ringkasan Pesanan</h4>
+                                        <div className="p-3 bg-gray-50 rounded-lg space-y-2 print:bg-transparent print:p-0">
                                             <div className="flex justify-between">
                                                 <span className="text-sm">Total Item</span>
                                                 <span className="text-sm">{formatCurrency(transaction.totalAmount - transaction.shippingCost)}</span>
@@ -233,7 +259,7 @@ export default function TransactionLayout() {
                                                 <span className="text-sm">Biaya Pengiriman</span>
                                                 <span className="text-sm">{formatCurrency(transaction.shippingCost)}</span>
                                             </div>
-                                            <div className="border-t pt-2 flex justify-between">
+                                            <div className="border-t pt-2 flex justify-between print:border-gray-200">
                                                 <span className="font-medium">Total</span>
                                                 <span className="font-medium">{formatCurrency(transaction.totalAmount)}</span>
                                             </div>
@@ -241,12 +267,9 @@ export default function TransactionLayout() {
                                     </div>
 
                                     {/* Transaction Status */}
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium flex items-center gap-2">
-                                            <Clock className="h-4 w-4" />
-                                            Status Transaksi
-                                        </h4>
-                                        <div className="p-3 bg-gray-50 rounded-lg">
+                                    <div className="space-y-2 print:border-b print:border-gray-200 print:pb-4">
+                                        <h4 className="font-medium">Status Transaksi</h4>
+                                        <div className="p-3 bg-gray-50 rounded-lg print:bg-transparent print:p-0">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium">Status:</span>
                                                 <Select
@@ -257,7 +280,7 @@ export default function TransactionLayout() {
                                                         }
                                                     }}
                                                 >
-                                                    <SelectTrigger className="w-[120px]">
+                                                    <SelectTrigger className="w-[120px] print:hidden">
                                                         <SelectValue placeholder="Status" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -266,171 +289,32 @@ export default function TransactionLayout() {
                                                         <SelectItem value="rejected">Ditolak</SelectItem>
                                                     </SelectContent>
                                                 </Select>
+                                                <span className="hidden print:inline text-sm">
+                                                    {transaction.status === 'pending' ? 'Menunggu' :
+                                                        transaction.status === 'accepted' ? 'Diterima' : 'Ditolak'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Additional Information */}
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium flex items-center gap-2">
-                                            <Info className="h-4 w-4" />
-                                            Informasi Tambahan
-                                        </h4>
-                                        <div className="p-3 bg-gray-50 rounded-lg space-y-2">
-                                            <p className="text-sm">
-                                                <span className="font-medium">Tanggal Pesanan:</span> {new Date(transaction.orderDate).toLocaleString('id-ID')}
-                                            </p>
-                                            <p className="text-sm">
-                                                <span className="font-medium">Waktu Kadaluarsa:</span> {new Date(transaction.expirationTime).toLocaleString('id-ID')}
-                                            </p>
-                                            {transaction.message && (
-                                                <div className="flex items-start gap-2">
-                                                    <MessageSquare className="h-4 w-4 mt-1 text-gray-500" />
-                                                    <p className="text-sm text-gray-600">{transaction.message}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
                                     {/* Action Buttons */}
-                                    <div className="border-t pt-4">
+                                    <div className="border-t pt-4 print:hidden">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <button className="flex items-center justify-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                                                        <ShoppingBag className="h-4 w-4" />
-                                                        <span className="text-sm">Item Pesanan</span>
-                                                    </button>
-                                                </DialogTrigger>
-                                                <DialogContent className="max-w-3xl">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Item Pesanan</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="space-y-4">
-                                                        {transaction.items.map((item, index) => (
-                                                            <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                                                                <div className="relative w-20 h-20 rounded-md overflow-hidden">
-                                                                    <Image
-                                                                        src={item.thumbnail}
-                                                                        alt={item.title}
-                                                                        fill
-                                                                        className="object-cover"
-                                                                    />
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <h4 className="font-medium">{item.title}</h4>
-                                                                    <p className="text-sm text-gray-500">
-                                                                        Jumlah: {item.quantity}
-                                                                    </p>
-                                                                    <p className="text-sm font-medium">
-                                                                        Harga: {formatCurrency(parseInt(item.price))}
-                                                                    </p>
-                                                                    <p className="text-sm font-medium">
-                                                                        Subtotal: {formatCurrency(parseInt(item.price) * item.quantity)}
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                        <div className="border-t pt-4 mt-4">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="font-medium">Total Item</span>
-                                                                <span className="font-medium">{formatCurrency(transaction.totalAmount - transaction.shippingCost)}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
+                                            <OrderModal
+                                                items={transaction.items}
+                                                totalAmount={transaction.totalAmount}
+                                                shippingCost={transaction.shippingCost}
+                                            />
 
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <button className="flex items-center justify-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                                                        <MapPin className="h-4 w-4" />
-                                                        <span className="text-sm">Pengiriman</span>
-                                                    </button>
-                                                </DialogTrigger>
-                                                <DialogContent className="max-w-2xl">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Informasi Pengiriman</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="space-y-4">
-                                                        <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-                                                            <div>
-                                                                <h4 className="font-medium mb-1">Detail Penerima</h4>
-                                                                <p className="text-sm">{transaction.shippingInfo.firstName}</p>
-                                                                <p className="text-sm text-gray-500">{transaction.shippingInfo.email}</p>
-                                                                <p className="text-sm text-gray-500">{transaction.shippingInfo.phone}</p>
-                                                            </div>
-                                                            <div>
-                                                                <h4 className="font-medium mb-1">Alamat</h4>
-                                                                <p className="text-sm">{transaction.shippingInfo.streetName}</p>
-                                                                <p className="text-sm">
-                                                                    {transaction.shippingInfo.city}, {transaction.shippingInfo.province} {transaction.shippingInfo.postalCode}
-                                                                </p>
-                                                                <p className="text-sm text-gray-500">
-                                                                    RT: {transaction.shippingInfo.rt} / RW: {transaction.shippingInfo.rw}
-                                                                </p>
-                                                                {transaction.shippingInfo.landmark && (
-                                                                    <p className="text-sm text-gray-500">
-                                                                        Landmark: {transaction.shippingInfo.landmark}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                <h4 className="font-medium mb-1">Informasi Tambahan</h4>
-                                                                <p className="text-sm">
-                                                                    Tipe Alamat: <span className="capitalize">{transaction.shippingInfo.addressType}</span>
-                                                                </p>
-                                                                {transaction.shippingInfo.district && (
-                                                                    <p className="text-sm">
-                                                                        Koordinat: {transaction.shippingInfo.district}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
+                                            <ShippingInfo shippingInfo={transaction.shippingInfo} />
 
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <button className="flex items-center justify-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
-                                                        <CreditCard className="h-4 w-4" />
-                                                        <span className="text-sm">Pembayaran</span>
-                                                    </button>
-                                                </DialogTrigger>
-                                                <DialogContent className="max-w-2xl">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Informasi Pembayaran</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="space-y-4">
-                                                        <div className="p-4 bg-gray-50 rounded-lg">
-                                                            <div className="space-y-2">
-                                                                <p className="text-sm">
-                                                                    <span className="font-medium">Metode Pembayaran:</span> {transaction.paymentInfo.method}
-                                                                </p>
-                                                                <p className="text-sm">
-                                                                    <span className="font-medium">Status:</span> {transaction.paymentInfo.status === 'pending' ? 'Menunggu' :
-                                                                        transaction.paymentInfo.status === 'success' ? 'Berhasil' :
-                                                                            'Gagal'}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        {transaction.paymentInfo.proof && (
-                                                            <div className="space-y-2">
-                                                                <h4 className="font-medium">Bukti Pembayaran</h4>
-                                                                <div className="relative w-full aspect-video rounded-lg overflow-hidden">
-                                                                    <Image
-                                                                        src={transaction.paymentInfo.proof}
-                                                                        alt="Payment Proof"
-                                                                        fill
-                                                                        className="object-contain"
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
+                                            <button
+                                                onClick={() => handlePrint(transaction)}
+                                                className="flex items-center justify-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                                            >
+                                                <FaPrint className="h-4 w-4" />
+                                                <span className="text-sm">Print</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
