@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { formatCurrency } from '@/utils/format/currency'
+import { formatPriceWithSymbol } from '@/base/helper/price'
 
 import {
     Breadcrumb,
@@ -30,8 +30,11 @@ import {
 import TransactionPendingSkeleton from '@/hooks/dashboard/transaction/pending/TransactionPendingSkelaton'
 
 import { useManagementTransactionDelivery } from './utils/UseManagementTransactionDelivery'
+
 import OrderModal from './modal/OrderModal'
+
 import DeliveryModal from './modal/DeliveryModal'
+
 import ShipedModal from './modal/ShipedModal'
 
 export default function TransactionLayout() {
@@ -207,15 +210,15 @@ export default function TransactionLayout() {
                                         <div className="p-2 sm:p-3 bg-gray-50 rounded-lg space-y-2">
                                             <div className="flex justify-between text-xs sm:text-sm">
                                                 <span>Items Total</span>
-                                                <span>{formatCurrency(transaction.totalAmount - transaction.shippingCost)}</span>
+                                                <span>{formatPriceWithSymbol((transaction.totalAmount - transaction.shippingCost).toString())}</span>
                                             </div>
                                             <div className="flex justify-between text-xs sm:text-sm">
                                                 <span>Shipping Cost</span>
-                                                <span>{formatCurrency(transaction.shippingCost)}</span>
+                                                <span>{formatPriceWithSymbol(transaction.shippingCost.toString())}</span>
                                             </div>
                                             <div className="border-t pt-2 flex justify-between text-xs sm:text-sm">
                                                 <span className="font-medium">Total</span>
-                                                <span className="font-medium">{formatCurrency(transaction.totalAmount)}</span>
+                                                <span className="font-medium">{formatPriceWithSymbol(transaction.totalAmount.toString())}</span>
                                             </div>
                                         </div>
                                     </div>

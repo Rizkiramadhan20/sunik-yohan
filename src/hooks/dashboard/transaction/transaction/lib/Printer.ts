@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+
 import { toast } from 'sonner';
+
 import { TransactionData } from '@/utils/firebase/transaction';
 
-// Add Web Bluetooth API type definitions
 declare global {
     interface Navigator {
         bluetooth: {
@@ -46,7 +47,7 @@ export const usePrinter = () => {
     const [bluetoothDevice, setBluetoothDevice] = useState<BluetoothDevice | null>(null);
     const [isConnected, setIsConnected] = useState(false);
 
-    // Add function to save printer info to localStorage
+    // menambahkan fungsi untuk menyimpan info printer ke localStorage
     const savePrinterToLocalStorage = (device: BluetoothDevice) => {
         try {
             localStorage.setItem('printerInfo', JSON.stringify({
@@ -59,7 +60,7 @@ export const usePrinter = () => {
         }
     };
 
-    // Add function to get printer info from localStorage
+    // menambahkan fungsi untuk mendapatkan info printer dari localStorage
     const getPrinterFromLocalStorage = (): PrinterInfo | null => {
         try {
             const printerInfo = localStorage.getItem('printerInfo');
@@ -100,7 +101,7 @@ export const usePrinter = () => {
                 await device.gatt.connect();
                 setBluetoothDevice(device);
                 setIsConnected(true);
-                // Save printer info to localStorage after successful connection
+                // Simpan info printer ke localStorage setelah koneksi berhasil
                 savePrinterToLocalStorage(device);
             }
 
@@ -110,29 +111,18 @@ export const usePrinter = () => {
                 return;
             }
 
-            // Debug log transaction data
-            console.log('Transaction data:', {
-                id: transaction.transactionId,
-                items: transaction.items,
-                totalAmount: transaction.totalAmount,
-                shippingCost: transaction.shippingCost
-            });
-
             // Validate transaction data
             if (!transaction.items) {
-                console.error('Transaction items is undefined');
                 toast.error("Data transaksi tidak valid: items tidak ditemukan");
                 return;
             }
 
             if (!Array.isArray(transaction.items)) {
-                console.error('Transaction items is not an array:', transaction.items);
                 toast.error("Data transaksi tidak valid: format items salah");
                 return;
             }
 
             if (transaction.items.length === 0) {
-                console.error('Transaction items is empty');
                 toast.error("Data transaksi tidak valid: tidak ada items");
                 return;
             }
@@ -140,34 +130,26 @@ export const usePrinter = () => {
             // Filter out invalid items before processing
             const validItems = transaction.items.filter(item => {
                 if (!item) {
-                    console.error('Found null or undefined item');
                     return false;
                 }
                 if (typeof item !== 'object') {
-                    console.error('Item is not an object:', item);
                     return false;
                 }
                 if (!item.title || !item.quantity || !item.price) {
-                    console.error('Item missing required fields:', item);
                     return false;
                 }
                 return true;
             });
 
             if (validItems.length === 0) {
-                console.error('No valid items found in transaction');
                 toast.error("Data transaksi tidak valid: tidak ada item yang valid");
                 return;
             }
 
-            console.log('Valid items to process:', validItems);
-
-            console.log('Getting printer service...');
             const service = await device.gatt.getPrimaryService(
                 "000018f0-0000-1000-8000-00805f9b34fb"
             );
 
-            console.log('Getting printer characteristic...');
             const characteristic = await service.getCharacteristic(
                 "00002af1-0000-1000-8000-00805f9b34fb"
             );

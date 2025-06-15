@@ -1,44 +1,121 @@
-interface TransactionData {
+export interface TransactionData {
     transactionId: string;
-    userId: string;
+    orderDate: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    expirationTime: string;
+    totalAmount: number;
+    shippingCost: number;
+    message?: string;
     userInfo: {
         displayName: string;
         email: string;
         photoURL?: string;
     };
-    items: any[];
-    totalAmount: number;
     shippingInfo: {
         firstName: string;
         email: string;
-        streetName: string;
-        landmark: string;
-        province: string;
-        city: string;
-        postalCode: string;
         phone: string;
-        district?: string; // Format: "latitude,longitude" e.g. "-6.5741124,106.6320672"
+        addressType: string;
         rt: string;
         rw: string;
-        addressType: string;
+        streetName: string;
+        landmark: string;
+        district?: string;
+        city: string;
+        province: string;
+        postalCode: string;
     };
+    items: Array<{
+        id: string;
+        title: string;
+        price: string;
+        quantity: number;
+        thumbnail: string;
+    }>;
     paymentInfo: {
         method: string;
-        proof: string;
-        status: string;
+        status: 'pending' | 'accepted' | 'rejected';
+        proof?: string;
     };
-    message?: string;
-    orderDate: string;
-    expirationTime: string;
-    status: string;
-    deliveryStatus: {
+    deliveryStatus?: {
         status: string;
         history: Array<{
             status: string;
             timestamp: string;
             description: string;
         }>;
-        estimatedDelivery: string;
+        estimatedDelivery?: string;
     };
-    shippingCost: number;
 }
+
+export type ExtendedTransactionData = TransactionData & {
+    docId: string;
+};
+
+// Order modal for transaction
+export interface OrderModalProps {
+    transaction: {
+        items: Array<{
+            thumbnail: string;
+            title: string;
+            quantity: number;
+            price: number;
+        }>;
+        totalAmount: number;
+        shippingCost: number;
+    };
+}
+
+export interface ShippingInfo {
+    firstName: string;
+    email: string;
+    phone: string;
+    streetName: string;
+    city: string;
+    province: string;
+    postalCode: string;
+    rt: string;
+    rw: string;
+    landmark?: string;
+    addressType: string;
+    district?: string;
+}
+
+export interface ShippingInfoProps {
+    shippingInfo: ShippingInfo;
+}
+
+// Order modal for transaction pending
+export interface DeliveryModalProps {
+    transaction: {
+        deliveryStatus: {
+            status: string;
+            estimatedDelivery: string;
+            history: Array<{
+                status: string;
+                timestamp: string;
+                description: string;
+            }>;
+        };
+    };
+}
+
+export interface ShipingModalProps {
+    shippingInfo: ShippingInfo;
+}
+
+export interface ShipedModalProps {
+    transaction: {
+        shippingInfo: ShippingInfo;
+        deliveryStatus?: {
+            status: string;
+            estimatedDelivery: string;
+            history: Array<{
+                status: string;
+                timestamp: string;
+                description: string;
+            }>;
+        };
+    };
+}
+

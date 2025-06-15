@@ -1,4 +1,5 @@
 import React from 'react'
+
 import {
     Dialog,
     DialogContent,
@@ -6,26 +7,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+
 import { MapPin } from "lucide-react"
 
-interface ShippingInfo {
-    firstName: string;
-    email: string;
-    phone: string;
-    streetName: string;
-    city: string;
-    province: string;
-    postalCode: string;
-    rt: string;
-    rw: string;
-    landmark?: string;
-    addressType: string;
-    district?: string;
-}
-
-interface ShipingModalProps {
-    shippingInfo: ShippingInfo;
-}
+import { ShipingModalProps } from "@/types/Transaction"
 
 export default function ShipingModal({ shippingInfo }: ShipingModalProps) {
     return (

@@ -1,5 +1,7 @@
 import React from 'react'
+
 import { Clock, Package, Truck, ShoppingBag } from "lucide-react"
+
 import {
     Dialog,
     DialogContent,
@@ -8,19 +10,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-interface ShipedModalProps {
-    transaction: {
-        deliveryStatus?: {
-            status: string;
-            estimatedDelivery: string;
-            history: Array<{
-                status: string;
-                timestamp: string;
-                description: string;
-            }>;
-        };
-    };
-}
+import { ShipedModalProps } from "@/types/Transaction"
 
 export default function ShipedModal({ transaction }: ShipedModalProps) {
     return (

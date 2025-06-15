@@ -4,7 +4,7 @@ import React from 'react'
 
 import { format } from 'date-fns'
 
-import { formatPriceWithSymbol } from '@/utils/format/price'
+import { formatPriceWithSymbol } from '@/base/helper/price'
 
 import {
     Breadcrumb,

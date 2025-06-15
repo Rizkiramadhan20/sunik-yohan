@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card';
 
 import Image from 'next/image';
 
-import { formatCurrency } from '@/utils/format/currency';
+import { formatPriceWithSymbol } from '@/base/helper/price';
 
 import { CountdownTimer } from '@/hooks/(pages)/transaction/CountdownTimer';
 
@@ -21,6 +21,8 @@ import TransactionSkelaton from "@/hooks/(pages)/transaction/TransactionSkelaton
 import TransactionEror from "@/hooks/(pages)/transaction/TransactionEror"
 
 import HeroTransaction from "@/hooks/(pages)/transaction/HeroTransaction"
+
+import { TransactionData } from '@/types/Transaction';
 
 export default function TransactionPage() {
     const params = useParams();
@@ -107,12 +109,14 @@ export default function TransactionPage() {
                                         <span className="text-gray-600">Status</span>
                                         <div className="flex items-center gap-2">
                                             <span className={`font-medium ${transaction.status === 'pending' ? 'text-yellow-600' :
-                                                transaction.status === 'success' ? 'text-green-600' :
-                                                    'text-red-600'
+                                                transaction.status === 'accepted' ? 'text-green-600' :
+                                                    transaction.status === 'rejected' ? 'text-red-600' :
+                                                        'text-gray-600'
                                                 }`}>
                                                 {transaction.status === 'pending' ? 'Menunggu' :
-                                                    transaction.status === 'success' ? 'Berhasil' :
-                                                        'Gagal'}
+                                                    transaction.status === 'accepted' ? 'Berhasil' :
+                                                        transaction.status === 'rejected' ? 'Gagal' :
+                                                            'Tidak Diketahui'}
                                             </span>
                                             <div className="relative group">
                                                 <svg
@@ -133,8 +137,9 @@ export default function TransactionPage() {
                                                         <p className="font-medium text-gray-800 mb-2">Informasi Status</p>
                                                         <p className="text-gray-600">
                                                             {transaction.status === 'pending' ? 'Pesanan sedang menunggu konfirmasi pembayaran' :
-                                                                transaction.status === 'success' ? 'Pesanan telah dikonfirmasi dan sedang diproses' :
-                                                                    'Pesanan telah dibatalkan atau gagal'}
+                                                                transaction.status === 'accepted' ? 'Pesanan telah dikonfirmasi dan sedang diproses' :
+                                                                    transaction.status === 'rejected' ? 'Pesanan telah dibatalkan' :
+                                                                        'Status tidak diketahui'}
                                                         </p>
                                                         {transaction.status === 'pending' && (
                                                             <p className="text-yellow-600 mt-2 text-xs">
@@ -213,7 +218,7 @@ export default function TransactionPage() {
                             <Card className="p-4 sm:p-8 bg-white shadow-sm border-0 rounded-2xl mb-4 sm:mb-8">
                                 <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">Ringkasan Pesanan</h2>
                                 <div className="space-y-4 sm:space-y-6">
-                                    {transaction.items.map((item) => (
+                                    {transaction.items.map((item: TransactionData['items'][0]) => (
                                         <div key={item.id} className="flex gap-4 sm:gap-6 items-center">
                                             <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl overflow-hidden">
                                                 <Image
@@ -236,19 +241,19 @@ export default function TransactionPage() {
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-600">Subtotal</span>
                                             <span className="font-medium">
-                                                {formatCurrency(transaction.totalAmount - transaction.shippingCost)}
+                                                {formatPriceWithSymbol(String(transaction.totalAmount - transaction.shippingCost))}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-600">Biaya Pengiriman</span>
                                             <span className="font-medium">
-                                                {formatCurrency(transaction.shippingCost)}
+                                                {formatPriceWithSymbol(String(transaction.shippingCost))}
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                                             <span className="font-medium text-gray-800 text-base sm:text-lg">Total Pembayaran:</span>
                                             <span className="text-[#FF204E] font-bold text-lg sm:text-xl">
-                                                {formatCurrency(transaction.totalAmount)}
+                                                {formatPriceWithSymbol(String(transaction.totalAmount))}
                                             </span>
                                         </div>
                                     </div>
@@ -296,13 +301,15 @@ export default function TransactionPage() {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600">Status Pembayaran</span>
-                                        <span className={`font-medium ${transaction.paymentInfo.status === 'success' ? 'text-green-600' :
+                                        <span className={`font-medium ${transaction.paymentInfo.status === 'accepted' ? 'text-green-600' :
                                             transaction.paymentInfo.status === 'pending' ? 'text-yellow-600' :
-                                                'text-red-600'
+                                                transaction.paymentInfo.status === 'rejected' ? 'text-red-600' :
+                                                    'text-gray-600'
                                             }`}>
-                                            {transaction.paymentInfo.status === 'success' ? 'Berhasil' :
+                                            {transaction.paymentInfo.status === 'accepted' ? 'Berhasil' :
                                                 transaction.paymentInfo.status === 'pending' ? 'Menunggu' :
-                                                    'Gagal'}
+                                                    transaction.paymentInfo.status === 'rejected' ? 'Gagal' :
+                                                        'Tidak Diketahui'}
                                         </span>
                                     </div>
                                     {transaction.paymentInfo.proof && (
@@ -333,7 +340,9 @@ export default function TransactionPage() {
 • ID: \`${transaction.transactionId}\`
 • Tanggal: ${new Date(transaction.orderDate).toLocaleString('id-ID')}
 • Status: ${transaction.status === 'pending' ? 'MENUNGGU' :
-                                                        transaction.status === 'success' ? 'BERHASIL' : 'GAGAL'}
+                                                        transaction.status === 'accepted' ? 'BERHASIL' :
+                                                            transaction.status === 'rejected' ? 'GAGAL' :
+                                                                'TIDAK DIKETAHUI'}
 
 👤 *Detail Pelanggan*
 ━━━━━━━━━━━━━━━━━━━━━━━━
@@ -351,17 +360,19 @@ Patokan : ${transaction.shippingInfo.landmark}
 
 🛒 *Item Pesanan*
 ━━━━━━━━━━━━━━━━━━━━━━━━
-${transaction.items.map(item => `• ${item.title}
+${transaction.items.map((item: TransactionData['items'][0]) => `• ${item.title}
   └ ${item.quantity}x - ${item.price}`).join('\n')}
 
 💰 *Ringkasan Pembayaran*
 ━━━━━━━━━━━━━━━━━━━━━━━━
 • Metode : ${transaction.paymentInfo.method.toUpperCase()}
-• Status : ${transaction.paymentInfo.status === 'success' ? 'BERHASIL' :
-                                                        transaction.paymentInfo.status === 'pending' ? 'MENUNGGU' : 'GAGAL'}
-• Subtotal : ${formatCurrency(transaction.totalAmount - transaction.shippingCost)}
-• Biaya Pengiriman : ${formatCurrency(transaction.shippingCost)}
-• Total : ${formatCurrency(transaction.totalAmount)}
+• Status : ${transaction.paymentInfo.status === 'accepted' ? 'BERHASIL' :
+                                                        transaction.paymentInfo.status === 'pending' ? 'MENUNGGU' :
+                                                            transaction.paymentInfo.status === 'rejected' ? 'GAGAL' :
+                                                                'TIDAK DIKETAHUI'}
+• Subtotal : ${formatPriceWithSymbol(String(transaction.totalAmount - transaction.shippingCost))}
+• Biaya Pengiriman : ${formatPriceWithSymbol(String(transaction.shippingCost))}
+• Total : ${formatPriceWithSymbol(String(transaction.totalAmount))}
 
 📝 *Catatan Tambahan*
 ━━━━━━━━━━━━━━━━━━━━━━━━

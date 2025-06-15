@@ -8,15 +8,11 @@ import { db as transactionDb } from '@/utils/firebase/transaction'
 
 import { db as productDb } from '@/utils/firebase/Firebase'
 
-import { TransactionData } from '@/utils/firebase/transaction'
-
-import { formatCurrency } from '@/utils/format/currency'
+import { formatPrice } from '@/base/helper/price'
 
 import { toast } from 'sonner'
 
 import { FaPrint } from "react-icons/fa"
-
-import { useRouter } from 'next/navigation'
 
 import {
     Breadcrumb,
@@ -43,29 +39,21 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
-import ShippingInfo from './modal/ShippingInfo'
+import ShippingInfo from '@/hooks/dashboard/transaction/transaction/modal/ShippingInfo'
 
-import OrderModal from './modal/OrderModal'
+import OrderModal from '@/hooks/dashboard/transaction/transaction/modal/OrderModal'
 
-import { usePrinter } from './lib/Printer'
+import { usePrinter } from '@/hooks/dashboard/transaction/transaction/lib/Printer'
 
-interface ExtendedTransactionData extends TransactionData {
-    paymentInfo: {
-        method: string;
-        proof: string;
-        status: string;
-        amount: number;
-    };
-}
+import { ExtendedTransactionData } from "@/types/Transaction"
 
 export default function TransactionLayout() {
     const [transactions, setTransactions] = useState<ExtendedTransactionData[]>([])
     const [loading, setLoading] = useState(true)
-    const router = useRouter()
     const { handlePrint, getButtonText } = usePrinter()
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(transactionDb, 'transaction'), (querySnapshot) => {
+        const unsubscribe = onSnapshot(collection(transactionDb, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string), (querySnapshot) => {
             const transactionData = querySnapshot.docs.map(doc => ({
                 ...doc.data(),
                 docId: doc.id
@@ -87,7 +75,7 @@ export default function TransactionLayout() {
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
-            const transactionRef = doc(transactionDb, 'transaction', docId);
+            const transactionRef = doc(transactionDb, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string, docId);
             const transactionDoc = await getDoc(transactionRef);
             const transactionData = transactionDoc.data();
 
@@ -220,11 +208,11 @@ export default function TransactionLayout() {
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg">Transaksi #{transaction.transactionId}</CardTitle>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium print:bg-transparent print:text-black ${transaction.paymentInfo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        transaction.paymentInfo.status === 'success' ? 'bg-green-100 text-green-800' :
+                                        transaction.paymentInfo.status === 'accepted' ? 'bg-green-100 text-green-800' :
                                             'bg-red-100 text-red-800'
                                         }`}>
                                         {transaction.paymentInfo.status === 'pending' ? 'Menunggu' :
-                                            transaction.paymentInfo.status === 'success' ? 'Berhasil' :
+                                            transaction.paymentInfo.status === 'accepted' ? 'Berhasil' :
                                                 'Gagal'}
                                     </span>
                                 </div>
@@ -253,15 +241,15 @@ export default function TransactionLayout() {
                                         <div className="p-3 bg-gray-50 rounded-lg space-y-2 print:bg-transparent print:p-0">
                                             <div className="flex justify-between">
                                                 <span className="text-sm">Total Item</span>
-                                                <span className="text-sm">{formatCurrency(transaction.totalAmount - transaction.shippingCost)}</span>
+                                                <span className="text-sm">{formatPrice((transaction.totalAmount - transaction.shippingCost).toString())}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-sm">Biaya Pengiriman</span>
-                                                <span className="text-sm">{formatCurrency(transaction.shippingCost)}</span>
+                                                <span className="text-sm">{formatPrice(transaction.shippingCost.toString())}</span>
                                             </div>
                                             <div className="border-t pt-2 flex justify-between print:border-gray-200">
                                                 <span className="font-medium">Total</span>
-                                                <span className="font-medium">{formatCurrency(transaction.totalAmount)}</span>
+                                                <span className="font-medium">{formatPrice(transaction.totalAmount.toString())}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -300,16 +288,33 @@ export default function TransactionLayout() {
                                     {/* Action Buttons */}
                                     <div className="border-t pt-4 print:hidden">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                            <OrderModal
-                                                items={transaction.items}
-                                                totalAmount={transaction.totalAmount}
-                                                shippingCost={transaction.shippingCost}
-                                            />
+                                            <OrderModal transaction={{
+                                                items: transaction.items.map(item => ({
+                                                    thumbnail: item.thumbnail,
+                                                    title: item.title,
+                                                    quantity: item.quantity,
+                                                    price: parseFloat(item.price)
+                                                })),
+                                                totalAmount: transaction.totalAmount,
+                                                shippingCost: transaction.shippingCost
+                                            }} />
 
                                             <ShippingInfo shippingInfo={transaction.shippingInfo} />
 
                                             <button
-                                                onClick={() => handlePrint(transaction)}
+                                                onClick={() => handlePrint({
+                                                    ...transaction,
+                                                    userId: transaction.userInfo.email,
+                                                    paymentInfo: {
+                                                        ...transaction.paymentInfo,
+                                                        proof: transaction.paymentInfo.proof || ''
+                                                    },
+                                                    deliveryStatus: {
+                                                        status: transaction.deliveryStatus?.status || 'pending',
+                                                        history: transaction.deliveryStatus?.history || [],
+                                                        estimatedDelivery: transaction.deliveryStatus?.estimatedDelivery || new Date().toISOString()
+                                                    }
+                                                })}
                                                 className="flex items-center justify-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                                             >
                                                 <FaPrint className="h-4 w-4" />

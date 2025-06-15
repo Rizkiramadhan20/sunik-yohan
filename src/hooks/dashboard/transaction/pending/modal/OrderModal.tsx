@@ -1,6 +1,9 @@
 import React from 'react'
+
 import Image from 'next/image'
-import { formatCurrency } from '@/utils/format/currency'
+
+import { formatPriceWithSymbol } from '@/base/helper/price'
+
 import {
     Dialog,
     DialogContent,
@@ -8,20 +11,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+
 import { ShoppingBag } from "lucide-react"
 
-interface OrderModalProps {
-    transaction: {
-        items: Array<{
-            thumbnail: string;
-            title: string;
-            quantity: number;
-            price: number;
-        }>;
-        totalAmount: number;
-        shippingCost: number;
-    };
-}
+import { OrderModalProps } from "@/types/Transaction"
 
 export default function OrderModal({ transaction }: OrderModalProps) {
     return (
@@ -58,11 +51,11 @@ export default function OrderModal({ transaction }: OrderModalProps) {
                                     <div className="flex flex-col gap-1">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs sm:text-sm text-gray-600">Price per item</span>
-                                            <span className="text-xs sm:text-sm font-medium">{formatCurrency(item.price * 1000)}</span>
+                                            <span className="text-xs sm:text-sm font-medium">{formatPriceWithSymbol((item.price * 1000).toString())}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs sm:text-sm text-gray-600">Subtotal</span>
-                                            <span className="text-xs sm:text-sm font-semibold">{formatCurrency(item.price * item.quantity * 1000)}</span>
+                                            <span className="text-xs sm:text-sm font-semibold">{formatPriceWithSymbol((item.price * item.quantity * 1000).toString())}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -91,7 +84,7 @@ export default function OrderModal({ transaction }: OrderModalProps) {
                                     </div>
                                     <span className="font-semibold text-sm sm:text-lg">Subtotal</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-purple-50 text-purple-600 px-3 sm:px-4 py-1 rounded-full">{formatCurrency(transaction.items.reduce((total, item) => total + (item.price * item.quantity * 1000), 0))}</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-purple-50 text-purple-600 px-3 sm:px-4 py-1 rounded-full">{formatPriceWithSymbol(transaction.items.reduce((total, item) => total + (item.price * item.quantity * 1000), 0).toString())}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -102,7 +95,7 @@ export default function OrderModal({ transaction }: OrderModalProps) {
                                     </div>
                                     <span className="font-semibold text-sm sm:text-lg">Shipping Cost</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-green-50 text-green-600 px-3 sm:px-4 py-1 rounded-full">{formatCurrency(transaction.shippingCost)}</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-green-50 text-green-600 px-3 sm:px-4 py-1 rounded-full">{formatPriceWithSymbol(transaction.shippingCost.toString())}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -115,7 +108,7 @@ export default function OrderModal({ transaction }: OrderModalProps) {
                                     </div>
                                     <span className="font-semibold text-sm sm:text-lg">Total Amount</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-orange-50 text-orange-600 px-3 sm:px-4 py-1 rounded-full">{formatCurrency(transaction.items.reduce((total, item) => total + (item.price * item.quantity * 1000), 0) + transaction.shippingCost)}</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-orange-50 text-orange-600 px-3 sm:px-4 py-1 rounded-full">{formatPriceWithSymbol((transaction.items.reduce((total, item) => total + (item.price * item.quantity * 1000), 0) + transaction.shippingCost).toString())}</span>
                             </div>
                         </div>
                     </div>

@@ -12,6 +12,8 @@ import TrackingSkeleton from "./TrackingSkelaton";
 
 import HeroTracking from "@/hooks/(pages)/tracking/HeroTracking"
 
+import { TransactionData } from '@/types/Transaction';
+
 const deliveryStages = [
     { id: 'pending', label: 'Pending', description: 'Order has been placed' },
     { id: 'processing', label: 'Processing', description: 'Order is being prepared' },
@@ -171,7 +173,7 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
                                     <h2 className="text-lg font-semibold text-gray-700">Order Items</h2>
                                 </div>
                                 <div className="space-y-3 sm:space-y-4">
-                                    {transaction.items.map((item, index) => (
+                                    {transaction.items.map((item: TransactionData['items'][0], index: number) => (
                                         <div key={item.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
                                             <img
                                                 src={item.thumbnail}
@@ -334,7 +336,7 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
                                                         {/* History Entries */}
                                                         {stageHistory.length > 0 && (
                                                             <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
-                                                                {stageHistory.map((historyItem, historyIndex) => (
+                                                                {stageHistory.map((historyItem: { status: string; timestamp: string; description: string }, historyIndex: number) => (
                                                                     <div
                                                                         key={historyIndex}
                                                                         className="bg-gray-50 rounded-lg p-2 sm:p-3"

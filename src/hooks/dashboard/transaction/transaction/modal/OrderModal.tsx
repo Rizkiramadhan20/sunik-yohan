@@ -1,6 +1,9 @@
 import React from 'react'
+
 import Image from 'next/image'
-import { formatCurrency } from '@/utils/format/currency'
+
+import { formatPriceWithSymbol } from '@/base/helper/price'
+
 import {
     Dialog,
     DialogContent,
@@ -8,35 +11,27 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+
 import { ShoppingBag } from "lucide-react"
 
-interface OrderModalProps {
-    items: Array<{
-        thumbnail: string;
-        title: string;
-        quantity: number;
-        price: string;
-    }>;
-    totalAmount: number;
-    shippingCost: number;
-}
+import { OrderModalProps } from "@/types/Transaction"
 
-export default function OrderModal({ items, totalAmount, shippingCost }: OrderModalProps) {
+export default function OrderModal({ transaction }: OrderModalProps) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <button className="flex items-center justify-center gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="flex items-center justify-center gap-1 sm:gap-2 p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
                     <ShoppingBag className="h-4 w-4" />
-                    <span className="text-sm">Item Pesanan</span>
+                    <span className="text-xs sm:text-sm">Order Items</span>
                 </button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Item Pesanan</DialogTitle>
+                    <DialogTitle>Order Items</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 sm:space-y-6">
                     <div className="grid gap-3 sm:gap-4">
-                        {items.map((item, index) => (
+                        {transaction.items.map((item, index) => (
                             <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100/50 transition-colors">
                                 <div className="relative aspect-square w-full sm:w-24 rounded-lg overflow-hidden border border-gray-200">
                                     <Image
@@ -50,17 +45,17 @@ export default function OrderModal({ items, totalAmount, shippingCost }: OrderMo
                                     <div>
                                         <h4 className="font-semibold text-base sm:text-lg">{item.title}</h4>
                                         <p className="text-xs sm:text-sm text-gray-500">
-                                            Jumlah: {item.quantity}
+                                            Quantity: {item.quantity}
                                         </p>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs sm:text-sm text-gray-600">Harga per item</span>
-                                            <span className="text-xs sm:text-sm font-medium">{formatCurrency(parseInt(item.price))}</span>
+                                            <span className="text-xs sm:text-sm text-gray-600">Price per item</span>
+                                            <span className="text-xs sm:text-sm font-medium">{formatPriceWithSymbol((item.price * 1000).toString())}</span>
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs sm:text-sm text-gray-600">Subtotal</span>
-                                            <span className="text-xs sm:text-sm font-semibold">{formatCurrency(parseInt(item.price) * item.quantity)}</span>
+                                            <span className="text-xs sm:text-sm font-semibold">{formatPriceWithSymbol((item.price * item.quantity * 1000).toString())}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -76,9 +71,9 @@ export default function OrderModal({ items, totalAmount, shippingCost }: OrderMo
                                             <path d="M20 7L12 3L4 7M20 7L12 11M20 7V17L12 21M12 11L4 7M12 11V21M4 7V17L12 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </div>
-                                    <span className="font-semibold text-sm sm:text-lg">Total Item</span>
+                                    <span className="font-semibold text-sm sm:text-lg">Total Items</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-blue-50 text-blue-600 px-3 sm:px-4 py-1 rounded-full">{items.reduce((total, item) => total + item.quantity, 0)} items</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-blue-50 text-blue-600 px-3 sm:px-4 py-1 rounded-full">{transaction.items.reduce((total, item) => total + item.quantity, 0)} items</span>
                             </div>
                             <div className="flex justify-between items-center p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -89,7 +84,7 @@ export default function OrderModal({ items, totalAmount, shippingCost }: OrderMo
                                     </div>
                                     <span className="font-semibold text-sm sm:text-lg">Subtotal</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-purple-50 text-purple-600 px-3 sm:px-4 py-1 rounded-full">{formatCurrency(totalAmount - shippingCost)}</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-purple-50 text-purple-600 px-3 sm:px-4 py-1 rounded-full">{formatPriceWithSymbol(transaction.items.reduce((total, item) => total + (item.price * item.quantity * 1000), 0).toString())}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -98,9 +93,9 @@ export default function OrderModal({ items, totalAmount, shippingCost }: OrderMo
                                             <path d="M5 8H19M5 8C3.89543 8 3 7.10457 3 6V6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V6C21 7.10457 20.1046 8 19 8M5 8V18C5 19.1046 5.89543 20 7 20H17C18.1046 20 19 19.1046 19 18V8M8 12H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </div>
-                                    <span className="font-semibold text-sm sm:text-lg">Biaya Pengiriman</span>
+                                    <span className="font-semibold text-sm sm:text-lg">Shipping Cost</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-green-50 text-green-600 px-3 sm:px-4 py-1 rounded-full">{formatCurrency(shippingCost)}</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-green-50 text-green-600 px-3 sm:px-4 py-1 rounded-full">{formatPriceWithSymbol(transaction.shippingCost.toString())}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -111,9 +106,9 @@ export default function OrderModal({ items, totalAmount, shippingCost }: OrderMo
                                             <path d="M12 20C13.1046 20 14 19.1046 14 18C14 16.8954 13.1046 16 12 16C10.8954 16 10 16.8954 10 18C10 19.1046 10.8954 20 12 20Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </div>
-                                    <span className="font-semibold text-sm sm:text-lg">Total</span>
+                                    <span className="font-semibold text-sm sm:text-lg">Total Amount</span>
                                 </div>
-                                <span className="font-semibold text-sm sm:text-lg bg-orange-50 text-orange-600 px-3 sm:px-4 py-1 rounded-full">{formatCurrency(totalAmount)}</span>
+                                <span className="font-semibold text-sm sm:text-lg bg-orange-50 text-orange-600 px-3 sm:px-4 py-1 rounded-full">{formatPriceWithSymbol((transaction.items.reduce((total, item) => total + (item.price * item.quantity * 1000), 0) + transaction.shippingCost).toString())}</span>
                             </div>
                         </div>
                     </div>

@@ -20,8 +20,6 @@ import { toast } from "sonner"
 
 import imagekitInstance from '@/utils/imagekit/imagekit'
 
-import { compressImage } from '@/base/helper/ImageCompression'
-
 import { doc, updateDoc } from 'firebase/firestore'
 
 import { db } from '@/utils/firebase/Firebase'
@@ -54,12 +52,9 @@ export default function ProfileLayout() {
         try {
             setIsUploading(true)
 
-            // Compress the image first
-            const compressedImage = await compressImage(file)
-
             // Convert to base64
             const reader = new FileReader()
-            reader.readAsDataURL(compressedImage)
+            reader.readAsDataURL(file)
 
             reader.onload = async () => {
                 const base64Image = reader.result as string

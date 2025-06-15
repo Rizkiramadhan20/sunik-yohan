@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 
 import { Plus, Loader2, Type, Clock } from "lucide-react"
 
-import { formatPrice } from '@/utils/format/price'
+import { formatPrice } from '@/base/helper/price'
 
 interface CreateModalProps {
     onSubmit: (data: {
