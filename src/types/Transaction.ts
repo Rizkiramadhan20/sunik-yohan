@@ -1,41 +1,3 @@
-// export interface TransactionData {
-//     transactionId: string;
-//     userId: string;
-//     userInfo: {
-//         displayName: string;
-//         email: string;
-//         photoURL?: string;
-//     };
-//     items: Array<{
-//         id: string;
-//         title: string;
-//         price: string;
-//         quantity: number;
-//         thumbnail: string;
-//     }>;
-//     totalAmount: number;
-//     shippingInfo: {
-//         firstName: string;
-//         email: string;
-//         streetName: string;
-//         landmark: string;
-//         province: string;
-//         city: string;
-//         postalCode: string;
-//         phone: string;
-//         district?: string;
-//     };
-//     paymentInfo: {
-//         method: string;
-//         proof: string;
-//         status: string;
-//     };
-//     message?: string;
-//     orderDate: string;
-//     expirationTime: string;
-//     status: string;
-// }
-
 interface TransactionData {
     transactionId: string;
     userId: string;
@@ -55,7 +17,10 @@ interface TransactionData {
         city: string;
         postalCode: string;
         phone: string;
-        district?: string;
+        district?: string; // Format: "latitude,longitude" e.g. "-6.5741124,106.6320672"
+        rt: string;
+        rw: string;
+        addressType: string;
     };
     paymentInfo: {
         method: string;
@@ -75,4 +40,5 @@ interface TransactionData {
         }>;
         estimatedDelivery: string;
     };
+    shippingCost: number;
 }

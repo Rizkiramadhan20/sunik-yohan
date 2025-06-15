@@ -14,13 +14,13 @@ export default function PaymentOptions({ paymentMethod, onPaymentMethodChange, t
         e.preventDefault();
         e.stopPropagation();
         navigator.clipboard.writeText(number);
-        toast.success(`${type} number copied to clipboard!`);
+        toast.success(`Nomor ${type} berhasil disalin!`);
     };
 
     return (
         <div className="space-y-6">
             <div className="space-y-4">
-                <Label className="text-gray-700">Select Payment Method</Label>
+                <Label className="text-gray-700">Pilih Metode Pembayaran</Label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* DANA */}
                     <div
@@ -83,20 +83,20 @@ export default function PaymentOptions({ paymentMethod, onPaymentMethodChange, t
 
             {/* Payment Details */}
             <div className="space-y-4 p-6 bg-gray-50 rounded-xl">
-                <h3 className="font-medium text-gray-800">Payment Details</h3>
+                <h3 className="font-medium text-gray-800">Detail Pembayaran</h3>
                 <div className="space-y-4">
                     {paymentMethod === 'dana' && (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-600">DANA E-Wallet Number</p>
+                                    <p className="text-sm text-gray-600">Nomor DANA</p>
                                     <p className="text-lg font-semibold">081284258290</p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={(e) => handleCopy('081284258290', 'DANA', e)}
                                     className="p-2 text-gray-500 hover:text-[#FF204E] transition-colors"
-                                    title="Copy number"
+                                    title="Salin nomor"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -122,14 +122,14 @@ export default function PaymentOptions({ paymentMethod, onPaymentMethodChange, t
                         <div className="space-y-4">
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-600">SHOPEEPAY E-Wallet Number</p>
+                                    <p className="text-sm text-gray-600">Nomor SHOPEEPAY</p>
                                     <p className="text-lg font-semibold">081284258290</p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={(e) => handleCopy('081284258290', 'SHOPEEPAY', e)}
                                     className="p-2 text-gray-500 hover:text-[#FF204E] transition-colors"
-                                    title="Copy number"
+                                    title="Salin nomor"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -156,14 +156,14 @@ export default function PaymentOptions({ paymentMethod, onPaymentMethodChange, t
                         <div className="space-y-4">
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                 <div>
-                                    <p className="text-sm text-gray-600">SEABANK Account Number</p>
+                                    <p className="text-sm text-gray-600">Nomor Rekening SEABANK</p>
                                     <p className="text-lg font-semibold">901560161550</p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={(e) => handleCopy('901560161550', 'SEABANK', e)}
                                     className="p-2 text-gray-500 hover:text-[#FF204E] transition-colors"
-                                    title="Copy number"
+                                    title="Salin nomor"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
@@ -196,8 +196,8 @@ export default function PaymentOptions({ paymentMethod, onPaymentMethodChange, t
                     </div>
 
                     <div className="p-4 bg-white rounded-xl">
-                        <p className="text-sm text-gray-500">Total Amount</p>
-                        <p className="text-2xl font-bold text-[#FF204E]">${total.toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">Total Pembayaran</p>
+                        <p className="text-2xl font-bold text-[#FF204E]">Rp {total.toLocaleString('id-ID')}</p>
                     </div>
                 </div>
             </div>

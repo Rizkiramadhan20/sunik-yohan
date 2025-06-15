@@ -20,9 +20,9 @@ import { Label } from "@/components/ui/label";
 
 import { toast } from "sonner";
 
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, query } from "firebase/firestore";
 
-import { db as freeDb } from "@/utils/firebase/Firebase";
+import { db } from "@/utils/firebase/Firebase";
 
 import { createTransaction } from "@/utils/firebase/transaction";
 
@@ -36,23 +36,28 @@ import HeroCheckout from "@/hooks/(pages)/checkout/HeroCheckout"
 
 import { Steps } from "@/components/ui/steps";
 
-import PaymentOptions from "@/components/payment/PaymentOptions";
+import PaymentOptions from "@/hooks/(pages)/checkout/PaymentOptions";
+
+import type { TransactionData } from "@/utils/firebase/transaction";
 
 // Form validation schema
 const checkoutSchema = z.object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    streetName: z.string().min(5, "Street name must be at least 5 characters"),
-    landmark: z.string().min(3, "Landmark must be at least 3 characters"),
-    province: z.string().min(1, "Province is required"),
-    city: z.string().min(1, "City is required"),
-    postalCode: z.string().min(5, "Postal code must be at least 5 characters"),
-    phone: z.string().min(10, "Phone number must be at least 10 characters"),
+    firstName: z.string().min(2, "Nama depan harus minimal 2 karakter"),
+    email: z.string().email("Alamat email tidak valid"),
+    streetName: z.string().min(5, "Nama jalan harus minimal 5 karakter"),
+    landmark: z.string().min(3, "Patokan harus minimal 3 karakter"),
+    province: z.string().min(1, "Provinsi harus diisi"),
+    city: z.string().min(1, "Kota harus diisi"),
+    postalCode: z.string().min(5, "Kode pos harus minimal 5 karakter"),
+    phone: z.string().min(10, "Nomor telepon harus minimal 10 karakter"),
     cardNumber: z.string().optional(),
     expiry: z.string().optional(),
     cvv: z.string().optional(),
     message: z.string().optional(),
-    district: z.string().optional()
+    district: z.string().optional(),
+    addressType: z.string().min(1, "Tipe alamat harus diisi"),
+    rt: z.string().min(1, "RT harus diisi"),
+    rw: z.string().min(1, "RW harus diisi")
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -73,6 +78,17 @@ interface SavedAddress {
         lat: number;
         lng: number;
     };
+    addressType: string;
+    rt: string;
+    rw: string;
+}
+
+interface OngkirData {
+    id: string;
+    desa: string;
+    price: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 const NoAddressFound = () => {
@@ -102,14 +118,14 @@ const NoAddressFound = () => {
                     />
                 </svg>
                 <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-red-800 mb-1">No Address Found</h2>
-                    <p className="text-red-600 text-sm">Please add your address to continue with checkout</p>
+                    <h2 className="text-lg font-semibold text-red-800 mb-1">Alamat Tidak Ditemukan</h2>
+                    <p className="text-red-600 text-sm">Silakan tambahkan alamat Anda untuk melanjutkan pembayaran</p>
                 </div>
                 <button
                     onClick={() => router.push('/profile/address')}
                     className="px-4 py-2 bg-[#FF204E] text-white rounded-lg hover:bg-[#e61e4d] transition-colors duration-200 text-sm"
                 >
-                    Add Address
+                    Tambah Alamat
                 </button>
             </div>
         </div>
@@ -160,7 +176,7 @@ const CountdownTimer = ({ endTime }: { endTime: string }) => {
                 <span>:</span>
                 <span className="font-medium">{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
-            <span>remaining</span>
+            <span>tersisa</span>
         </div>
     );
 };
@@ -176,16 +192,17 @@ export default function Checkout() {
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [coordinates, setCoordinates] = useState<{ lat: number; lng: number }>({ lat: -6.5741124, lng: 106.6320672 });
+    const [shippingCost, setShippingCost] = useState<number>(0);
 
     const steps: { title: string; description: string; status: StepStatus }[] = [
         {
-            title: "Address",
-            description: "Shipping information",
+            title: "Alamat",
+            description: "Informasi pengiriman",
             status: currentStep === 'address' ? "current" : "complete"
         },
         {
-            title: "Payment",
-            description: "Payment details",
+            title: "Pembayaran",
+            description: "Detail pembayaran",
             status: currentStep === 'payment' ? "current" : "upcoming"
         }
     ];
@@ -213,23 +230,25 @@ export default function Checkout() {
             expiry: '',
             cvv: '',
             message: '',
-            district: ''
+            district: '',
+            addressType: '',
+            rt: '',
+            rw: ''
         }
     });
 
     useEffect(() => {
         if (!user) {
+            toast.error('Silakan masuk untuk melanjutkan pembayaran');
             router.push('/signin');
             return;
         }
 
         const fetchUserAddress = async () => {
             try {
-                const userDocRef = doc(freeDb, process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string, user.uid);
+                const userDocRef = doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string, user.uid);
                 const userDoc = await getDoc(userDocRef);
                 const userData = userDoc.data();
-
-                console.log('User data from Firestore:', userData);
 
                 if (!userData?.addresses || userData.addresses.length === 0) {
                     setHasAddress(false);
@@ -237,17 +256,27 @@ export default function Checkout() {
                 }
 
                 const primaryAddress = userData.addresses.find((addr: SavedAddress) => addr.isPrimary);
-                console.log('Primary address found:', primaryAddress);
 
                 if (primaryAddress) {
-                    setValue('firstName', primaryAddress.fullName, { shouldValidate: true });
-                    setValue('email', user.email || '', { shouldValidate: true });
-                    setValue('streetName', primaryAddress.streetName, { shouldValidate: true });
-                    setValue('landmark', primaryAddress.landmark, { shouldValidate: true });
-                    setValue('province', primaryAddress.province, { shouldValidate: true });
-                    setValue('city', primaryAddress.city, { shouldValidate: true });
-                    setValue('postalCode', primaryAddress.postalCode, { shouldValidate: true });
-                    setValue('phone', primaryAddress.phone, { shouldValidate: true });
+                    // Set form values from primary address
+                    const formValues = {
+                        firstName: primaryAddress.fullName,
+                        email: user.email || '',
+                        streetName: primaryAddress.streetName,
+                        landmark: primaryAddress.landmark,
+                        province: primaryAddress.province,
+                        city: primaryAddress.city,
+                        postalCode: primaryAddress.postalCode,
+                        phone: primaryAddress.phone,
+                        addressType: primaryAddress.addressType,
+                        rt: primaryAddress.rt,
+                        rw: primaryAddress.rw
+                    };
+
+                    // Set each form value
+                    Object.entries(formValues).forEach(([key, value]) => {
+                        setValue(key as keyof CheckoutFormData, value, { shouldValidate: true });
+                    });
 
                     // Set coordinates from location object
                     if (primaryAddress.location?.lat && primaryAddress.location?.lng) {
@@ -261,22 +290,90 @@ export default function Checkout() {
                     }
                 }
             } catch (error) {
-                console.error("Error fetching user address:", error);
-                toast.error("Failed to load saved address");
+                toast.error("Gagal memuat alamat tersimpan");
             }
         };
 
         fetchUserAddress();
-    }, [user, router, setValue]);
+    }, [user, router, setValue, getValues]);
+
+    // Fetch shipping cost based on district
+    useEffect(() => {
+        const fetchShippingCost = async () => {
+            if (!user) return;
+
+            try {
+                const userDocRef = doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_ACCOUNTS as string, user.uid);
+                const userDoc = await getDoc(userDocRef);
+                const userData = userDoc.data();
+
+                if (!userData?.addresses || userData.addresses.length === 0) {
+                    return;
+                }
+
+                const primaryAddress = userData.addresses.find((addr: SavedAddress) => addr.isPrimary);
+
+                if (!primaryAddress?.location?.lat || !primaryAddress?.location?.lng) {
+                    return;
+                }
+
+                // Use coordinates from location object
+                const { lat, lng } = primaryAddress.location;
+
+                // Set the coordinates for the map
+                setCoordinates({ lat, lng });
+                const coordinatesStr = `${lat},${lng}`;
+                setValue('district', coordinatesStr, { shouldValidate: true });
+
+                // Fetch shipping costs from ongkir collection
+                const ongkirQuery = query(
+                    collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_ONGKIR as string)
+                );
+                const ongkirSnapshot = await getDocs(ongkirQuery);
+
+                // Find matching shipping cost
+                const ongkirData = ongkirSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as OngkirData[];
+
+                // Find the matching ongkir based on desa (village/area)
+                const matchingOngkir = ongkirData.find(ongkir => {
+                    // Convert both strings to lowercase for case-insensitive comparison
+                    const ongkirDesa = ongkir.desa.toLowerCase();
+                    const addressDesa = primaryAddress.location.address.toLowerCase();
+                    return addressDesa.includes(ongkirDesa);
+                });
+
+                if (matchingOngkir) {
+                    // Remove any non-numeric characters and convert to number
+                    const price = parseInt(matchingOngkir.price.replace(/[^0-9]/g, ''));
+                    setShippingCost(price);
+                } else {
+                    // If no match found, use the first ongkir as fallback
+                    if (ongkirData.length > 0) {
+                        const price = parseInt(ongkirData[0].price.replace(/[^0-9]/g, ''));
+                        setShippingCost(price);
+                    } else {
+                        setShippingCost(0);
+                    }
+                }
+            } catch (error) {
+                toast.error("Gagal memuat biaya pengiriman");
+            }
+        };
+
+        fetchShippingCost();
+    }, [user, setValue]);
 
     const calculateTotal = () => {
-        const total = items.reduce((sum, item) => {
+        const subtotal = items.reduce((sum, item) => {
             // Convert price from "5.000" to 5000
             const priceStr = item.price.replace(/[^0-9]/g, ""); // Remove all non-numeric characters
             const price = parseInt(priceStr, 10); // Convert to integer
             return sum + (price * item.quantity);
         }, 0);
-        return total;
+        return subtotal + shippingCost;
     };
 
     const generateTransactionId = () => {
@@ -287,22 +384,22 @@ export default function Checkout() {
 
     const onSubmit = async (data: CheckoutFormData) => {
         if (!user) {
-            toast.error('Please login to continue with checkout');
+            toast.error('Silakan masuk untuk melanjutkan pembayaran');
             router.push('/signin');
             return;
         }
 
-        setIsLoading(true);
-
         if (!items || items.length === 0) {
-            toast.error('Your cart is empty. Please add items to your cart before proceeding.');
+            toast.error('Keranjang Anda kosong. Silakan tambahkan item ke keranjang sebelum melanjutkan.');
             return;
         }
 
         if (!paymentProof) {
-            toast.error('Please upload payment proof');
+            toast.error('Silakan unggah bukti pembayaran');
             return;
         }
+
+        setIsLoading(true);
 
         try {
             // Upload payment proof to ImageKit
@@ -316,14 +413,13 @@ export default function Checkout() {
             });
 
             if (!uploadResponse.ok) {
-                throw new Error('Failed to upload payment proof');
+                throw new Error('Gagal mengunggah bukti pembayaran');
             }
 
             const { url } = await uploadResponse.json();
 
             // Get the current district value (coordinates)
             const districtValue = getValues('district');
-            console.log('District value before order creation:', districtValue);
 
             // Calculate order expiration time (24 hours from now)
             const orderDate = new Date();
@@ -331,7 +427,7 @@ export default function Checkout() {
 
             // Create order data with transaction ID
             const total = calculateTotal();
-            const orderData = {
+            const orderData: TransactionData = {
                 transactionId: generateTransactionId(),
                 userId: user.uid,
                 userInfo: {
@@ -350,7 +446,10 @@ export default function Checkout() {
                     city: data.city,
                     postalCode: data.postalCode,
                     phone: data.phone,
-                    district: districtValue as string
+                    district: districtValue as string,
+                    rt: data.rt,
+                    rw: data.rw,
+                    addressType: data.addressType
                 },
                 paymentInfo: {
                     method: paymentMethod,
@@ -371,10 +470,9 @@ export default function Checkout() {
                         }
                     ],
                     estimatedDelivery: new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
-                }
+                },
+                shippingCost: shippingCost
             };
-
-            console.log('Order data being saved:', orderData);
 
             try {
                 // Save to transaction database
@@ -386,7 +484,7 @@ export default function Checkout() {
                 // Update success message to include countdown
                 toast.success(
                     <div className="flex flex-col gap-2">
-                        <p>Order placed successfully! Please wait for confirmation.</p>
+                        <p>Pesanan berhasil dibuat! Silakan tunggu konfirmasi.</p>
                         <CountdownTimer endTime={expirationTime.toISOString()} />
                     </div>
                 );
@@ -394,41 +492,30 @@ export default function Checkout() {
                 // Redirect to transaction page with the transaction ID
                 router.push(`/transaction/${transactionId}`);
             } catch (error) {
-                console.error('Failed to save transaction:', error);
-                toast.error('Failed to place order. Please try again.');
+                toast.error('Gagal membuat pesanan. Silakan coba lagi.');
             }
         } catch (error) {
-            console.error('Checkout error:', error);
-            toast.error('Failed to place order. Please try again.');
+            toast.error('Gagal membuat pesanan. Silakan coba lagi.');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleAddressSubmit = async (data: Partial<CheckoutFormData>) => {
-        console.log('Form submission started with data:', data);
         setIsLoading(true);
 
         try {
-            // Log current form state
-            const currentValues = getValues();
-            console.log('Current form values:', currentValues);
-            console.log('Current form errors:', errors);
-
             // Validate all fields
             const isValid = await trigger();
-            console.log('Form validation result:', isValid);
 
             if (!isValid) {
-                console.log('Form validation failed with errors:', errors);
-                toast.error('Please fill in all required fields correctly');
+                toast.error('Silakan isi semua field yang diperlukan dengan benar');
                 return;
             }
 
             // Move to payment step
-            console.log('Moving to payment step');
             setCurrentStep('payment');
-            toast.success('Moving to payment step');
+            toast.success('Melanjutkan ke langkah pembayaran');
 
             // Scroll to top smoothly
             window.scrollTo({
@@ -436,8 +523,7 @@ export default function Checkout() {
                 behavior: 'smooth'
             });
         } catch (error) {
-            console.error('Error in handleAddressSubmit:', error);
-            toast.error('Failed to proceed to payment step');
+            toast.error('Gagal melanjutkan ke langkah pembayaran');
         } finally {
             setIsLoading(false);
         }
@@ -469,7 +555,7 @@ export default function Checkout() {
                         {/* Order Summary */}
                         <div className="lg:sticky lg:top-8 lg:self-start lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
                             <Card className="p-8 bg-white shadow-sm border-0 rounded-2xl">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Order Summary</h2>
+                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Ringkasan Pesanan</h2>
                                 <div className="space-y-6">
                                     {items.map((item) => (
                                         <div key={item.id} className="flex gap-6 items-center">
@@ -484,19 +570,23 @@ export default function Checkout() {
                                             <div className="flex-1">
                                                 <h3 className="font-medium text-gray-800 text-lg">{item.title}</h3>
                                                 <p className="text-[#FF204E] font-semibold text-lg mt-1">{item.price}</p>
-                                                <p className="text-sm text-gray-500 mt-1">Quantity: {item.quantity}</p>
+                                                <p className="text-sm text-gray-500 mt-1">Jumlah: {item.quantity}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="border-t border-gray-100 mt-8 pt-6">
                                     <div className="flex justify-between items-center text-gray-600">
-                                        <span className="font-medium">Total Items:</span>
+                                        <span className="font-medium">Total Item:</span>
                                         <span>{totalItems}</span>
                                     </div>
+                                    <div className="flex justify-between items-center mt-4 text-gray-600">
+                                        <span className="font-medium">Biaya Pengiriman:</span>
+                                        <span>Rp {shippingCost.toLocaleString('id-ID')}</span>
+                                    </div>
                                     <div className="flex justify-between items-center mt-4">
-                                        <span className="font-medium text-gray-800 text-lg">Total Amount:</span>
-                                        <span className="text-[#FF204E] font-bold text-xl">${calculateTotal().toFixed(2)}</span>
+                                        <span className="font-medium text-gray-800 text-lg">Total Pembayaran:</span>
+                                        <span className="text-[#FF204E] font-bold text-xl">Rp {calculateTotal().toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </Card>
@@ -510,34 +600,31 @@ export default function Checkout() {
                             {currentStep === 'address' ? (
                                 <Card className="p-8 bg-white shadow-sm border-0 rounded-2xl">
                                     <div className="flex justify-between items-center mb-8">
-                                        <h2 className="text-2xl font-semibold text-gray-800">Shipping Information</h2>
+                                        <h2 className="text-2xl font-semibold text-gray-800">Informasi Pengiriman</h2>
                                         <Button
                                             variant="outline"
                                             className="text-[#FF204E] border-[#FF204E] hover:bg-[#FF204E] hover:text-white transition-colors duration-200"
                                             onClick={() => router.push('/profile/address')}
                                         >
-                                            Edit Address
+                                            Edit Alamat
                                         </Button>
                                     </div>
                                     <form
                                         className="space-y-6"
                                         onSubmit={async (e) => {
                                             e.preventDefault();
-                                            console.log('Form submitted, starting submission process');
                                             const formData = getValues();
-                                            console.log('Current form data:', formData);
 
                                             try {
                                                 await handleSubmit(handleAddressSubmit)(e);
                                             } catch (error) {
-                                                console.error('Error during form submission:', error);
-                                                toast.error('An error occurred during form submission');
+                                                toast.error('Terjadi kesalahan saat mengirim formulir');
                                             }
                                         }}
                                     >
                                         {!hasAddress && <NoAddressFound />}
                                         <div className="space-y-2">
-                                            <Label htmlFor="firstName" className="text-gray-700">Full Name</Label>
+                                            <Label htmlFor="firstName" className="text-gray-700">Nama Lengkap</Label>
                                             <Input
                                                 id="firstName"
                                                 {...register('firstName', { required: true })}
@@ -556,16 +643,46 @@ export default function Checkout() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="streetName" className="text-gray-700">Street Name</Label>
+                                            <Label htmlFor="addressType" className="text-gray-700">Tipe Alamat</Label>
                                             <Input
-                                                id="streetName"
-                                                {...register('streetName', { required: true })}
+                                                id="addressType"
+                                                {...register('addressType', { required: true })}
                                                 className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
                                                 readOnly
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="landmark" className="text-gray-700">Landmark</Label>
+                                            <Label htmlFor="streetName" className="text-gray-700">Nama Jalan</Label>
+                                            <textarea
+                                                id="streetName"
+                                                className="w-full p-4 bg-gray-100 border border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-[#FF204E] focus:border-transparent transition-all duration-200 cursor-not-allowed"
+                                                rows={3}
+                                                {...register('streetName', { required: true })}
+                                                readOnly
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="rt" className="text-gray-700">RT</Label>
+                                                <Input
+                                                    id="rt"
+                                                    {...register('rt', { required: true })}
+                                                    className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                    readOnly
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="rw" className="text-gray-700">RW</Label>
+                                                <Input
+                                                    id="rw"
+                                                    {...register('rw', { required: true })}
+                                                    className="bg-gray-100 border-gray-200 rounded-xl h-12 cursor-not-allowed"
+                                                    readOnly
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="landmark" className="text-gray-700">Patokan</Label>
                                             <Input
                                                 id="landmark"
                                                 {...register('landmark', { required: true })}
@@ -575,7 +692,7 @@ export default function Checkout() {
                                         </div>
                                         <div className="grid grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="province" className="text-gray-700">Province</Label>
+                                                <Label htmlFor="province" className="text-gray-700">Provinsi</Label>
                                                 <Input
                                                     id="province"
                                                     {...register('province', { required: true })}
@@ -584,7 +701,7 @@ export default function Checkout() {
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="city" className="text-gray-700">City</Label>
+                                                <Label htmlFor="city" className="text-gray-700">Kota</Label>
                                                 <Input
                                                     id="city"
                                                     {...register('city', { required: true })}
@@ -594,7 +711,7 @@ export default function Checkout() {
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="postalCode" className="text-gray-700">Postal Code</Label>
+                                            <Label htmlFor="postalCode" className="text-gray-700">Kode Pos</Label>
                                             <Input
                                                 id="postalCode"
                                                 {...register('postalCode', { required: true })}
@@ -604,7 +721,7 @@ export default function Checkout() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label className="text-gray-700">Location</Label>
+                                            <Label className="text-gray-700">Lokasi</Label>
                                             <div className="w-full h-[200px] rounded-xl overflow-hidden border border-gray-200">
                                                 <iframe
                                                     title="Location Map"
@@ -622,7 +739,7 @@ export default function Checkout() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="phone" className="text-gray-700">Phone Number</Label>
+                                            <Label htmlFor="phone" className="text-gray-700">Nomor Telepon</Label>
                                             <Input
                                                 id="phone"
                                                 type="tel"
@@ -633,12 +750,12 @@ export default function Checkout() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="message" className="text-gray-700">Message (Optional)</Label>
+                                            <Label htmlFor="message" className="text-gray-700">Pesan (Opsional)</Label>
                                             <textarea
                                                 id="message"
                                                 className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-[#FF204E] focus:border-transparent transition-all duration-200"
                                                 rows={4}
-                                                placeholder="Add any special notes or requests..."
+                                                placeholder="Tambahkan catatan atau permintaan khusus..."
                                                 {...register('message')}
                                             />
                                         </div>
@@ -651,10 +768,10 @@ export default function Checkout() {
                                             {isLoading ? (
                                                 <div className="flex items-center justify-center gap-2">
                                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    Processing...
+                                                    Memproses...
                                                 </div>
                                             ) : (
-                                                'Continue to Payment'
+                                                'Lanjut ke Pembayaran'
                                             )}
                                         </Button>
                                     </form>
@@ -662,13 +779,13 @@ export default function Checkout() {
                             ) : (
                                 <Card className="p-8 bg-white shadow-sm border-0 rounded-2xl">
                                     <div className="flex justify-between items-center mb-8">
-                                        <h2 className="text-2xl font-semibold text-gray-800">Payment Information</h2>
+                                        <h2 className="text-2xl font-semibold text-gray-800">Informasi Pembayaran</h2>
                                         <Button
                                             variant="outline"
                                             className="text-gray-600 border-gray-300 hover:bg-gray-50"
                                             onClick={() => setCurrentStep('address')}
                                         >
-                                            Back to Address
+                                            Kembali ke Alamat
                                         </Button>
                                     </div>
                                     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -679,7 +796,7 @@ export default function Checkout() {
                                         />
 
                                         <div className="space-y-4">
-                                            <Label className="text-gray-700">Upload Payment Proof</Label>
+                                            <Label className="text-gray-700">Unggah Bukti Pembayaran</Label>
                                             <div className="space-y-4">
                                                 {!previewUrl ? (
                                                     <div className="flex items-center justify-center w-full">
@@ -702,9 +819,9 @@ export default function Checkout() {
                                                                     />
                                                                 </svg>
                                                                 <p className="mb-2 text-sm text-gray-500">
-                                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                                    <span className="font-semibold">Klik untuk unggah</span> atau seret dan lepas
                                                                 </p>
-                                                                <p className="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
+                                                                <p className="text-xs text-gray-500">PNG, JPG atau JPEG (MAKS. 2MB)</p>
                                                             </div>
                                                             <input
                                                                 id="payment-proof"
@@ -719,7 +836,7 @@ export default function Checkout() {
                                                     <div className="relative w-full h-64 border-2 border-gray-200 rounded-xl overflow-hidden">
                                                         <Image
                                                             src={previewUrl}
-                                                            alt="Payment proof preview"
+                                                            alt="Preview bukti pembayaran"
                                                             fill
                                                             className="object-contain"
                                                         />
@@ -750,7 +867,7 @@ export default function Checkout() {
                                                 )}
                                                 {paymentProof && (
                                                     <p className="text-sm text-gray-500">
-                                                        Selected file: {paymentProof.name}
+                                                        File terpilih: {paymentProof.name}
                                                     </p>
                                                 )}
                                             </div>
@@ -764,10 +881,10 @@ export default function Checkout() {
                                             {isLoading ? (
                                                 <div className="flex items-center justify-center gap-2">
                                                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    Processing...
+                                                    Memproses...
                                                 </div>
                                             ) : (
-                                                'Place Order'
+                                                'Pesan Sekarang'
                                             )}
                                         </Button>
                                     </form>

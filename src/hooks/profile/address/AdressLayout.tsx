@@ -65,6 +65,8 @@ export default function AddressPage() {
             province: "",
             city: "",
             postalCode: "",
+            rt: "",
+            rw: "",
         }
     });
 
@@ -93,9 +95,21 @@ export default function AddressPage() {
 
     const handleLocationSelect = (location: LocationData) => {
         setSelectedLocation(location);
+
+        // Use the complete address as street name
+        const completeAddress = location.address;
+
+        // Update form values
+        setValue("streetName", completeAddress);
         setValue("province", location.province);
         setValue("city", location.city);
         setValue("postalCode", location.postalCode);
+
+        // Validate all fields
+        setValue("streetName", completeAddress, { shouldValidate: true });
+        setValue("province", location.province, { shouldValidate: true });
+        setValue("city", location.city, { shouldValidate: true });
+        setValue("postalCode", location.postalCode, { shouldValidate: true });
     };
 
     const resetForm = () => {
@@ -136,6 +150,8 @@ export default function AddressPage() {
         setValue("province", address.province);
         setValue("city", address.city);
         setValue("postalCode", address.postalCode);
+        setValue("rt", address.rt);
+        setValue("rw", address.rw);
         setSelectedLocation(address.location);
     };
 
@@ -391,6 +407,7 @@ export default function AddressPage() {
                                         <p className="text-sm text-red-500">{errors.city.message}</p>
                                     )}
                                 </div>
+
                                 <div className="space-y-2">
                                     <Label htmlFor="postalCode" className="flex items-center gap-2">
                                         <Mail className="h-4 w-4" />
@@ -404,6 +421,53 @@ export default function AddressPage() {
                                     />
                                     {errors.postalCode && (
                                         <p className="text-sm text-red-500">{errors.postalCode.message}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="rt" className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4" />
+                                        RT
+                                    </Label>
+                                    <Input
+                                        id="rt"
+                                        placeholder="Masukkan RT"
+                                        {...register("rt")}
+                                        disabled={isSubmitting}
+                                    />
+                                    {errors.rt && (
+                                        <p className="text-sm text-red-500">{errors.rt.message}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="rw" className="flex items-center gap-2">
+                                        <MapPin className="h-4 w-4" />
+                                        RW
+                                    </Label>
+                                    <Input
+                                        id="rw"
+                                        placeholder="Masukkan RW"
+                                        {...register("rw")}
+                                        disabled={isSubmitting}
+                                    />
+                                    {errors.rw && (
+                                        <p className="text-sm text-red-500">{errors.rw.message}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="landmark" className="flex items-center gap-2">
+                                        <Landmark className="h-4 w-4" />
+                                        Patokan
+                                    </Label>
+                                    <Input
+                                        id="landmark"
+                                        placeholder="Contoh: Sebelah warung makan, Depan minimarket, dll"
+                                        {...register("landmark")}
+                                        disabled={isSubmitting}
+                                    />
+                                    {errors.landmark && (
+                                        <p className="text-sm text-red-500">{errors.landmark.message}</p>
                                     )}
                                 </div>
                             </div>
@@ -423,22 +487,6 @@ export default function AddressPage() {
                                     />
                                     {errors.streetName && (
                                         <p className="text-sm text-red-500">{errors.streetName.message}</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="landmark" className="flex items-center gap-2">
-                                        <Landmark className="h-4 w-4" />
-                                        Patokan
-                                    </Label>
-                                    <Input
-                                        id="landmark"
-                                        placeholder="Contoh: Sebelah warung makan, Depan minimarket, dll"
-                                        {...register("landmark")}
-                                        disabled={isSubmitting}
-                                    />
-                                    {errors.landmark && (
-                                        <p className="text-sm text-red-500">{errors.landmark.message}</p>
                                     )}
                                 </div>
 

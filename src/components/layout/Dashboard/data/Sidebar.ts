@@ -97,27 +97,27 @@ export const menuItems = [
   },
 
   {
-    href: "/dashboard/transaksi",
+    href: "/dashboard/transaction",
     label: "Transaksi",
     icon: ArrowLeftRight,
     subItems: [
       {
-        href: "/dashboard/transaksi/transaksi",
+        href: "/dashboard/transaction/transaction",
         label: "Transaksi",
       },
 
       {
-        href: "/dashboard/transaksi/pending",
+        href: "/dashboard/transaction/pending",
         label: "Pending",
       },
 
       {
-        href: "/dashboard/transaksi/delivery",
+        href: "/dashboard/transaction/delivery",
         label: "Delivery",
       },
 
       {
-        href: "/dashboard/transaksi/success",
+        href: "/dashboard/transaction/success",
         label: "Success",
       },
     ],

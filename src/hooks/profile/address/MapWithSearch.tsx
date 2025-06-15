@@ -120,13 +120,13 @@ const MapWithSearch: React.FC<MapWithSearchProps> = ({ onLocationSelect }) => {
 
         // Create new marker
         console.log('Creating new marker at:', lat, lon);
-        const newMarker = L.marker([lat, lon], { icon: DefaultIcon }).addTo(mapRef.current);
+        const newMarker = L.marker([lat, lon], {
+            icon: DefaultIcon,
+            draggable: true
+        }).addTo(mapRef.current);
         setMarker(newMarker);
 
-        // Update map view
-        console.log('Updating map view');
-        mapRef.current.setView([lat, lon], 15);
-
+        // Get address details immediately
         try {
             const response = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
@@ -141,11 +141,10 @@ const MapWithSearch: React.FC<MapWithSearchProps> = ({ onLocationSelect }) => {
             if (!response.ok) throw new Error('Failed to get address details');
 
             const data = await response.json();
-            console.log('Address data:', data);
             const address = data.address;
 
             const locationData: LocationData = {
-                lat,
+                lat: lat,
                 lng: lon,
                 address: data.display_name,
                 province: address.state || '',
@@ -161,6 +160,53 @@ const MapWithSearch: React.FC<MapWithSearchProps> = ({ onLocationSelect }) => {
             console.error('Error getting address details:', error);
             toast.error('Gagal mendapatkan detail alamat');
         }
+
+        // Update map view
+        console.log('Updating map view');
+        if (mapRef.current) {
+            mapRef.current.setView([lat, lon], 15);
+        }
+
+        // Add dragend event handler
+        newMarker.on('dragend', async (e) => {
+            const marker = e.target;
+            const position = marker.getLatLng();
+            const newLat = position.lat;
+            const newLng = position.lng;
+
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${newLat}&lon=${newLng}&zoom=18&addressdetails=1`,
+                    {
+                        headers: {
+                            'Accept-Language': 'id',
+                            'User-Agent': 'SunikYohan/1.0'
+                        }
+                    }
+                );
+
+                if (!response.ok) throw new Error('Failed to get address details');
+
+                const data = await response.json();
+                const address = data.address;
+
+                const locationData: LocationData = {
+                    lat: newLat,
+                    lng: newLng,
+                    address: data.display_name,
+                    province: address.state || '',
+                    city: address.city || address.county || '',
+                    postalCode: address.postcode || ''
+                };
+
+                setSearchQuery(data.display_name);
+                onLocationSelect(locationData);
+                marker.bindPopup(data.display_name).openPopup();
+            } catch (error) {
+                console.error('Error getting address details:', error);
+                toast.error('Gagal mendapatkan detail alamat');
+            }
+        });
     };
 
     const getUserLocation = useCallback(async () => {
@@ -188,8 +234,52 @@ const MapWithSearch: React.FC<MapWithSearchProps> = ({ onLocationSelect }) => {
                     if (marker) {
                         marker.setLatLng([newLat, newLng]);
                     } else {
-                        const newMarker = L.marker([newLat, newLng], { icon: DefaultIcon }).addTo(mapRef.current!);
+                        const newMarker = L.marker([newLat, newLng], {
+                            icon: DefaultIcon,
+                            draggable: true
+                        }).addTo(mapRef.current!);
                         setMarker(newMarker);
+
+                        // Add dragend event handler
+                        newMarker.on('dragend', async (e) => {
+                            const marker = e.target;
+                            const position = marker.getLatLng();
+                            const newLat = position.lat;
+                            const newLng = position.lng;
+
+                            try {
+                                const response = await fetch(
+                                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${newLat}&lon=${newLng}&zoom=18&addressdetails=1`,
+                                    {
+                                        headers: {
+                                            'Accept-Language': 'id',
+                                            'User-Agent': 'SunikYohan/1.0'
+                                        }
+                                    }
+                                );
+
+                                if (!response.ok) throw new Error('Failed to get address details');
+
+                                const data = await response.json();
+                                const address = data.address;
+
+                                const locationData: LocationData = {
+                                    lat: newLat,
+                                    lng: newLng,
+                                    address: data.display_name,
+                                    province: address.state || '',
+                                    city: address.city || address.county || '',
+                                    postalCode: address.postcode || ''
+                                };
+
+                                setSearchQuery(data.display_name);
+                                onLocationSelect(locationData);
+                                marker.bindPopup(data.display_name).openPopup();
+                            } catch (error) {
+                                console.error('Error getting address details:', error);
+                                toast.error('Gagal mendapatkan detail alamat');
+                            }
+                        });
                     }
 
                     // Update map view
@@ -294,9 +384,13 @@ const MapWithSearch: React.FC<MapWithSearchProps> = ({ onLocationSelect }) => {
             }
 
             // Create new marker
-            const newMarker = L.marker([lat, lng], { icon: DefaultIcon }).addTo(map);
+            const newMarker = L.marker([lat, lng], {
+                icon: DefaultIcon,
+                draggable: true
+            }).addTo(map);
             setMarker(newMarker);
 
+            // Get address details immediately
             try {
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
@@ -339,7 +433,7 @@ const MapWithSearch: React.FC<MapWithSearchProps> = ({ onLocationSelect }) => {
 
     return (
         <div className="relative w-full h-full">
-            <div className="absolute top-4 left-4 z-[9999] w-64">
+            <div className="absolute top-4 right-4 z-[9999] w-64">
                 <div className="relative flex gap-2">
                     <div className="relative flex-1 bg-white">
                         <Input

@@ -20,6 +20,8 @@ export interface SavedAddress {
   province: string;
   city: string;
   postalCode: string;
+  rt: string;
+  rw: string;
   location: LocationData;
   createdAt: string;
   isPrimary?: boolean;
@@ -37,4 +39,6 @@ export const addressSchema = z.object({
   province: z.string().min(1, "Provinsi harus dipilih"),
   city: z.string().min(1, "Kota harus dipilih"),
   postalCode: z.string().min(5, "Kode pos harus minimal 5 digit"),
+  rt: z.string().min(1, "RT harus diisi"),
+  rw: z.string().min(1, "RW harus diisi"),
 });

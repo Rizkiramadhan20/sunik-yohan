@@ -51,9 +51,10 @@ const auth = getAuth(app);
 const database = getDatabase(app);
 
 // Transaction service
-interface TransactionData {
+export interface TransactionData {
   transactionId: string;
   userId: string;
+  docId?: string;
   userInfo: {
     displayName: string;
     email: string;
@@ -71,6 +72,9 @@ interface TransactionData {
     postalCode: string;
     phone: string;
     district?: string; // Format: "latitude,longitude" e.g. "-6.5741124,106.6320672"
+    rt: string;
+    rw: string;
+    addressType: string;
   };
   paymentInfo: {
     method: string;
@@ -90,6 +94,7 @@ interface TransactionData {
     }>;
     estimatedDelivery: string;
   };
+  shippingCost: number;
 }
 
 const createTransaction = async (data: TransactionData) => {
