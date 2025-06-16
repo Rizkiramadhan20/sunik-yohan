@@ -58,14 +58,14 @@ export default function Services({ serviceData }: { serviceData: ServicesData[] 
                         variants={itemVariants}
                         className='text-sm sm:text-base md:text-lg text-[#FF204E] leading-relaxed font-medium'
                     >
-                        WHAT WE SERVE
+                        Layanan Kami
                     </motion.p>
 
                     <motion.h1
                         variants={itemVariants}
-                        className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#333333] mt-2 sm:mt-3 mb-4 sm:mb-6'
+                        className='text-2xl sm:text-3xl md:text-4xl font-bold text-[#333333] mt-2 sm:mt-3 mb-4 sm:mb-6'
                     >
-                        Your Favorite Food Delivery Partner
+                        Kami Hadir untuk Kenyamanan dan Kepuasan Anda
                     </motion.h1>
                 </motion.div>
 

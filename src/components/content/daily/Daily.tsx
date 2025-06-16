@@ -31,7 +31,7 @@ export default function Daily({ dailyData }: { dailyData: DailySchedule[] }) {
                             duration: 0.5
                         }}
                     >
-                        Visit Us
+                        Kunjungi Kami
                     </motion.span>
                     <motion.h3
                         className='text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-center font-bold text-[#333333] mt-1 sm:mt-2 md:mt-3 mb-2 sm:mb-4 md:mb-6 max-w-lg'
@@ -80,7 +80,7 @@ export default function Daily({ dailyData }: { dailyData: DailySchedule[] }) {
                                     Google Maps
                                 </motion.span>
                             </div>
-                            <Link href="">
+                            <Link href="https://maps.app.goo.gl/zwyPNFP6VdHdJvMi9">
                                 <motion.button
                                     className='bg-gray-900 hover:bg-gray-800 text-white text-xs px-4 py-1.5 rounded-full transition-colors duration-200'
                                     initial={{ opacity: 0, scale: 0.9 }}
@@ -150,7 +150,7 @@ export default function Daily({ dailyData }: { dailyData: DailySchedule[] }) {
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Opening Hours
+                                Jam Buka
                             </motion.h3>
                             <ul className='space-y-4'>
                                 {dailyData

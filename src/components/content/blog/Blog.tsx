@@ -77,7 +77,7 @@ export default function Blog({ blogData }: { blogData: BlogData[] }) {
                     <div className='flex items-center gap-4'>
                         <Link href="/blogs">
                             <Button className='bg-[#FF204E] text-white text-sm sm:text-base px-4 sm:px-6'>
-                                View All Blog
+                                Lihat Semua Blog
                             </Button>
                         </Link>
                     </div>
@@ -144,7 +144,7 @@ export default function Blog({ blogData }: { blogData: BlogData[] }) {
                                                 {blog.description}
                                             </CardDescription>
                                             <Link href={`/blog/${blog.slug}`} className='text-red-500 hover:text-red-600 font-medium flex items-center justify-center text-sm sm:text-base'>
-                                                Read Blog
+                                                Baca Blog
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.5 8.5l4 4-4 4M3.5 12.5h18" />
                                                 </svg>

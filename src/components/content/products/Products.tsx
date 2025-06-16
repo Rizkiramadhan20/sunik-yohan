@@ -141,13 +141,13 @@ export default function Products({ productsData }: { productsData: ProductsData[
             <div className="container px-4 md:px-10">
                 <div className='flex flex-col sm:flex-row justify-between items-start md:items-center mb-10 sm:mb-20'>
                     <div className='flex flex-col gap-2 mb-0'>
-                        <span className='text-sm sm:text-base md:text-lg text-[#FF204E] leading-relaxed font-medium'>OUR MENU</span>
+                        <span className='text-sm sm:text-base md:text-lg text-[#FF204E] leading-relaxed font-medium'>MENU KAMI</span>
                         <h3 className='text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#333333] mt-2 sm:mt-3 mb-4 sm:mb-6 max-w-lg'>Menu Terbaru Kami</h3>
 
                         <div className='flex items-center gap-4'>
                             <Link href="/products">
                                 <Button className='bg-[#FF204E] text-white'>
-                                    View All Products
+                                    Lihat Semua Produk
                                 </Button>
                             </Link>
                         </div>
