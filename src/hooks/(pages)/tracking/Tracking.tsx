@@ -148,8 +148,8 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
                                     </div>
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-gray-600">Transaction Status:</span>
-                                        <span className={`font-medium capitalize ${transaction.status === 'rejected' ? 'text-red-500' :
-                                            transaction.status === 'accepted' ? 'text-green-500' :
+                                        <span className={`font-medium capitalize ${transaction.status === 'failed' ? 'text-red-500' :
+                                            transaction.status === 'success' ? 'text-green-500' :
                                                 'text-yellow-500'
                                             }`}>
                                             {transaction.status}

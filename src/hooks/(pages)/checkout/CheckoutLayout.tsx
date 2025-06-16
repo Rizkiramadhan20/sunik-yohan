@@ -454,12 +454,12 @@ export default function Checkout() {
                 paymentInfo: {
                     method: paymentMethod,
                     proof: url,
-                    status: 'success'
+                    status: 'pending'
                 },
                 message: data.message,
                 orderDate: orderDate.toISOString(),
                 expirationTime: expirationTime.toISOString(),
-                status: 'pending',
+                status: 'success',
                 deliveryStatus: {
                     status: 'pending',
                     history: [
@@ -492,6 +492,10 @@ export default function Checkout() {
                 // Redirect to transaction page with the transaction ID
                 router.push(`/transaction/${transactionId}`);
             } catch (error) {
+                // If transaction creation fails, set status to failed
+                orderData.status = 'failed';
+                orderData.paymentInfo.status = 'rejected';
+
                 toast.error('Gagal membuat pesanan. Silakan coba lagi.');
             }
         } catch (error) {

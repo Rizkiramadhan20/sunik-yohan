@@ -81,7 +81,10 @@ export default function TransactionLayout() {
 
             // Update transaction status
             await updateDoc(transactionRef, {
-                status: newStatus
+                paymentInfo: {
+                    ...transactionData?.paymentInfo,
+                    status: newStatus
+                }
             });
 
             // If status is accepted, update product stock
@@ -207,12 +210,12 @@ export default function TransactionLayout() {
                             <CardHeader className="print:border-b print:border-gray-200">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg">Transaksi #{transaction.transactionId}</CardTitle>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium print:bg-transparent print:text-black ${transaction.paymentInfo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        transaction.paymentInfo.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium print:bg-transparent print:text-black ${transaction.paymentInfo?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                        transaction.paymentInfo?.status === 'accepted' ? 'bg-green-100 text-green-800' :
                                             'bg-red-100 text-red-800'
                                         }`}>
-                                        {transaction.paymentInfo.status === 'pending' ? 'Menunggu' :
-                                            transaction.paymentInfo.status === 'accepted' ? 'Berhasil' :
+                                        {transaction.paymentInfo?.status === 'pending' ? 'Menunggu' :
+                                            transaction.paymentInfo?.status === 'accepted' ? 'Berhasil' :
                                                 'Gagal'}
                                     </span>
                                 </div>
@@ -261,7 +264,7 @@ export default function TransactionLayout() {
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium">Status:</span>
                                                 <Select
-                                                    value={transaction.status}
+                                                    value={transaction.paymentInfo?.status || 'pending'}
                                                     onValueChange={(value) => {
                                                         if (transaction.docId) {
                                                             updateTransactionStatus(transaction.docId, value);
@@ -278,8 +281,8 @@ export default function TransactionLayout() {
                                                     </SelectContent>
                                                 </Select>
                                                 <span className="hidden print:inline text-sm">
-                                                    {transaction.status === 'pending' ? 'Menunggu' :
-                                                        transaction.status === 'accepted' ? 'Diterima' : 'Ditolak'}
+                                                    {transaction.paymentInfo?.status === 'pending' ? 'Menunggu' :
+                                                        transaction.paymentInfo?.status === 'accepted' ? 'Diterima' : 'Ditolak'}
                                                 </span>
                                             </div>
                                         </div>
@@ -306,8 +309,9 @@ export default function TransactionLayout() {
                                                     ...transaction,
                                                     userId: transaction.userInfo.email,
                                                     paymentInfo: {
-                                                        ...transaction.paymentInfo,
-                                                        proof: transaction.paymentInfo.proof || ''
+                                                        method: transaction.paymentInfo?.method || 'shopeepay',
+                                                        proof: transaction.paymentInfo?.proof || '',
+                                                        status: transaction.paymentInfo?.status || 'pending'
                                                     },
                                                     deliveryStatus: {
                                                         status: transaction.deliveryStatus?.status || 'pending',

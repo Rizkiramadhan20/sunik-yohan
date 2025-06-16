@@ -1,7 +1,7 @@
 export interface TransactionData {
     transactionId: string;
     orderDate: string;
-    status: 'pending' | 'accepted' | 'rejected';
+    status: 'success' | 'failed';
     expirationTime: string;
     totalAmount: number;
     shippingCost: number;
