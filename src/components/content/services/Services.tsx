@@ -98,7 +98,7 @@ export default function Services({ serviceData }: { serviceData: ServicesData[] 
 
                                 {/* Content */}
                                 <CardContent className='p-4 sm:p-5 md:p-6'>
-                                    <CardTitle className='text-lg sm:text-xl md:text-2xl font-bold text-amber-900 mb-2 sm:mb-3 group-hover:text-amber-600 transition-colors duration-300'>
+                                    <CardTitle className='text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-3 group-hover:text-[#FF204E] transition-colors duration-300'>
                                         {item.title}
                                     </CardTitle>
                                     <CardDescription className='text-sm sm:text-base text-gray-600 leading-relaxed'>

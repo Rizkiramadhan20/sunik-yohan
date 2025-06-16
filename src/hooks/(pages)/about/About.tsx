@@ -39,7 +39,7 @@ export default function About({
 
     return (
         <Fragment>
-            <section className="bg-white py-8 sm:py-12 md:py-20">
+            <section className="bg-white py-8 sm:py-12 md:py-20 overflow-hidden">
                 <div className="container px-4 md:px-8">
                     <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-12 lg:gap-20">
                         {/* Left Section - Image */}

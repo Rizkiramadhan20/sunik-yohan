@@ -12,19 +12,41 @@ import Logo from "@/base/assets/logo.png";
 
 import { socialMedia, menuHamburger } from "@/components/layout/Header/data/Header";
 
+import LoadingOverlay from "@/base/helper/LoadingOverlay";
+
 export default function Footer() {
     const router = useRouter();
     const [trackingId, setTrackingId] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
 
     const handleTrackingSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (trackingId.trim()) {
-            router.push(`/tracking/${trackingId.trim()}`);
+            setIsLoading(true);
+            setLoadingProgress(0);
+
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                setLoadingProgress(progress);
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    router.push(`/tracking/${trackingId.trim()}`);
+                }
+            }, 100);
         }
     };
 
     return (
         <footer className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-white to-gray-50 border-t border-gray-100">
+            <LoadingOverlay
+                isLoading={isLoading}
+                message="Loading tracking information..."
+                progress={loadingProgress}
+            />
             <div className="container mx-auto px-4 sm:px-6">
                 {/* Main Footer Content */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
@@ -106,14 +128,7 @@ export default function Footer() {
                 <div className="mt-12 md:mt-16 pt-6 md:pt-8 border-t border-gray-100">
                     <p className="text-center text-xs md:text-sm text-gray-500 font-medium">
                         © 2025{' '}
-                        <a
-                            href="https://spacedigitalia.my.id"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-red-500 hover:text-red-600 font-semibold transition-colors duration-300 hover:underline decoration-2 underline-offset-4"
-                        >
-                            Space Digitalia
-                        </a>
+                        Sunik Yohan
                         . All rights reserved
                     </p>
                 </div>

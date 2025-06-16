@@ -30,6 +30,8 @@ import { Pagination } from "@/components/ui/pagination"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+import LoadingOverlay from '@/base/helper/LoadingOverlay'
+
 export default function ProductsLayout({ productsData, bannerData }: { productsData: ProductsData[], bannerData: BannerData[] }) {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isHovered, setIsHovered] = useState(false)
@@ -37,6 +39,9 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
     const [selectedSize, setSelectedSize] = useState<string>('all')
     const [currentPage, setCurrentPage] = useState(1)
     const [activeProductId, setActiveProductId] = useState<string | null>(null)
+    const [isNavigating, setIsNavigating] = useState(false)
+    const [loadingProgress, setLoadingProgress] = useState(0)
+    const [loadingId, setLoadingId] = useState<string | null>(null)
     const itemsPerPage = 12
     const { addToCart, loadingProductId } = useCart()
     const { user } = useAuth()
@@ -124,6 +129,25 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
             productsSection.scrollIntoView({ behavior: 'smooth' })
         }
     }
+
+    const handleProductClick = (e: React.MouseEvent<HTMLAnchorElement>, productSlug: string, productTitle: string) => {
+        e.preventDefault();
+        setLoadingId(productSlug);
+        setLoadingProgress(0);
+        setIsNavigating(true);
+
+        // Simulate progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            setLoadingProgress(progress);
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                router.push(`/products/${productSlug}`);
+            }
+        }, 100);
+    };
 
     return (
         <Fragment>
@@ -299,7 +323,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                                         <span className='font-medium'>{item.ratings}</span>
                                                     </div>
                                                 </div>
-                                                <Link href={`/products/${item.slug}`} className='w-full'>
+                                                <Link href={`/products/${item.slug}`} onClick={(e) => handleProductClick(e, item.slug, item.title)} className='w-full'>
                                                     <Button className='w-full'>Lihat Details</Button>
                                                 </Link>
                                             </div>
@@ -392,7 +416,7 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                                         </div>
 
                                         <div className='mt-6 md:mt-8 flex gap-3'>
-                                            <Link href={`/products/${item.slug}`} className='flex-1'>
+                                            <Link href={`/products/${item.slug}`} onClick={(e) => handleProductClick(e, item.slug, item.title)} className='flex-1'>
                                                 <Button className='w-full text-sm md:text-base'>Lihat Details</Button>
                                             </Link>
                                         </div>
@@ -465,6 +489,12 @@ export default function ProductsLayout({ productsData, bannerData }: { productsD
                     )}
                 </div>
             </section>
+
+            <LoadingOverlay
+                isLoading={!!loadingId || loadingProgress > 0}
+                message={`Loading ${productsData.find(p => p.slug === loadingId)?.title || 'product'} details...`}
+                progress={loadingProgress}
+            />
         </Fragment>
     )
 }

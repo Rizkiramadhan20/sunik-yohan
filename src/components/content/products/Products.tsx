@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 import Image from 'next/image'
 
@@ -28,9 +28,11 @@ import { Loader2, Star } from "lucide-react";
 
 import { useAuth } from '@/utils/context/AuthContext';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 import { toast } from 'sonner';
+
+import LoadingOverlay from '@/base/helper/LoadingOverlay';
 
 export default function Products({ productsData }: { productsData: ProductsData[] }) {
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -40,6 +42,10 @@ export default function Products({ productsData }: { productsData: ProductsData[
     const { addToCart, loadingProductId } = useCart();
     const { user } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [loadingId, setLoadingId] = useState<string | null>(null);
 
     const categories: ProductCategory[] = [
         { id: 'all', title: 'All' },
@@ -109,6 +115,25 @@ export default function Products({ productsData }: { productsData: ProductsData[
             return;
         }
         addToCart(product);
+    };
+
+    const handleProductClick = (e: React.MouseEvent<HTMLAnchorElement>, productSlug: string, productTitle: string) => {
+        e.preventDefault();
+        setLoadingId(productSlug);
+        setLoadingProgress(0);
+        setIsNavigating(true);
+
+        // Simulate progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            setLoadingProgress(progress);
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                router.push(`/products/${productSlug}`);
+            }
+        }, 100);
     };
 
     return (
@@ -226,8 +251,28 @@ export default function Products({ productsData }: { productsData: ProductsData[
                                                     fill
                                                 />
 
-                                                <div className='absolute bottom-4 left-2 flex items-center justify-center px-6 py-2 rounded-full bg-white'>
-                                                    {product.ratings && (
+                                                <div className='absolute bottom-4 left-2'>
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        whileInView={{
+                                                            opacity: 1,
+                                                            y: 0
+                                                        }}
+                                                        viewport={{ once: true, amount: 0.3 }}
+                                                        transition={{
+                                                            duration: 0.5,
+                                                            delay: index * 0.1 + 0.2
+                                                        }}
+                                                        className="flex items-center justify-center px-6 py-2 rounded-full bg-white gap-1"
+                                                    >
+                                                        <span className="text-sm font-medium text-gray-700">
+                                                            Rp. {product.price}
+                                                        </span>
+                                                    </motion.div>
+                                                </div>
+
+                                                <div className='absolute bottom-4 left-32'>
+                                                    {product.ratings !== null && product.ratings !== undefined && (
                                                         <motion.div
                                                             initial={{ opacity: 0, y: 20 }}
                                                             whileInView={{
@@ -239,7 +284,7 @@ export default function Products({ productsData }: { productsData: ProductsData[
                                                                 duration: 0.5,
                                                                 delay: index * 0.1 + 0.2
                                                             }}
-                                                            className="flex items-center gap-1"
+                                                            className="flex items-center justify-center px-6 py-2 rounded-full bg-white gap-1"
                                                         >
                                                             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                                                             <span className="text-sm font-medium text-gray-700">
@@ -323,6 +368,7 @@ export default function Products({ productsData }: { productsData: ProductsData[
                                                 </button>
                                                 <Link
                                                     href={`/products/${product.slug}`}
+                                                    onClick={(e) => handleProductClick(e, product.slug, product.title)}
                                                     className="inline-flex items-center justify-center flex-1 px-4 py-2 text-sm font-medium text-[#FF204E] border-2 border-[#FF204E] rounded-lg transition-colors duration-300 hover:bg-[#FF204E] hover:text-white"
                                                 >
                                                     <svg
@@ -447,6 +493,12 @@ export default function Products({ productsData }: { productsData: ProductsData[
                     />
                 </motion.div>
             </motion.div>
+
+            <LoadingOverlay
+                isLoading={!!loadingId || loadingProgress > 0}
+                message={`Loading ${productsData.find(p => p.slug === loadingId)?.title || 'product'} details...`}
+                progress={loadingProgress}
+            />
         </section>
     )
 }
