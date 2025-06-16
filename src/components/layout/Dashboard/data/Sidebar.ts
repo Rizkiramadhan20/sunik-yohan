@@ -1,6 +1,4 @@
 import {
-  Contact,
-  MessageSquare,
   House,
   Users,
   FileText,
@@ -130,28 +128,17 @@ export const menuItems = [
   },
 
   {
-    href: "/dashboard/profile",
-    label: "Profile",
-    icon: UserRoundPen,
-  },
-
-  {
     href: "/dashboard/users",
     label: "Users",
     icon: CircleUserRound,
   },
 
   {
-    href: "/dashboard/contact",
-    label: "Contact",
-    icon: Contact,
+    href: "/dashboard/profile",
+    label: "Profile",
+    icon: UserRoundPen,
   },
 
-  {
-    href: "/dashboard/messages",
-    label: "Messages",
-    icon: MessageSquare,
-  },
   {
     href: "/",
     label: "Back Home",

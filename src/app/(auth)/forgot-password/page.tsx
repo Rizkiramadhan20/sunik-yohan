@@ -4,16 +4,16 @@ import { Metadata } from 'next'
 
 import { redirect } from 'next/navigation'
 
-import SigninLayout from "@/hooks/auth/signin/SigninLayout"
+import ForgotPasswordLayout from "@/hooks/auth/forgot-password/ForgotPasswordLayout"
 
 import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
-    title: 'Login | Sunik Yohan',
-    description: 'Login to your account',
+    title: 'Lupa Kata Sandi | Sunik Yohan',
+    description: 'Reset password akun Anda',
 }
 
-export default async function Signin() {
+export default async function ForgotPassword() {
     const cookieStore = await cookies()
     const session = cookieStore.get('session')
 
@@ -22,6 +22,6 @@ export default async function Signin() {
     }
 
     return (
-        <SigninLayout />
+        <ForgotPasswordLayout />
     )
 }

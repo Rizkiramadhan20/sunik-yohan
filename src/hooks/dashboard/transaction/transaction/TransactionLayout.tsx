@@ -1,16 +1,8 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-
-import { collection, onSnapshot, updateDoc, doc, getDoc } from 'firebase/firestore'
-
-import { db as transactionDb } from '@/utils/firebase/transaction'
-
-import { db as productDb } from '@/utils/firebase/Firebase'
+import React from 'react'
 
 import { formatPrice } from '@/base/helper/price'
-
-import { toast } from 'sonner'
 
 import { FaPrint } from "react-icons/fa"
 
@@ -45,81 +37,11 @@ import OrderModal from '@/hooks/dashboard/transaction/transaction/modal/OrderMod
 
 import { usePrinter } from '@/hooks/dashboard/transaction/transaction/lib/Printer'
 
-import { ExtendedTransactionData } from "@/types/Transaction"
+import { useManagementTransaction } from './lib/useManagementTransaction'
 
 export default function TransactionLayout() {
-    const [transactions, setTransactions] = useState<ExtendedTransactionData[]>([])
-    const [loading, setLoading] = useState(true)
+    const { transactions, loading, updateTransactionStatus } = useManagementTransaction()
     const { handlePrint, getButtonText } = usePrinter()
-
-    useEffect(() => {
-        const unsubscribe = onSnapshot(collection(transactionDb, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string), (querySnapshot) => {
-            const transactionData = querySnapshot.docs.map(doc => ({
-                ...doc.data(),
-                docId: doc.id
-            })) as ExtendedTransactionData[];
-
-            const sortedTransactions = transactionData.sort((a, b) =>
-                new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
-            );
-
-            setTransactions(sortedTransactions);
-            setLoading(false);
-        }, (error) => {
-            console.error('Error fetching transactions:', error);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    const updateTransactionStatus = async (docId: string, newStatus: string) => {
-        try {
-            const transactionRef = doc(transactionDb, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string, docId);
-            const transactionDoc = await getDoc(transactionRef);
-            const transactionData = transactionDoc.data();
-
-            // Update transaction status
-            await updateDoc(transactionRef, {
-                paymentInfo: {
-                    ...transactionData?.paymentInfo,
-                    status: newStatus
-                }
-            });
-
-            // If status is accepted, update product stock
-            if (newStatus === 'accepted' && transactionData) {
-                // Update stock for each item in the transaction
-                for (const item of transactionData.items) {
-                    const productRef = doc(productDb, process.env.NEXT_PUBLIC_COLLECTIONS_PRODUCTS as string, item.id);
-                    const productDoc = await getDoc(productRef);
-
-                    if (productDoc.exists()) {
-                        const productData = productDoc.data();
-                        const currentStock = parseInt(productData.stock) || 0;
-                        const newStock = Math.max(0, currentStock - item.quantity);
-
-                        await updateDoc(productRef, {
-                            stock: newStock.toString(),
-                            sold: (parseInt(productData.sold) || 0) + item.quantity
-                        });
-                    }
-                }
-            }
-
-            // Show success notification
-            toast.success('Status transaksi berhasil diperbarui', {
-                description: `Status diubah menjadi ${newStatus === 'pending' ? 'Menunggu' :
-                    newStatus === 'accepted' ? 'Diterima' : 'Ditolak'}`
-            });
-        } catch (error) {
-            console.error('Error updating transaction status:', error);
-            // Show error notification
-            toast.error('Gagal memperbarui status transaksi', {
-                description: 'Terjadi kesalahan saat memperbarui status'
-            });
-        }
-    };
 
     return (
         <section className="print:bg-white">

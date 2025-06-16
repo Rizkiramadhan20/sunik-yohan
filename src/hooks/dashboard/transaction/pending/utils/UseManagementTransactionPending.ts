@@ -21,7 +21,17 @@ export const useManagementTransactionPending = () => {
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
-            const transactionRef = doc(db, 'transaction', docId);
+            const transactionRef = doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string, docId);
+            const currentTransaction = transactions.find(t => t.docId === docId);
+
+            // Prevent changing from processing to pending
+            if (currentTransaction?.deliveryStatus?.status === 'processing' && newStatus === 'pending') {
+                toast.error('Cannot change status back to pending', {
+                    description: 'Once a transaction is in processing, it cannot be reverted to pending status'
+                });
+                return;
+            }
+
             const currentDate = new Date().toISOString();
 
             // Create new history entry
@@ -33,7 +43,8 @@ export const useManagementTransactionPending = () => {
 
             await updateDoc(transactionRef, {
                 'deliveryStatus.status': newStatus,
-                'deliveryStatus.history': [...(transactions.find(t => t.docId === docId)?.deliveryStatus?.history || []), newHistoryEntry]
+                'deliveryStatus.history': [...(currentTransaction?.deliveryStatus?.history || []), newHistoryEntry],
+                'paymentInfo.status': 'pending'
             });
 
             // Show toast notification
@@ -62,18 +73,19 @@ export const useManagementTransactionPending = () => {
     };
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'transaction'), (querySnapshot) => {
+        const unsubscribe = onSnapshot(collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string), (querySnapshot) => {
             const transactionData = querySnapshot.docs.map(doc => ({
                 ...doc.data(),
                 docId: doc.id // Store the Firestore document ID
             })) as TransactionData[];
-            // Filter transactions with status "accepted" and not completed or delivering
-            const acceptedTransactions = transactionData.filter(transaction =>
-                transaction.status === 'accepted' &&
-                transaction.deliveryStatus?.status !== 'completed' &&
-                transaction.deliveryStatus?.status !== 'delivering'
+
+            // Filter transactions that are not delivering or completed
+            const pendingTransactions = transactionData.filter(transaction =>
+                transaction.deliveryStatus?.status !== 'delivering' &&
+                transaction.deliveryStatus?.status !== 'completed'
             );
-            setTransactions(acceptedTransactions);
+
+            setTransactions(pendingTransactions);
             setLoading(false);
         }, (error) => {
             console.error('Error fetching transactions:', error);

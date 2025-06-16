@@ -21,7 +21,18 @@ export const useManagementTransactionDelivery = () => {
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
-            const transactionRef = doc(db, 'transaction', docId);
+            const transactionRef = doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string, docId);
+            const currentTransaction = transactions.find(t => t.docId === docId);
+
+            // Prevent changing from delivering to previous stages
+            if (currentTransaction?.deliveryStatus?.status === 'delivering' &&
+                (newStatus === 'pending' || newStatus === 'processing')) {
+                toast.error('Cannot change status back to previous stages', {
+                    description: 'Once a transaction is in delivering, it can only be completed'
+                });
+                return;
+            }
+
             const currentDate = new Date().toISOString();
 
             // Create new history entry
@@ -33,7 +44,7 @@ export const useManagementTransactionDelivery = () => {
 
             await updateDoc(transactionRef, {
                 'deliveryStatus.status': newStatus,
-                'deliveryStatus.history': [...(transactions.find(t => t.docId === docId)?.deliveryStatus?.history || []), newHistoryEntry]
+                'deliveryStatus.history': [...(currentTransaction?.deliveryStatus?.history || []), newHistoryEntry]
             });
 
             // Show toast notification
@@ -41,12 +52,12 @@ export const useManagementTransactionDelivery = () => {
                 description: deliveryStages.find(stage => stage.id === newStatus)?.description,
             });
 
-            // If status is changed to delivering, show countdown and redirect
+            // If status is changed to completed, show countdown and redirect
             if (newStatus === 'completed') {
                 let countdown = 5;
                 const countdownInterval = setInterval(() => {
                     if (countdown > 0) {
-                        toast.info(`Redirecting to delivery page in ${countdown} seconds...`);
+                        toast.info(`Redirecting to completed page in ${countdown} seconds...`);
                         countdown--;
                     } else {
                         clearInterval(countdownInterval);
@@ -62,19 +73,18 @@ export const useManagementTransactionDelivery = () => {
     };
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'transaction'), (querySnapshot) => {
+        const unsubscribe = onSnapshot(collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string), (querySnapshot) => {
             const transactionData = querySnapshot.docs.map(doc => ({
                 ...doc.data(),
                 docId: doc.id // Store the Firestore document ID
             })) as TransactionData[];
-            // Filter transactions with status "accepted" and not completed or delivering
-            const acceptedTransactions = transactionData.filter(transaction =>
-                transaction.status === 'accepted' &&
-                transaction.deliveryStatus?.status !== 'completed' &&
-                transaction.deliveryStatus?.status !== 'processing' &&
-                transaction.deliveryStatus?.status !== 'pending'
+
+            // Filter transactions with delivering status
+            const deliveringTransactions = transactionData.filter(transaction =>
+                transaction.deliveryStatus?.status === 'delivering'
             );
-            setTransactions(acceptedTransactions);
+
+            setTransactions(deliveringTransactions);
             setLoading(false);
         }, (error) => {
             console.error('Error fetching transactions:', error);

@@ -3,6 +3,29 @@ export enum Role {
   USER = "user",
 }
 
+export interface Address {
+  addressType: string;
+  city: string;
+  createdAt: string;
+  fullName: string;
+  isPrimary: boolean;
+  landmark: string;
+  location: {
+    address: string;
+    city: string;
+    lat: number;
+    lng: number;
+    postalCode: string;
+    province: string;
+  };
+  phone: string;
+  postalCode: string;
+  province: string;
+  rt: string;
+  rw: string;
+  streetName: string;
+}
+
 export interface UserAccount {
   uid: string;
   email: string;
@@ -13,6 +36,7 @@ export interface UserAccount {
   isActive: boolean;
   phoneNumber: string;
   createdAt: Date;
+  addresses?: Address[];
 }
 
 export interface AuthContextType {

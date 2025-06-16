@@ -28,6 +28,8 @@ import Link from 'next/link';
 
 import { useAuth } from '@/utils/context/AuthContext';
 
+import SuspendModal from './SuspendModal';
+
 const signinSchema = z.object({
     email: z.string().email("Email tidak valid"),
     password: z.string().min(1, "Kata sandi harus diisi"),
@@ -37,7 +39,8 @@ type SigninFormData = z.infer<typeof signinSchema>;
 
 export default function SigninLayout() {
     const [showPassword, setShowPassword] = useState(false);
-    const { login, loginWithGoogle } = useAuth();
+    const [suspendedEmail, setSuspendedEmail] = useState<string>('');
+    const { login, loginWithGoogle, showInactiveModal, setShowInactiveModal } = useAuth();
 
     const {
         register,
@@ -49,6 +52,7 @@ export default function SigninLayout() {
 
     const onSubmit = async (data: SigninFormData) => {
         try {
+            setSuspendedEmail(data.email); // Store the email before login attempt
             await login(data.email, data.password);
         } catch (error) {
             console.error('Sign in error:', error);
@@ -57,16 +61,52 @@ export default function SigninLayout() {
 
     const handleGoogleSignIn = async () => {
         try {
-            await loginWithGoogle();
+            // Get the current email from the form if available
+            const formEmail = document.querySelector<HTMLInputElement>('input[type="email"]')?.value;
+
+            // Attempt Google sign in
+            const result = await loginWithGoogle();
+
+            // If login failed and we have a result with email, use that email
+            if (result?.email) {
+                setSuspendedEmail(result.email);
+            } else if (formEmail) {
+                // Fallback to form email if available
+                setSuspendedEmail(formEmail);
+            }
         } catch (error) {
             console.error('Google sign in error:', error);
         }
     };
 
+    const handleContactAdmin = () => {
+        const message = `Halo Admin, saya ${suspendedEmail} ingin memberitahu bahwa akun saya saat ini tidak aktif/suspend. Mohon bantuan untuk mengaktifkan kembali akun saya. Terima kasih.`;
+
+        // Encode the message for WhatsApp URL
+        const encodedMessage = encodeURIComponent(message);
+
+        // WhatsApp business number
+        const whatsappNumber = "6281398632939";
+
+        // Create WhatsApp URL
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+        // Open WhatsApp in new tab
+        window.open(whatsappUrl, '_blank');
+    };
+
     return (
-        <section className="min-h-screen flex bg-gradient-to-r from-[#f8f9fa] to-[#e8f4f8]">
+        <section className="min-h-screen flex flex-col md:flex-row bg-gradient-to-r from-[#f8f9fa] to-[#e8f4f8]">
+            {/* Inactive Account Modal */}
+            <SuspendModal
+                isOpen={showInactiveModal}
+                onOpenChange={setShowInactiveModal}
+                suspendedEmail={suspendedEmail}
+                onContactAdmin={handleContactAdmin}
+            />
+
             {/* Left: Form */}
-            <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-8">
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-2 md:p-8 order-2 md:order-1">
                 <div className="w-full max-w-xl p-10">
                     <div className="mb-8 flex items-center justify-between">
                         <span className="text-xl font-bold text-gray-700">Sunik Yohan</span>
@@ -172,19 +212,19 @@ export default function SigninLayout() {
             </div>
 
             {/* Right: Image & UI Elements */}
-            <div className="hidden md:flex w-1/2 relative items-center justify-center">
+            <div className="w-full md:w-1/2 relative flex items-center justify-center h-[300px] md:h-auto order-1 md:order-2">
                 {/* Background Image */}
                 <Image
                     src={bg}
                     alt="Background"
-                    className="rounded-l-3xl z-0"
+                    className="rounded-b-2xl rounded-l-none md:rounded-l-3xl z-0"
                     fill
                     style={{ objectFit: 'cover' }}
                 />
                 {/* Dark Overlay */}
-                <div className="absolute inset-0 bg-black/50 rounded-l-3xl z-10" />
+                <div className="absolute inset-0 bg-black/50 rounded-b-2xl rounded-l-none md:rounded-l-3xl z-10" />
                 {/* Overlay */}
-                <div className="relative z-20 flex flex-col gap-6 items-start p-12 w-full">
+                <div className="relative z-20 flex flex-col gap-6 items-start p-6 md:p-12 w-full">
                     {/* Featured Drink Card */}
                     <div className="bg-blue-200 rounded-xl px-4 py-2 shadow-lg flex items-center gap-2">
                         <span className="font-semibold text-gray-800">Minuman Spesial Hari Ini</span>

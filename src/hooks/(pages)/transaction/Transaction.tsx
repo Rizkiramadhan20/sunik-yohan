@@ -303,9 +303,9 @@ export default function TransactionPage() {
                                                 transaction.paymentInfo.status === 'rejected' ? 'text-red-600' :
                                                     'text-gray-600'
                                             }`}>
-                                            {transaction.paymentInfo.status === 'accepted' ? 'Berhasil' :
+                                            {transaction.paymentInfo.status === 'accepted' ? 'Diterima' :
                                                 transaction.paymentInfo.status === 'pending' ? 'Menunggu' :
-                                                    transaction.paymentInfo.status === 'rejected' ? 'Gagal' :
+                                                    transaction.paymentInfo.status === 'rejected' ? 'Ditolak' :
                                                         'Tidak Diketahui'}
                                         </span>
                                     </div>
@@ -329,23 +329,23 @@ export default function TransactionPage() {
                                             onClick={() => {
                                                 // Format order details for WhatsApp with modern emoji and formatting
                                                 const orderDetails = `
-🛍️ *PESANAN BARU DITERIMA* 🛍️
+🛍️ PESANAN BARU DITERIMA 🛍️
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-📦 *Informasi Pesanan*
+📦 Informasi Pesanan
 ━━━━━━━━━━━━━━━━━━━━━━━━
-• ID: \`${transaction.transactionId}\`
-• Tanggal: ${new Date(transaction.orderDate).toLocaleString('id-ID')}
-• Status: ${transaction.status === 'success' ? 'BERHASIL' :
+* ID: \`${transaction.transactionId}\`
+* Tanggal: ${new Date(transaction.orderDate).toLocaleString('id-ID')}
+* Status: ${transaction.status === 'success' ? 'BERHASIL' :
                                                         transaction.status === 'failed' ? 'GAGAL' :
-                                                            'TIDAK DIKETAHUI'}
+                                                            'MENUNGGU'}
 
-👤 *Detail Pelanggan*
+👤 Detail Pelanggan
 ━━━━━━━━━━━━━━━━━━━━━━━━
-• Nama: ${transaction.userInfo.displayName}
-• Email: ${transaction.userInfo.email}
+* Nama: ${transaction.userInfo.displayName}
+* Email: ${transaction.userInfo.email}
 
-📍 *Alamat Pengiriman*
+📍 Alamat Pengiriman
 ━━━━━━━━━━━━━━━━━━━━━━━━
 Penerima : ${transaction.shippingInfo.firstName}
 Jalan : ${transaction.shippingInfo.streetName}
@@ -354,34 +354,31 @@ RT ${transaction.shippingInfo.rt} / RW ${transaction.shippingInfo.rw}
 Patokan : ${transaction.shippingInfo.landmark}
 📱 Telepon : ${transaction.shippingInfo.phone}
 
-🛒 *Item Pesanan*
+🛒 Item Pesanan
 ━━━━━━━━━━━━━━━━━━━━━━━━
-${transaction.items.map((item: TransactionData['items'][0]) => `• ${item.title}
+${transaction.items.map((item: TransactionData['items'][0]) => `* ${item.title}
   └ ${item.quantity}x - ${item.price}`).join('\n')}
 
-💰 *Ringkasan Pembayaran*
+💰 Ringkasan Pembayaran
 ━━━━━━━━━━━━━━━━━━━━━━━━
-• Metode : ${transaction.paymentInfo.method.toUpperCase()}
-• Status : ${transaction.paymentInfo.status === 'accepted' ? 'BERHASIL' :
-                                                        transaction.paymentInfo.status === 'pending' ? 'MENUNGGU' :
-                                                            transaction.paymentInfo.status === 'rejected' ? 'GAGAL' :
-                                                                'TIDAK DIKETAHUI'}
-• Su btotal : ${formatPriceWithSymbol(String(transaction.totalAmount - transaction.shippingCost))}
-• Biaya Pengiriman : ${formatPriceWithSymbol(String(transaction.shippingCost))}
-• Total : ${formatPriceWithSymbol(String(transaction.totalAmount))}
+* Metode : ${transaction.paymentInfo.method.toUpperCase()}
+* Status : ${transaction.status === 'success' ? 'BERHASIL' : transaction.status === 'failed' ? 'GAGAL' : 'MENUNGGU'}
+* Subtotal : ${formatPriceWithSymbol(String(transaction.totalAmount - transaction.shippingCost))}
+* Biaya Pengiriman : ${formatPriceWithSymbol(String(transaction.shippingCost))}
+* Total : ${formatPriceWithSymbol(String(transaction.totalAmount))}
 
-📝 *Catatan Tambahan*
+📝 Catatan Tambahan
 ━━━━━━━━━━━━━━━━━━━━━━━━
 ${transaction.message || 'Tidak ada catatan tambahan'}
 
-📱 *Lacak Pesanan Anda*
+📱 Lacak Pesanan Anda
 ━━━━━━━━━━━━━━━━━━━━━━━━
 Untuk melacak status pesanan Anda, silakan kunjungi:
 https://sunikyohan.my.id/
-Masukka        n ID Transaksi Anda: \`${transaction.transactionId}\`
+Masukkan ID Transaksi Anda: \`${transaction.transactionId}\`
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
-Terima kasih atas pesanan Anda!         🎉`;
+Terima kasih atas pesanan Anda! 🎉`;
 
                                                 // Encode the message for WhatsApp URL
                                                 const encodedMessage = encodeURIComponent(orderDetails.trim());

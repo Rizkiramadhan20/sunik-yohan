@@ -21,7 +21,7 @@ export const useManagementTransactionDelivery = () => {
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
-            const transactionRef = doc(db, 'transaction', docId);
+            const transactionRef = doc(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string, docId);
             const currentDate = new Date().toISOString();
 
             // Create new history entry
@@ -62,7 +62,7 @@ export const useManagementTransactionDelivery = () => {
     };
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'transaction'), (querySnapshot) => {
+        const unsubscribe = onSnapshot(collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string), (querySnapshot) => {
             const transactionData = querySnapshot.docs.map(doc => ({
                 ...doc.data(),
                 docId: doc.id // Store the Firestore document ID
