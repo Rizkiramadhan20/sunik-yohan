@@ -64,7 +64,7 @@ async function getProducts() {
 
 async function getAbout() {
     try {
-        const aboutRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_ABOUT as string);
+        const aboutRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_ABOUT_CONTENT as string);
         const querySnapshot = await getDocs(aboutRef);
         const about = querySnapshot.docs.map(doc => doc.data() as ContentData);
         const titles = new Set<string>();
