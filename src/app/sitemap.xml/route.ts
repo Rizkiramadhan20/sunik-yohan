@@ -178,6 +178,34 @@ export async function GET() {
         });
     } catch (error) {
         console.error("Error generating sitemap:", error);
-        return new Response("Error generating sitemap", { status: 500 });
+
+        // Fallback to basic sitemap with static URLs only
+        const staticUrls = [
+            "/",
+            "/about",
+            "/products",
+            "/blog",
+            "/gallery",
+        ];
+
+        const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticUrls
+                .map((url) => `
+  <url>
+    <loc>${escapeXml(BASE_URL)}${escapeXml(url)}</loc>
+    <lastmod>${new Date().toISOString()}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`)
+                .join("")}
+</urlset>`;
+
+        return new Response(fallbackSitemap, {
+            headers: {
+                "Content-Type": "application/xml",
+                "Cache-Control": "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400",
+            },
+        });
     }
 }
