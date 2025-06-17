@@ -24,8 +24,6 @@ import DeliveryModal from './modal/DeliveryModal'
 
 import { Pagination } from '@/components/ui/pagination'
 
-import TransactionPendingSkeleton from "@/hooks/profile/transaction/pending/TransactionSkelaton"
-
 interface DeliveryHistory {
     description: string;
     status: string;
@@ -97,7 +95,53 @@ export default function TransactionLayout() {
 
     if (loading) {
         return (
-            <TransactionPendingSkeleton />
+            <section>
+                {/* Header Skeleton */}
+                <div className='flex justify-between mb-6'>
+                    <div>
+                        <div className="h-10 bg-gray-200 rounded w-64 mb-2 border-b pb-4"></div>
+                        <div className="flex gap-6 items-center">
+                            <div className="h-12 bg-gray-200 rounded-lg w-64"></div>
+                            <div className="h-12 bg-gray-200 rounded-lg w-64"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div className="flex flex-col gap-6">
+                                <div className="space-y-4">
+                                    <div className="border-b pb-3">
+                                        <div className="h-6 bg-gray-200 rounded w-48 mb-2"></div>
+                                        <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                    </div>
+                                    <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg">
+                                        <div className="w-14 h-14 bg-gray-200 rounded-full"></div>
+                                        <div className="space-y-2">
+                                            <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                            <div className="h-3 bg-gray-200 rounded w-40"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="h-8 bg-gray-200 rounded-lg w-full"></div>
+                                    <div className="flex gap-2">
+                                        <div className="h-6 bg-gray-200 rounded-full w-24"></div>
+                                        <div className="h-6 bg-gray-200 rounded-full w-24"></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                        <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                        <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                        <div className="h-10 bg-gray-200 rounded-lg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
         )
     }
 

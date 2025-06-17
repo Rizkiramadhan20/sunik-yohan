@@ -15,7 +15,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import { LayoutDashboard, FileText, Info } from "lucide-react"
+import { LayoutDashboard, FileText, Info, Search } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -31,22 +31,26 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+import { Input } from "@/components/ui/input"
+
 import ShippingInfo from '@/hooks/dashboard/transaction/transaction/modal/ShippingInfo'
 
 import OrderModal from '@/hooks/dashboard/transaction/transaction/modal/OrderModal'
+
+import PaymentInfo from '@/hooks/dashboard/transaction/transaction/modal/PaymentInfo'
 
 import { usePrinter } from '@/hooks/dashboard/transaction/transaction/lib/Printer'
 
 import { useManagementTransaction } from './lib/useManagementTransaction'
 
 export default function TransactionLayout() {
-    const { transactions, loading, updateTransactionStatus } = useManagementTransaction()
+    const { transactions, loading, updateTransactionStatus, searchQuery, setSearchQuery, statusFilter, setStatusFilter } = useManagementTransaction()
     const { handlePrint, getButtonText } = usePrinter()
 
     return (
         <section className="print:bg-white">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-100 p-4 rounded-2xl gap-4 print:hidden">
-                <div className="space-y-1">
+                <div className="space-y-1 w-full sm:w-auto">
                     <div className="flex items-center gap-2 pb-4">
                         <svg
                             width="32"
@@ -100,12 +104,74 @@ export default function TransactionLayout() {
                     </Breadcrumb>
                 </div>
 
-                <button
-                    onClick={() => handlePrint()}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                    <FaPrint /> {getButtonText()}
-                </button>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+                        <div className="relative w-full sm:w-auto">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                            <Input
+                                type="text"
+                                placeholder="Cari ID Transaksi..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 w-full sm:w-[250px]"
+                            />
+                        </div>
+
+                        <Select
+                            value={statusFilter}
+                            onValueChange={setStatusFilter}
+                        >
+                            <SelectTrigger className="w-full sm:w-[150px]">
+                                <SelectValue placeholder="Filter Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Semua Status</SelectItem>
+                                <SelectItem value="pending">Menunggu</SelectItem>
+                                <SelectItem value="accepted">Diterima</SelectItem>
+                                <SelectItem value="rejected">Ditolak</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <button
+                        onClick={() => handlePrint()}
+                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                        <FaPrint /> {getButtonText()}
+                    </button>
+                </div>
+            </div>
+
+            <div className="mt-6 p-4 sm:p-6 bg-white rounded-2xl border border-gray-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Total Transaksi</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-3xl font-bold">{transactions.length}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Transaksi Berhasil</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-3xl font-bold text-green-600">
+                                {transactions.filter(t => t.paymentInfo?.status === 'accepted').length}
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Transaksi Pending</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-3xl font-bold text-yellow-600">
+                                {transactions.filter(t => t.paymentInfo?.status === 'pending').length}
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             {loading ? (
@@ -125,11 +191,27 @@ export default function TransactionLayout() {
                         </Card>
                     ))}
                 </div>
+            ) : transactions.length === 0 ? (
+                <div className="mt-6 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                        <Search className="h-8 w-8 text-gray-500" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">
+                        {searchQuery || statusFilter !== 'all' ? 'Transaksi tidak ditemukan' : 'Belum ada transaksi'}
+                    </h3>
+                    <p className="text-gray-500">
+                        {searchQuery
+                            ? `Tidak ada transaksi dengan ID "${searchQuery}"`
+                            : statusFilter !== 'all'
+                                ? `Tidak ada transaksi dengan status "${statusFilter === 'pending' ? 'Menunggu' : statusFilter === 'accepted' ? 'Diterima' : 'Ditolak'}"`
+                                : 'Transaksi akan muncul di sini setelah ada pesanan'}
+                    </p>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-6 print:grid-cols-1 print:gap-6">
                     {transactions.map((transaction) => (
                         <Card key={transaction.transactionId} className="w-full hover:shadow-lg transition-shadow print:shadow-none print:border print:border-gray-200">
-                            <CardHeader className="print:border-b print:border-gray-200">
+                            <CardHeader className="print:border-b print:border-gray-200 p-4 sm:p-6">
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg">Transaksi #{transaction.transactionId}</CardTitle>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium print:bg-transparent print:text-black ${transaction.paymentInfo?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -142,11 +224,11 @@ export default function TransactionLayout() {
                                     </span>
                                 </div>
                             </CardHeader>
-                            <CardContent>
-                                <div className="space-y-6">
+                            <CardContent className="p-4 sm:p-6">
+                                <div className="space-y-4 sm:space-y-6">
                                     {/* Customer Information */}
-                                    <div className="flex items-start gap-4 print:border-b print:border-gray-200 print:pb-4">
-                                        <div className="relative w-16 h-16 rounded-full overflow-hidden print:w-20 print:h-20">
+                                    <div className="flex items-start gap-3 sm:gap-4 print:border-b print:border-gray-200 print:pb-4">
+                                        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden print:w-20 print:h-20">
                                             <Image
                                                 src={transaction.userInfo.photoURL || '/default-avatar.png'}
                                                 alt={transaction.userInfo.displayName}
@@ -163,7 +245,7 @@ export default function TransactionLayout() {
                                     {/* Order Summary */}
                                     <div className="space-y-2 print:border-b print:border-gray-200 print:pb-4">
                                         <h4 className="font-medium">Ringkasan Pesanan</h4>
-                                        <div className="p-3 bg-gray-50 rounded-lg space-y-2 print:bg-transparent print:p-0">
+                                        <div className="p-2 sm:p-3 bg-gray-50 rounded-lg space-y-2 print:bg-transparent print:p-0">
                                             <div className="flex justify-between">
                                                 <span className="text-sm">Total Item</span>
                                                 <span className="text-sm">{formatPrice((transaction.totalAmount - transaction.shippingCost).toString())}</span>
@@ -182,7 +264,7 @@ export default function TransactionLayout() {
                                     {/* Transaction Status */}
                                     <div className="space-y-2 print:border-b print:border-gray-200 print:pb-4">
                                         <h4 className="font-medium">Status Transaksi</h4>
-                                        <div className="p-3 bg-gray-50 rounded-lg print:bg-transparent print:p-0">
+                                        <div className="p-2 sm:p-3 bg-gray-50 rounded-lg print:bg-transparent print:p-0">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium">Status:</span>
                                                 <Select
@@ -212,7 +294,7 @@ export default function TransactionLayout() {
 
                                     {/* Action Buttons */}
                                     <div className="border-t pt-4 print:hidden">
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             <OrderModal transaction={{
                                                 items: transaction.items.map(item => ({
                                                     thumbnail: item.thumbnail,
@@ -225,6 +307,12 @@ export default function TransactionLayout() {
                                             }} />
 
                                             <ShippingInfo shippingInfo={transaction.shippingInfo} />
+
+                                            <PaymentInfo paymentInfo={{
+                                                method: transaction.paymentInfo?.method || 'shopeepay',
+                                                proof: transaction.paymentInfo?.proof || '',
+                                                status: transaction.paymentInfo?.status || 'pending'
+                                            }} />
 
                                             <button
                                                 onClick={() => handlePrint({

@@ -4,11 +4,15 @@ import { usePathname } from 'next/navigation';
 
 import Link from 'next/link';
 
+import Image from 'next/image';
+
 import { menuItems } from '@/components/layout/Dashboard/data/Sidebar';
 
 import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
+
+import { useAuth } from '@/utils/context/AuthContext';
 
 interface HeaderProps {
     onSidebarToggle: (isOpen: boolean) => void;
@@ -27,6 +31,7 @@ interface SubMenuItem {
 
 export default function SuperAdminHeader({ onSidebarToggle }: HeaderProps) {
     const pathname = usePathname();
+    const { user } = useAuth();
     const [activeDropdown, setActiveDropdown] = React.useState<number | null>(null);
     const [temperature, setTemperature] = React.useState<number | null>(null);
     const [loading, setLoading] = React.useState(true);
@@ -94,8 +99,20 @@ export default function SuperAdminHeader({ onSidebarToggle }: HeaderProps) {
             {/* Logo Section */}
             <div className="p-6 border-b border-sidebar-border">
                 <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-                        <span className="text-lg font-bold text-sidebar-primary-foreground">S</span>
+                    <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center overflow-hidden">
+                        {user?.photoURL ? (
+                            <Image
+                                src={user.photoURL}
+                                alt="User Profile"
+                                width={32}
+                                height={32}
+                                className="object-cover"
+                            />
+                        ) : (
+                            <span className="text-lg font-bold text-sidebar-primary-foreground">
+                                {user?.displayName?.[0] || 'S'}
+                            </span>
+                        )}
                     </div>
                     <span className="text-xl font-semibold bg-gradient-to-r from-sidebar-primary to-sidebar-primary/60 bg-clip-text text-transparent">
                         Sunik Yohan

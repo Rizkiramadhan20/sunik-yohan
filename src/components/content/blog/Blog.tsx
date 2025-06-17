@@ -75,7 +75,7 @@ export default function Blog({ blogData }: { blogData: BlogData[] }) {
                     </div>
 
                     <div className='flex items-center gap-4'>
-                        <Link href="/blogs">
+                        <Link href="/blog">
                             <Button className='bg-[#FF204E] text-white text-sm sm:text-base px-4 sm:px-6'>
                                 Lihat Semua Blog
                             </Button>

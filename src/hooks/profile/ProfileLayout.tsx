@@ -16,6 +16,8 @@ import { User, Mail, Phone, ChevronLeft, MapPin } from "lucide-react";
 
 import { Timestamp } from "firebase/firestore";
 
+import Link from "next/link";
+
 interface Address {
     addressType: string;
     city: string;
@@ -88,14 +90,15 @@ export default function ProfileLayout() {
     return (
         <div className="w-full h-full">
             <div className="flex items-center justify-between mb-6 sm:mb-10">
-                <Button
-                    variant="ghost"
-                    onClick={() => router.back()}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                    <ChevronLeft className="w-5 h-5" />
-                    Back
-                </Button>
+                <Link href="/">
+                    <Button
+                        variant="ghost"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                        Back
+                    </Button>
+                </Link>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">

@@ -32,19 +32,19 @@ export const metadata = {
     icons: {
         icon: [
             {
-                url: "/logo.jpg",
+                url: "/favicon.ico",
                 sizes: "64x64 32x32 24x24 16x16",
-                type: "image/png",
+                type: "image/x-icon",
             },
             {
                 url: "/logo.jpg",
                 sizes: "192x192",
-                type: "image/png",
+                type: "image/jpeg",
             },
             {
                 url: "/logo.jpg",
                 sizes: "512x512",
-                type: "image/png",
+                type: "image/jpeg",
             },
         ],
         apple: "/logo.jpg",
@@ -129,7 +129,7 @@ export const metadata = {
     },
     verification: {
         google: process.env.NEXT_PUBLIC_GOOGLE_SEARCH_CONSOLE_ID,
-        // googleTagManager: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
+        googleTagManager: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
         // yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
         // bing: process.env.NEXT_PUBLIC_BING_VERIFICATION,
     },

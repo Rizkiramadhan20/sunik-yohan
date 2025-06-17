@@ -13,7 +13,8 @@ const publicPaths = [
   "/signup",
   "/forgot-password",
   "/sitemap.xml",
-  "/robots.txt"
+  "/robots.txt",
+  "/manifest.json",
 ];
 
 export async function middleware(request: NextRequest) {

@@ -1,5 +1,7 @@
 {
   "name": "sunik-yohan",
+  "title": "Sunik Yohan",
+  "homepage": "https://sunikyohan.my.id",
   "version": "0.1.0",
   "private": true,
   "scripts": {

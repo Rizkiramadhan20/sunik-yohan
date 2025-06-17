@@ -158,7 +158,7 @@ html {
   scroll-behavior: smooth;
   font-size: 85%;
 
-  @media (min-width: 1366px) {
+  @media (min-width: 1400px) {
     font-size: 100%;
   }
 }

@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import {
     LineChart,
     Line,
@@ -6,53 +8,98 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
+    Legend,
     ResponsiveContainer,
 } from 'recharts';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '@/utils/firebase/transaction';
+import { TransactionData } from '@/utils/firebase/transaction';
 
-const data = [
-    { name: 'Jan', value: 400 },
-    { name: 'Feb', value: 300 },
-    { name: 'Mar', value: 600 },
-    { name: 'Apr', value: 800 },
-    { name: 'May', value: 500 },
-    { name: 'Jun', value: 700 },
-];
+interface ChartData {
+    date: string;
+    revenue: number;
+}
 
 export function Chart() {
+    const [data, setData] = useState<ChartData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const transactionsQuery = query(
+                    collection(db, 'transaction'),
+                    orderBy('orderDate', 'asc')
+                );
+                const querySnapshot = await getDocs(transactionsQuery);
+
+                // Group transactions by date and calculate daily revenue
+                const dailyRevenue = querySnapshot.docs.reduce((acc: { [key: string]: number }, doc) => {
+                    const transaction = doc.data() as TransactionData;
+                    const date = new Date(transaction.orderDate).toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short'
+                    });
+
+                    if (!acc[date]) {
+                        acc[date] = 0;
+                    }
+                    acc[date] += transaction.totalAmount;
+                    return acc;
+                }, {});
+
+                // Convert to array format for the chart
+                const chartData = Object.entries(dailyRevenue).map(([date, revenue]) => ({
+                    date,
+                    revenue
+                }));
+
+                setData(chartData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="h-[300px] flex items-center justify-center">
+                <p>Loading transaction data...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="w-full h-[400px] p-4 bg-card rounded-lg border">
-            <h3 className="text-lg font-semibold mb-4">Monthly Statistics</h3>
+        <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                    data={data}
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <LineChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
-                        dataKey="name"
-                        className="text-sm text-muted-foreground"
+                        dataKey="date"
+                        tick={{ fontSize: 12 }}
+                        interval="preserveStartEnd"
                     />
                     <YAxis
-                        className="text-sm text-muted-foreground"
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => `Rp ${value.toLocaleString()}`}
                     />
                     <Tooltip
-                        contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '6px',
-                        }}
+                        formatter={(value: number) => [`Rp ${value.toLocaleString()}`, 'Revenue']}
+                        labelFormatter={(label) => `Date: ${label}`}
                     />
+                    <Legend />
                     <Line
                         type="monotone"
-                        dataKey="value"
-                        stroke="hsl(var(--primary))"
+                        dataKey="revenue"
+                        stroke="#2563eb"
                         strokeWidth={2}
-                        dot={{ fill: 'hsl(var(--primary))' }}
+                        name="Revenue"
+                        dot={{ r: 4 }}
+                        activeDot={{ r: 6 }}
                     />
                 </LineChart>
             </ResponsiveContainer>

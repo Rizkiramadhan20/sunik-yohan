@@ -17,7 +17,7 @@ import varcha1 from "@/base/assets/Rectangle1.png"
 export default function Home({ homeData }: { homeData: HomeData[] }) {
 
     return (
-        <section className='relative flex flex-col items-center justify-center min-h-screen py-16 lg:py-20 bg-white overflow-hidden'>
+        <section className='relative flex flex-col items-center justify-center min-h-screen py-16 lg:py-20 bg-white overflow-hidden' id='menu'>
             <div className="container relative px-4 md:px-10">
                 {homeData.map((Item, idx) => (
                     <div

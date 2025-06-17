@@ -8,6 +8,8 @@ import { ExtendedTransactionData } from "@/types/Transaction"
 export const useManagementTransaction = () => {
     const [transactions, setTransactions] = useState<ExtendedTransactionData[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [statusFilter, setStatusFilter] = useState<string>('all')
 
     useEffect(() => {
         const unsubscribe = onSnapshot(collection(transactionDb, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string), (querySnapshot) => {
@@ -29,6 +31,12 @@ export const useManagementTransaction = () => {
 
         return () => unsubscribe();
     }, []);
+
+    const filteredTransactions = transactions.filter(transaction => {
+        const matchesSearch = transaction.transactionId.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || transaction.paymentInfo?.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
     const updateTransactionStatus = async (docId: string, newStatus: string) => {
         try {
@@ -79,8 +87,12 @@ export const useManagementTransaction = () => {
     };
 
     return {
-        transactions,
+        transactions: filteredTransactions,
         loading,
-        updateTransactionStatus
+        updateTransactionStatus,
+        searchQuery,
+        setSearchQuery,
+        statusFilter,
+        setStatusFilter
     }
 } 

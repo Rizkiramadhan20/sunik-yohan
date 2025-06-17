@@ -41,7 +41,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="py-8 md:py-12 lg:py-16 bg-gradient-to-b from-white to-gray-50 border-t border-gray-100">
+        <footer className="py-8 bg-gradient-to-b from-white to-gray-50 border-t border-gray-100">
             <LoadingOverlay
                 isLoading={isLoading}
                 message="Loading tracking information..."

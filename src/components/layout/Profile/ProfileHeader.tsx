@@ -1,42 +1,54 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
-
+import { Bell, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-
 import { Badge } from "@/components/ui/badge";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/utils/context/AuthContext";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "@/utils/firebase/transaction";
+import { formatPriceWithSymbol } from '@/base/helper/price';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { TransactionData } from '@/utils/firebase/transaction';
 
 export default function ProfileHeader() {
-    // Mock notifications - replace with real data later
-    const notifications = [
-        {
-            id: 1,
-            title: "Pesanan baru",
-            message: "Pesanan #12345 telah diterima",
-            time: "5 menit yang lalu",
-            read: false,
-        },
-        {
-            id: 2,
-            title: "Pembayaran berhasil",
-            message: "Pembayaran untuk pesanan #12344 telah dikonfirmasi",
-            time: "1 jam yang lalu",
-            read: true,
-        },
-    ];
+    const { user } = useAuth();
+    const [notifications, setNotifications] = useState<TransactionData[]>([]);
+    const router = useRouter();
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    const handleTransactionClick = () => {
+        router.push(`/profile/transaction/transaction`);
+    };
+
+    useEffect(() => {
+        if (!user?.uid) return;
+
+        const transactionsRef = collection(db, 'transaction');
+        const q = query(
+            transactionsRef,
+            where('userId', '==', user.uid)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const newTransactions = snapshot.docs.map(doc => ({
+                ...doc.data(),
+                transactionId: doc.id
+            })) as TransactionData[];
+            setNotifications(newTransactions);
+        });
+
+        return () => unsubscribe();
+    }, [user?.uid]);
 
     return (
         <div className="h-16 border-b flex items-center justify-between px-4 lg:px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -55,50 +67,66 @@ export default function ProfileHeader() {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="relative h-9 w-9">
                             <Bell className="h-4 w-4" />
-                            {unreadCount > 0 && (
+                            {notifications.length > 0 && (
                                 <Badge
                                     variant="destructive"
                                     className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
                                 >
-                                    {unreadCount}
+                                    {notifications.length}
                                 </Badge>
                             )}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] lg:w-80">
-                        <div className="flex items-center justify-between px-4 py-2 border-b">
-                            <h2 className="font-semibold">Notifications</h2>
-                            <Button variant="ghost" size="sm" className="h-8">
-                                Mark all as read
-                            </Button>
+                    <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] lg:w-96">
+                        <div className="px-4 py-3 border-b">
+                            <h3 className="font-semibold text-base">Recent Transactions</h3>
                         </div>
+                        <DropdownMenuSeparator />
                         <ScrollArea className="h-[300px]">
-                            {notifications.length > 0 ? (
-                                <div className="p-2">
-                                    {notifications.map((notification) => (
-                                        <DropdownMenuItem
-                                            key={notification.id}
-                                            className="flex flex-col items-start gap-1 p-3 cursor-pointer"
-                                        >
-                                            <div className="flex items-center justify-between w-full">
-                                                <span className="font-medium">{notification.title}</span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    {notification.time}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground">
-                                                {notification.message}
-                                            </p>
-                                            {!notification.read && (
-                                                <div className="w-2 h-2 rounded-full bg-primary mt-1" />
-                                            )}
-                                        </DropdownMenuItem>
-                                    ))}
+                            {notifications.length === 0 ? (
+                                <div className="p-6 text-center text-sm text-muted-foreground">
+                                    No recent transactions
                                 </div>
                             ) : (
-                                <div className="p-4 text-center text-muted-foreground">
-                                    No notifications
-                                </div>
+                                notifications.map((transaction) => (
+                                    <DropdownMenuItem
+                                        key={transaction.transactionId}
+                                        className="flex flex-col items-start gap-2 p-4 hover:bg-accent/50 cursor-pointer"
+                                        onClick={() => handleTransactionClick()}
+                                    >
+                                        <div className="flex items-center gap-3 w-full">
+                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-primary/10">
+                                                {transaction.userInfo.photoURL ? (
+                                                    <Image
+                                                        src={transaction.userInfo.photoURL}
+                                                        alt={transaction.userInfo.displayName}
+                                                        width={40}
+                                                        height={40}
+                                                        className="object-cover"
+                                                    />
+                                                ) : (
+                                                    <User className="w-5 h-5 text-primary" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{transaction.userInfo.displayName}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {new Date(transaction.orderDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between w-full">
+                                            <p className="text-sm text-muted-foreground truncate">Transaksi #{transaction.transactionId}</p>
+                                            <p className="text-sm font-medium ml-2 flex-shrink-0">{formatPriceWithSymbol(transaction.totalAmount.toString())}</p>
+                                        </div>
+                                        <div className={`text-xs px-3 py-1.5 rounded-full font-medium ${transaction.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                            transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-red-100 text-red-700'
+                                            }`}>
+                                            {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                                        </div>
+                                    </DropdownMenuItem>
+                                ))
                             )}
                         </ScrollArea>
                     </DropdownMenuContent>

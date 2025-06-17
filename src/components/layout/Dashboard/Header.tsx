@@ -1,12 +1,10 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/utils/context/AuthContext';
 
-import { User, LogOut, Bell, Mail, Menu } from 'lucide-react';
-
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { User, Bell, Menu } from 'lucide-react';
 
 import {
     DropdownMenu,
@@ -17,16 +15,58 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
+
+import { formatPriceWithSymbol } from '@/base/helper/price';
+
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+
+import { db } from '@/utils/firebase/transaction';
+
+import { TransactionData } from '@/utils/firebase/transaction';
+
+import Image from 'next/image';
+
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
     onMenuClick?: () => void;
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const [showNotifications, setShowNotifications] = useState(false);
-    const [showContacts, setShowContacts] = useState(false);
+    const [recentTransactions, setRecentTransactions] = useState<TransactionData[]>([]);
+    const router = useRouter();
+
+    const handleTransactionClick = () => {
+        setShowNotifications(false);
+        router.push(`/dashboard/transaction/transaction`);
+    };
+
+    useEffect(() => {
+        const fetchRecentTransactions = async () => {
+            try {
+                const recentQuery = query(
+                    collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_TRANSACTION as string),
+                    orderBy('orderDate', 'desc'),
+                    limit(10)
+                );
+                const recentSnapshot = await getDocs(recentQuery);
+                const recentData = recentSnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    transactionId: doc.id
+                })) as TransactionData[];
+                setRecentTransactions(recentData);
+            } catch (error) {
+                console.error('Error fetching recent transactions:', error);
+            }
+        };
+
+        fetchRecentTransactions();
+    }, []);
+
     return (
         <header className="sticky top-0 z-40 w-full bg-background border-b">
             <div className="flex items-center justify-between h-16 px-4">
@@ -53,102 +93,68 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
                 {/* Right side - Profile and notifications */}
                 <div className="flex items-center gap-2 lg:gap-4">
-                    {/* Contacts */}
-                    <DropdownMenu open={showContacts} onOpenChange={setShowContacts}>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="relative hidden sm:flex">
-                                <Mail className="w-5 h-5" />
-                                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center">
-                                    3
-                                </Badge>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-80">
-                            <div className="px-4 py-2 border-b">
-                                <h3 className="font-semibold">Contact Messages</h3>
-                            </div>
-                            <DropdownMenuSeparator />
-                            <div className="max-h-96 overflow-y-auto">
-                                <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
-                                    <div className="flex items-center gap-2">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src="/avatars/01.png" alt="User" />
-                                            <AvatarFallback>JD</AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p className="text-sm font-medium">John Doe</p>
-                                            <p className="text-xs text-muted-foreground">2 hours ago</p>
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">Interested in your property listing...</p>
-                                </DropdownMenuItem>
-                            </div>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
                     {/* Notifications */}
                     <DropdownMenu open={showNotifications} onOpenChange={setShowNotifications}>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="relative hidden sm:flex">
+                            <Button variant="ghost" size="icon" className="relative">
                                 <Bell className="w-5 h-5" />
                                 <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center">
-                                    2
+                                    {recentTransactions.length}
                                 </Badge>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-80">
-                            <div className="px-4 py-2 border-b">
-                                <h3 className="font-semibold">Notifications</h3>
+                        <DropdownMenuContent align="end" className="w-96">
+                            <div className="px-4 py-3 border-b">
+                                <h3 className="font-semibold text-base">Recent Transactions</h3>
                             </div>
                             <DropdownMenuSeparator />
-                            <div className="max-h-96 overflow-y-auto">
-                                <DropdownMenuItem className="flex flex-col items-start gap-1 p-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                            <Bell className="w-4 h-4 text-primary" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">New Property Listed</p>
-                                            <p className="text-xs text-muted-foreground">1 hour ago</p>
-                                        </div>
+                            <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                {recentTransactions.length === 0 ? (
+                                    <div className="p-6 text-center text-sm text-muted-foreground">
+                                        No recent transactions
                                     </div>
-                                    <p className="text-sm text-muted-foreground">A new property has been listed in your area...</p>
-                                </DropdownMenuItem>
+                                ) : (
+                                    recentTransactions.map((transaction) => (
+                                        <DropdownMenuItem
+                                            key={transaction.transactionId}
+                                            className="flex flex-col items-start gap-2 p-4 hover:bg-accent/50 cursor-pointer"
+                                            onClick={() => handleTransactionClick()}
+                                        >
+                                            <div className="flex items-center gap-3 w-full">
+                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ring-1 ring-primary/10">
+                                                    {transaction.userInfo.photoURL ? (
+                                                        <Image
+                                                            src={transaction.userInfo.photoURL}
+                                                            alt={transaction.userInfo.displayName}
+                                                            width={40}
+                                                            height={40}
+                                                            className="object-cover"
+                                                        />
+                                                    ) : (
+                                                        <User className="w-5 h-5 text-primary" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium truncate">{transaction.userInfo.displayName}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {new Date(transaction.orderDate).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between w-full items-center bg-muted/50 px-3 py-2 rounded-md">
+                                                <p className="text-sm text-muted-foreground truncate">Transaksi #{transaction.transactionId}</p>
+                                                <p className="text-sm font-medium ml-2 flex-shrink-0">{formatPriceWithSymbol(transaction.totalAmount.toString())}</p>
+                                            </div>
+                                            <div className={`text-xs px-3 py-1.5 rounded-full font-medium ${transaction.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-red-100 text-red-700'
+                                                }`}>
+                                                {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                                            </div>
+                                        </DropdownMenuItem>
+                                    ))
+                                )}
                             </div>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Profile */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="flex items-center gap-2 lg:gap-3">
-                                <Avatar>
-                                    {user?.photoURL ? (
-                                        <AvatarImage src={user.photoURL} alt="Profile" />
-                                    ) : (
-                                        <AvatarFallback>
-                                            <User className="w-4 h-4" />
-                                        </AvatarFallback>
-                                    )}
-                                </Avatar>
-                                <div className="hidden sm:block text-left">
-                                    <p className="text-sm font-medium text-foreground line-clamp-1 max-w-[120px] lg:max-w-[200px]">
-                                        {user?.displayName || 'User'}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">Super Admin</p>
-                                </div>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                            <div className="px-4 py-2 border-b">
-                                <p className="text-sm font-medium">{user?.displayName || 'User'}</p>
-                                <p className="text-xs text-muted-foreground">{user?.email}</p>
-                            </div>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
-                                <LogOut className="w-4 h-4 mr-2" />
-                                Logout
-                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
