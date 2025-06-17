@@ -1,8 +1,4 @@
-export { metadata };
-
 import { metadata } from "@/base/meta/Metadata";
-
-metadata.manifest = "/manifest.json";
 
 import Providers from "@/base/routing/Provider";
 
@@ -11,6 +7,10 @@ import Pathname from "@/base/routing/Pathname";
 import { poppins, spaceGrotesk } from "@/base/fonts/Fonts";
 
 import "@/base/style/globals.css";
+
+metadata.manifest = "/manifest.json";
+
+export { metadata };
 
 export default function RootLayout({
   children,

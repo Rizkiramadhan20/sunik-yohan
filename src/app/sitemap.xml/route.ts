@@ -62,51 +62,9 @@ async function getProducts() {
     }
 }
 
-async function getAbout() {
-    try {
-        const aboutRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_ABOUT_CONTENT as string);
-        const querySnapshot = await getDocs(aboutRef);
-        const about = querySnapshot.docs.map(doc => doc.data() as ContentData);
-        const titles = new Set<string>();
-
-        about.forEach((item) => {
-            if (item.title) {
-                titles.add(item.title);
-            }
-        });
-
-        return Array.from(titles);
-    } catch (error) {
-        console.error("Error fetching about titles:", error);
-        return [];
-    }
-}
-
-async function getGallery() {
-    try {
-        const galleryRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_GALLERY as string);
-        const querySnapshot = await getDocs(galleryRef);
-        const gallery = querySnapshot.docs.map(doc => doc.data() as ContentData);
-        const titles = new Set<string>();
-
-        gallery.forEach((item) => {
-            if (item.title) {
-                titles.add(item.title);
-            }
-        });
-
-        return Array.from(titles);
-    } catch (error) {
-        console.error("Error fetching gallery titles:", error);
-        return [];
-    }
-}
-
 async function generateSitemap() {
     const blogSlugs = await getBlogSlugs();
     const productTitles = await getProducts();
-    const aboutTitles = await getAbout();
-    const galleryTitles = await getGallery();
 
     const staticUrls = [
         "/",
