@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 
 import {
     User,
-    LifeBuoy,
     LogOut,
     ChevronRight,
     Shield,
@@ -61,14 +60,13 @@ const sidebarNavItems: NavItem[] = [
 
     {
         title: "Transaksi",
-        href: "/profile/tranksaksi",
+        href: "/profile/transaction",
         icon: CreditCard,
         subItems: [
-            { title: "Tranksaksi", href: "/profile/tranksaksi/tranksaksi" },
-            { title: "Tertunda", href: "/profile/tranksaksi/pending" },
-            { title: "Dikirim", href: "/profile/tranksaksi/delivery" },
-            { title: "Berhasil", href: "/profile/tranksaksi/success" },
-            { title: "Dibatalkan", href: "/profile/tranksaksi/canceled" },
+            { title: "Tranksaksi", href: "/profile/transaction/transaction" },
+            { title: "Tertunda", href: "/profile/transaction/pending" },
+            { title: "Dikirim", href: "/profile/transaction/delivery" },
+            { title: "Selesai", href: "/profile/transaction/completed" },
         ],
     },
 
@@ -93,17 +91,6 @@ const sidebarNavItems: NavItem[] = [
         href: "/profile/profile",
         icon: UserPen,
     },
-
-    {
-        title: "Support",
-        href: "/profile/support",
-        icon: LifeBuoy,
-        subItems: [
-            { title: "Help Center", href: "/profile/support/help" },
-            { title: "Contact Us", href: "/profile/support/contact" },
-            { title: "FAQ", href: "/profile/support/faq" },
-        ],
-    },
 ];
 
 export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
@@ -127,116 +114,127 @@ export default function ProfileSidebar({ onLinkClick }: ProfileSidebarProps) {
         subItems?.some(subItem => pathname === subItem.href) || false;
 
     return (
-        <div className="w-64 bg-background border-r flex flex-col h-full">
-            <div className="p-4">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Avatar className="w-6 h-6">
+        <div className="w-70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-r flex flex-col h-full">
+            <div className="p-6 border-b">
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <Avatar className="w-12 h-12 ring-2 ring-primary/10 ring-offset-2 ring-offset-background">
                             {user.photoURL ? (
                                 <AvatarImage src={user.photoURL} alt={user.displayName || "Profile"} className="object-cover" />
                             ) : (
-                                <AvatarFallback className="text-sm text-primary">
+                                <AvatarFallback className="text-base font-medium bg-primary/5 text-primary">
                                     {user.displayName?.charAt(0) || "U"}
                                 </AvatarFallback>
                             )}
                         </Avatar>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
                     </div>
-                    <div>
-                        <h2 className="text-sm font-medium text-foreground">{user.displayName}</h2>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <div className="flex-1 min-w-0">
+                        <h2 className="text-sm font-semibold text-foreground truncate">{user.displayName}</h2>
+                        <p className="text-xs text-muted-foreground/80 truncate">{user.email}</p>
                     </div>
                 </div>
             </div>
 
-            <ScrollArea className="flex-1 px-2">
-                <nav className="space-y-1">
-                    {sidebarNavItems.map((item) => {
-                        const hasSubItems = item.subItems && item.subItems.length > 0;
-                        const isExpanded = isItemExpanded(item.href);
-                        const isItemActive = isActive(item.href) || isSubItemActive(item.subItems);
+            <ScrollArea className="flex-1">
+                <div className="p-4">
+                    <nav className="space-y-2">
+                        {sidebarNavItems.map((item) => {
+                            const hasSubItems = item.subItems && item.subItems.length > 0;
+                            const isExpanded = isItemExpanded(item.href);
+                            const isItemActive = isActive(item.href) || isSubItemActive(item.subItems);
 
-                        return (
-                            <div key={item.href} className="space-y-1">
-                                {hasSubItems ? (
-                                    <Collapsible
-                                        open={isExpanded}
-                                        onOpenChange={() => toggleItem(item.href)}
-                                    >
-                                        <CollapsibleTrigger asChild>
+                            return (
+                                <div key={item.href} className="space-y-1">
+                                    {hasSubItems ? (
+                                        <Collapsible
+                                            open={isExpanded}
+                                            onOpenChange={() => toggleItem(item.href)}
+                                        >
+                                            <CollapsibleTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    className={cn(
+                                                        "w-full justify-start items-center h-11 px-3 rounded-xl",
+                                                        isItemActive && "bg-primary/5 text-primary font-medium",
+                                                        "hover:bg-primary/5 transition-colors"
+                                                    )}
+                                                >
+                                                    <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center mr-3">
+                                                        <item.icon className={cn(
+                                                            "w-4 h-4",
+                                                            isItemActive ? "text-primary" : "text-muted-foreground"
+                                                        )} />
+                                                    </div>
+                                                    <span className="text-sm">{item.title}</span>
+                                                    <ChevronDown
+                                                        className={cn(
+                                                            "w-4 h-4 ml-auto transition-transform duration-200",
+                                                            isExpanded && "transform rotate-180"
+                                                        )}
+                                                    />
+                                                </Button>
+                                            </CollapsibleTrigger>
+                                            <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                                                {item.subItems?.map((subItem) => (
+                                                    <Link key={subItem.href} href={subItem.href} onClick={onLinkClick}>
+                                                        <Button
+                                                            variant="ghost"
+                                                            className={cn(
+                                                                "w-full justify-start items-center h-9 px-3 text-sm rounded-lg",
+                                                                isActive(subItem.href) && "bg-primary/5 text-primary font-medium",
+                                                                "hover:bg-primary/5 transition-colors"
+                                                            )}
+                                                        >
+                                                            {subItem.title}
+                                                            {isActive(subItem.href) && (
+                                                                <ChevronRight className="w-4 h-4 ml-auto" />
+                                                            )}
+                                                        </Button>
+                                                    </Link>
+                                                ))}
+                                            </CollapsibleContent>
+                                        </Collapsible>
+                                    ) : (
+                                        <Link href={item.href} onClick={onLinkClick}>
                                             <Button
                                                 variant="ghost"
                                                 className={cn(
-                                                    "w-full justify-start items-center h-9 px-2",
-                                                    isItemActive && "bg-primary/10 text-primary"
+                                                    "w-full justify-start items-center h-11 px-3 rounded-xl",
+                                                    isItemActive && "bg-primary/5 text-primary font-medium",
+                                                    "hover:bg-primary/5 transition-colors"
                                                 )}
                                             >
-                                                <item.icon className={cn(
-                                                    "w-4 h-4 mr-2",
-                                                    isItemActive ? "text-primary" : "text-muted-foreground"
-                                                )} />
+                                                <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center mr-3">
+                                                    <item.icon className={cn(
+                                                        "w-4 h-4",
+                                                        isItemActive ? "text-primary" : "text-muted-foreground"
+                                                    )} />
+                                                </div>
                                                 <span className="text-sm">{item.title}</span>
-                                                <ChevronDown
-                                                    className={cn(
-                                                        "w-4 h-4 ml-auto transition-transform duration-200",
-                                                        isExpanded && "transform rotate-180"
-                                                    )}
-                                                />
+                                                {isItemActive && (
+                                                    <ChevronRight className="w-4 h-4 ml-auto" />
+                                                )}
                                             </Button>
-                                        </CollapsibleTrigger>
-                                        <CollapsibleContent className="pl-4 space-y-1">
-                                            {item.subItems?.map((subItem) => (
-                                                <Link key={subItem.href} href={subItem.href} onClick={onLinkClick}>
-                                                    <Button
-                                                        variant="ghost"
-                                                        className={cn(
-                                                            "w-full justify-start items-center h-8 px-2 text-sm",
-                                                            isActive(subItem.href) && "bg-primary/10 text-primary"
-                                                        )}
-                                                    >
-                                                        {subItem.title}
-                                                        {isActive(subItem.href) && (
-                                                            <ChevronRight className="w-4 h-4 ml-auto" />
-                                                        )}
-                                                    </Button>
-                                                </Link>
-                                            ))}
-                                        </CollapsibleContent>
-                                    </Collapsible>
-                                ) : (
-                                    <Link href={item.href} onClick={onLinkClick}>
-                                        <Button
-                                            variant="ghost"
-                                            className={cn(
-                                                "w-full justify-start items-center h-9 px-2",
-                                                isItemActive && "bg-primary/10 text-primary"
-                                            )}
-                                        >
-                                            <item.icon className={cn(
-                                                "w-4 h-4 mr-2",
-                                                isItemActive ? "text-primary" : "text-muted-foreground"
-                                            )} />
-                                            <span className="text-sm">{item.title}</span>
-                                            {isItemActive && (
-                                                <ChevronRight className="w-4 h-4 ml-auto" />
-                                            )}
-                                        </Button>
-                                    </Link>
-                                )}
-                            </div>
-                        );
-                    })}
-                </nav>
+                                        </Link>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </nav>
+                </div>
             </ScrollArea>
 
-            <div className="p-2">
-                <Separator className="mb-2" />
+            <div className="p-4 border-t">
                 <Button
                     variant="ghost"
-                    className="w-full justify-start items-center h-9 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="w-full justify-start items-center h-11 px-3 rounded-xl text-destructive hover:text-destructive hover:bg-destructive/5 transition-colors"
                     onClick={logout}
                 >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    <span className="text-sm">Logout</span>
+                    <div className="w-8 h-8 rounded-lg bg-destructive/5 flex items-center justify-center mr-3">
+                        <LogOut className="w-4 h-4 text-destructive" />
+                    </div>
+                    <span className="text-sm font-medium">Logout</span>
                 </Button>
             </div>
         </div>

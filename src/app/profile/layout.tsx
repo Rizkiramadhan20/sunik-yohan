@@ -1,13 +1,13 @@
 "use client";
 
 import { useAuth } from "@/utils/context/AuthContext";
-import { Role } from "@/types/Auth";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import ProfileSidebar from "@/components/layout/Profile/ProfileSidebar";
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import ProfileHeader from "@/components/layout/Profile/ProfileHeader";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function ProfileLayout({
     children,
@@ -15,78 +15,53 @@ export default function ProfileLayout({
     children: React.ReactNode;
 }) {
     const { user, hasRole } = useAuth();
-    const router = useRouter();
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Handle authentication and role check
     useEffect(() => {
-        if (!user) {
-            router.push("/signin");
-        } else if (!hasRole(Role.USER)) {
-            router.push("/");
-        }
-    }, [user, router, hasRole]);
-
-    // Handle responsive layout
-    useEffect(() => {
-        const handleResize = () => {
-            const mobile = window.innerWidth < 1024;
-            setIsMobile(mobile);
-            if (!mobile) {
-                setIsSidebarOpen(false);
-            }
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024);
         };
 
-        // Initial check
-        handleResize();
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
 
-        // Add event listener
-        window.addEventListener('resize', handleResize);
-
-        // Cleanup
-        return () => window.removeEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Early return if not authenticated
-    if (!user || !hasRole(Role.USER)) return null;
+    if (!user) {
+        redirect("/auth/login");
+    }
 
     return (
-        <div className="flex h-screen bg-background">
-            {/* Mobile Sidebar */}
-            {isMobile && (
-                <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-                    <SheetContent side="left" className="p-0 w-80">
-                        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                        <ProfileSidebar onLinkClick={() => setIsSidebarOpen(false)} />
-                    </SheetContent>
-                </Sheet>
-            )}
-
+        <div className="flex min-h-screen">
             {/* Desktop Sidebar */}
-            {!isMobile && (
-                <aside className="fixed top-0 left-0 z-30 h-screen bg-background border-r">
-                    <ProfileSidebar />
-                </aside>
-            )}
+            <div className="hidden lg:block fixed inset-y-0 left-0 w-70">
+                <ProfileSidebar />
+            </div>
 
-            {/* Main content */}
-            <div className="flex-1 flex flex-col min-h-screen lg:ml-64">
-                {/* Mobile Header */}
-                {isMobile && (
-                    <div className="flex items-center justify-between p-4 border-b">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="lg:hidden"
-                        >
-                            <Menu className="h-5 w-5" />
-                        </Button>
-                    </div>
-                )}
-                {/* Page content */}
-                <main className="flex-1 px-4 py-4 overflow-x-hidden">
+            {/* Mobile Sidebar */}
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="lg:hidden fixed top-4 left-4 z-50"
+                    >
+                        <Menu className="h-5 w-5" />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-70">
+                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                    <ProfileSidebar onLinkClick={() => setIsSidebarOpen(false)} />
+                </SheetContent>
+            </Sheet>
+
+            <div className="flex-1 lg:ml-70">
+                <div className="fixed top-0 right-0 left-0 lg:left-70 z-10">
+                    <ProfileHeader />
+                </div>
+                <main className="p-4 lg:p-6 pt-20 lg:pt-24">
                     {children}
                 </main>
             </div>
