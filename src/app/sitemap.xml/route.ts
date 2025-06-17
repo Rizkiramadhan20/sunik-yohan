@@ -34,7 +34,9 @@ async function getBlogSlugs() {
     try {
         const blogsRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_BLOG as string);
         const querySnapshot = await getDocs(blogsRef);
-        const blogs = querySnapshot.docs.map(doc => doc.data() as BlogData);
+        const blogs = querySnapshot.docs
+            .map(doc => doc.data() as BlogData)
+            .filter(blog => typeof blog.slug === "string" && blog.slug.length > 0);
         return blogs.map((blog) => blog.slug);
     } catch (error) {
         console.error("Error fetching blog slugs:", error);
@@ -46,13 +48,13 @@ async function getProducts() {
     try {
         const productsRef = collection(db, process.env.NEXT_PUBLIC_COLLECTIONS_PRODUCTS as string);
         const querySnapshot = await getDocs(productsRef);
-        const products = querySnapshot.docs.map(doc => doc.data() as ContentData);
+        const products = querySnapshot.docs
+            .map(doc => doc.data() as ContentData)
+            .filter(product => typeof product.title === "string" && product.title.length > 0);
         const titles = new Set<string>();
 
         products.forEach((product) => {
-            if (product.title) {
-                titles.add(product.title);
-            }
+            titles.add(product.title);
         });
 
         return Array.from(titles);
