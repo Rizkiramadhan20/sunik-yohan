@@ -8,6 +8,8 @@ import { poppins, spaceGrotesk } from "@/base/fonts/Fonts";
 
 import { metadata } from "@/base/meta/Metadata";
 
+export { metadata };
+
 import "@/base/style/globals.css";
 
 export default function RootLayout({

@@ -1,11 +1,11 @@
 import React from 'react'
 
-import TransactionLayout from '@/hooks/profile/transaction/transaction/TransactionLayout'
+import TransactionLayout from '@/hooks/profile/transaction/delivery/TransactionLayout'
 
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'Transaction | Dashboard',
+    title: 'Transaction Delivery | Dashboard',
     description: 'Dashboard',
 }
 

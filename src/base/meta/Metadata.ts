@@ -127,12 +127,12 @@ export const metadata = {
         site: "@sunik_yohan",
         images: ["/og-image.jpg"],
     },
-    // verification: {
-    //     google: process.env.NEXT_PUBLIC_GOOGLE_SEARCH_CONSOLE_ID,
-    //     googleTagManager: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
-    //     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
-    //     bing: process.env.NEXT_PUBLIC_BING_VERIFICATION,
-    // },
+    verification: {
+        google: process.env.NEXT_PUBLIC_GOOGLE_SEARCH_CONSOLE_ID,
+        googleTagManager: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
+        yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
+        bing: process.env.NEXT_PUBLIC_BING_VERIFICATION,
+    },
     robots: {
         index: true,
         follow: true,
