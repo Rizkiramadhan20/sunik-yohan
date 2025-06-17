@@ -119,8 +119,6 @@ async function generateSitemap() {
     const dynamicUrls = [
         ...blogSlugs.map((slug) => `/blog/${slug}`),
         ...productTitles.map((title) => `/products/${slugify(title)}`),
-        ...aboutTitles.map((title) => `/about/${slugify(title)}`),
-        ...galleryTitles.map((title) => `/gallery/${slugify(title)}`),
     ];
 
     const urls = [...staticUrls, ...dynamicUrls];

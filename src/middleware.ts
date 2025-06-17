@@ -12,8 +12,6 @@ const publicPaths = [
   "/signin",
   "/signup",
   "/forgot-password",
-  "/sitemap.xml",
-  "/robots.txt"
 ];
 
 export async function middleware(request: NextRequest) {
