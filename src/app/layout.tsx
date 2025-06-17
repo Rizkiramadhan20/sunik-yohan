@@ -19,9 +19,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <head>
-        <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SEARCH_CONSOLE_ID as string} />
-      </head>
       <body
         className={`${poppins.variable} ${spaceGrotesk.variable} antialiased`}
       >
