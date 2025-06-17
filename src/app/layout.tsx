@@ -1,6 +1,4 @@
-import type { Metadata } from "next";
-
-import "@/base/style/globals.css";
+metadata.manifest = "/manifest.json";
 
 import Providers from "@/base/routing/Provider";
 
@@ -8,10 +6,9 @@ import Pathname from "@/base/routing/Pathname";
 
 import { poppins, spaceGrotesk } from "@/base/fonts/Fonts";
 
-export const metadata: Metadata = {
-  title: "Sunik Yohan",
-  description: "Temukan kesegaran minuman boba terbaik hanya di Sunik Yohan! Dengan varian rasa yang menggoda dan topping melimpah, rasakan sensasi manis yang tak terlupakan",
-};
+import { metadata } from "@/base/meta/Metadata";
+
+import "@/base/style/globals.css";
 
 export default function RootLayout({
   children,
@@ -19,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body
         className={`${poppins.variable} ${spaceGrotesk.variable} antialiased`}
       >
