@@ -23,6 +23,7 @@ import TransactionEror from "@/hooks/(pages)/transaction/TransactionEror"
 import HeroTransaction from "@/hooks/(pages)/transaction/HeroTransaction"
 
 import { TransactionData } from '@/types/Transaction';
+import { toast } from "sonner";
 
 export default function TransactionPage() {
     const params = useParams();
@@ -97,7 +98,23 @@ export default function TransactionPage() {
                                 <div className="space-y-3 sm:space-y-4">
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600">ID Transaksi</span>
-                                        <span className="font-medium">{transaction.transactionId}</span>
+                                        <span className="font-medium flex items-center gap-2">
+                                            {transaction.transactionId}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(transaction.transactionId);
+                                                    toast.success('ID Transaksi berhasil disalin!');
+                                                }}
+                                                className="ml-2 p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-[#FF204E] transition-colors flex items-center"
+                                                title="Salin ID Transaksi"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                </svg>
+                                                Salin
+                                            </button>
+                                        </span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-gray-600">Tanggal Pesanan</span>
