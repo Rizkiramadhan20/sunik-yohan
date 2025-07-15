@@ -401,7 +401,7 @@ Terima kasih atas pesanan Anda! 🎉`;
                                                 const encodedMessage = encodeURIComponent(orderDetails.trim());
 
                                                 // Open WhatsApp with pre-filled message
-                                                window.open(`https://wa.me/6281398632939?text=${encodedMessage}`, '_blank');
+                                                window.open(`https://wa.me/6281284258290?text=${encodedMessage}`, '_blank');
                                             }}
                                             className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-2.5 sm:py-3 px-3 sm:px-4 rounded-xl transition-colors duration-200 cursor-pointer text-sm sm:text-base"
                                         >
